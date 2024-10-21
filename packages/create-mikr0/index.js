@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const prompts = require("prompts");
 
-export async function run({ debugging = false } = {}) {
+async function run({ debugging = false } = {}) {
 	const { creationType } = await prompts([
 		{
 			type: "select",
@@ -23,8 +23,6 @@ export async function run({ debugging = false } = {}) {
 		await createRegistry({ debugging });
 	}
 }
-
-run();
 
 async function createRegistry({ debugging }) {
 	const { folder, database, storage } = await prompts([
@@ -196,3 +194,5 @@ function createFolder(folderName) {
 		throw err;
 	}
 }
+
+run();
