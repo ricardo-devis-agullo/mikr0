@@ -1,0 +1,22 @@
+{
+  "name": "registry",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "guestline": "node --experimental-strip-types --env-file=.env guestline.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "mikro": "*",
+    "sqlite3": "^5.1.7",
+    "tedious": "^18.6.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.1"
+  }
+}

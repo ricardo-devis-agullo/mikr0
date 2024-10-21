@@ -1,0 +1,22 @@
+{
+  "name": "component",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "start": "node ../../packages/mikro/dist/cli.js dev",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "mikro": "*",
+    "solid-js": "^1.8.20"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1",
+    "vite-plugin-solid": "^2.10.2"
+  }
+}
