@@ -1,4 +1,4 @@
-import { createRegistry } from "mikro";
+import { createRegistry } from "mikr0";
 
 createRegistry({
   database: {

@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "start": "node ../../packages/mikro/dist/cli.js dev",
+    "start": "node ../../packages/mikr0/dist/cli.js dev",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "mikro": "*",
+    "mikr0": "*",
     "solid-js": "^1.8.20"
   },
   "devDependencies": {

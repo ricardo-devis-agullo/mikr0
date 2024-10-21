@@ -1,5 +1,5 @@
-# Mikro
+# Mikr0
 
-Mikro is a micro-frontend library.
+Mikr0 is a micro-frontend library.
 
-This repository contains the Mikro source code. STILL IN DEVELOPMENT
+This repository contains the Mikr0 source code. STILL IN DEVELOPMENT

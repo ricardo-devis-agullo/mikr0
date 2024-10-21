@@ -1,4 +1,4 @@
-import { createRegistry } from "../../packages/mikro/src/index.ts";
+import { createRegistry } from "../../packages/mikr0/src/index.ts";
 
 createRegistry({
 	database: {

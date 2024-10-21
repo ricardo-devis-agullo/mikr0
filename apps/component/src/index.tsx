@@ -5,7 +5,7 @@ import "./index.css";
 import fs from "node:fs";
 import App from "./App";
 
-import { createComponent } from "mikro/dev";
+import { createComponent } from "mikr0/dev";
 
 export default createComponent({
 	parameters: {
