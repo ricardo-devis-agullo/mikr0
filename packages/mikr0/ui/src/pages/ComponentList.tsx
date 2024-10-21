@@ -43,6 +43,10 @@ function EmptyList() {
 			<div class="mt-8 flex flex-col space-y-4 border-solid border-2 p-4 text-sm">
 				<p>Create your first component running</p>
 				<p class="font-mono">npx create mikr0@latest</p>
+				<p>And when you are ready to publish it</p>
+				<p class="font-mono">
+					npm run publish-component -- --registry {window.location.origin}
+				</p>
 			</div>
 		</div>
 	);
