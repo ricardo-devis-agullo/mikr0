@@ -10,7 +10,7 @@ interface CardProps {
 	lastVersion: string;
 }
 
-function Card(props: CardProps) {
+function ComponentCard(props: CardProps) {
 	const published = new Date(props.lastPublished);
 	const formatted = new Intl.DateTimeFormat("en-US", {
 		year: "numeric",
@@ -36,9 +36,23 @@ function Card(props: CardProps) {
 	);
 }
 
+function EmptyList() {
+	return (
+		<div>
+			<p>No components have been published yet.</p>
+			<div class="mt-8 flex flex-col space-y-4 border-solid border-2 p-4 text-sm">
+				<p>Create your first component running</p>
+				<p class="font-mono">npx create mikr0@latest</p>
+			</div>
+		</div>
+	);
+}
+
 export default function ComponentList() {
 	const [search, setSearch] = createSignal("");
 	const componentNames = Object.keys(window.mikr0Data.components);
+	if (componentNames.length === 0) return <EmptyList />;
+
 	const filtered = createMemo(() => {
 		const names = !search()
 			? componentNames
@@ -72,7 +86,9 @@ export default function ComponentList() {
 					onInput={(e) => setSearch(e.currentTarget.value)}
 				/>
 			</TextFieldRoot>
-			<For each={filtered()}>{(component) => <Card {...component} />}</For>
+			<For each={filtered()}>
+				{(component) => <ComponentCard {...component} />}
+			</For>
 		</div>
 	);
 }

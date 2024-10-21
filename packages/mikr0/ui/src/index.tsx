@@ -1,6 +1,5 @@
 /* @refresh reload */
 import "prismjs";
-import { ColorModeProvider, ColorModeScript } from "@kobalte/core";
 import { MetaProvider } from "@solidjs/meta";
 import { Route, Router } from "@solidjs/router";
 import { render } from "solid-js/web";
@@ -32,13 +31,10 @@ render(
 	() => (
 		<MetaProvider>
 			<ThemeProvider defaultTheme="system">
-				<ColorModeScript />
-				<ColorModeProvider>
-					<Router root={Layout as any}>
-						<Route path="/ui/" component={ComponentList} />
-						<Route path="/ui/component/:name" component={Component} />
-					</Router>
-				</ColorModeProvider>
+				<Router root={Layout as any}>
+					<Route path="/ui/" component={ComponentList} />
+					<Route path="/ui/component/:name" component={Component} />
+				</Router>
 			</ThemeProvider>
 		</MetaProvider>
 	),
