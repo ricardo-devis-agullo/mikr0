@@ -1,6 +1,6 @@
 {
   "name": "create-mikr0",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "bin": {
     "create-mikr0": "./index.js"
