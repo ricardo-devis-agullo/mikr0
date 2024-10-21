@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require("node:fs");
-const path = require("node:path");
-const prompts = require("prompts");
+import fs from "node:fs";
+import path from "node:path";
+import prompts from "prompts";
 
 async function run({ debugging = false } = {}) {
 	const { creationType } = await prompts([

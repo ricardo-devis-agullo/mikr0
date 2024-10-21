@@ -1,6 +1,7 @@
 {
   "name": "create-mikr0",
   "version": "0.0.4",
+  "type": "module",
   "main": "index.js",
   "bin": {
     "create-mikr0": "./index.js"
@@ -17,5 +18,8 @@
     "index.js",
     "component",
     "registry"
-  ]
+  ],
+  "dependencies": {
+    "prompts": "^2.4.2"
+  }
 }
