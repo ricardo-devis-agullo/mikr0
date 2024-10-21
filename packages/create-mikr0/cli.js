@@ -54,7 +54,7 @@ async function createRegistry({ debugging }) {
 	]);
 
 	const dependencies = {
-		mikr0: "0.0.1-beta.1",
+		mikr0: "0.0.1-beta.2",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";
