@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-import { run } from "./cli.js";
+const { run } = require("./cli.js");
 
 run();
