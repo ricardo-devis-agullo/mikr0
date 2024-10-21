@@ -1,0 +1,19 @@
+- Authenticate publish
+- Add "registry" option to component entry so CLI can read from it
+- Add auth + user creation
+- Add component actions
+- Allow specifying entry point
+- Use import maps on vite when bundling
+- Add solid template
+- Add vanilla template
+- Add svelte template
+- Add vue template
+- Add s3 storage adapter
+- Add CLI option to run registry from json
+- Handle errors on CLI when publishing the registry
+- Improve performance on publishing (too much redundancy)
+- Allow multiple versions of a dependency
+- Add postgres sql adapter
+- Add mysql sql adapter
+- Add JSON schema for json config style
+- Bundle superjson on registry (make it an option)
