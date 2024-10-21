@@ -64,7 +64,10 @@ export async function createRegistry(
 				reply.redirect("/ui", 302);
 			});
 		}
-		const address = await server.listen({ port: config.port as number });
+		const address = await server.listen({
+			port: config.port as number,
+			host: "0.0.0.0",
+		});
 
 		console.log(`Server listening at ${address}`);
 	} catch (err) {
