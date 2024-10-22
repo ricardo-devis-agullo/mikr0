@@ -35,7 +35,7 @@ export function AzureStorage(options: {
 	privateContainerName: string;
 	accountName: string;
 	accountKey?: string;
-}) {
+}): StaticStorage {
 	let privateClient: ContainerClient | undefined = undefined;
 	let publicClient: ContainerClient | undefined = undefined;
 
@@ -59,30 +59,23 @@ export function AzureStorage(options: {
 	};
 
 	const get = async (filePath: string) => {
-		const getFromAzure = async () => {
-			const { privateClient } = getClient();
-			const blobClient = privateClient.getBlobClient(filePath);
-			try {
-				const downloadBlockBlobResponse = await blobClient.download();
-				// biome-ignore lint/style/noNonNullAssertion: <explanation>
-				const streamBody = downloadBlockBlobResponse.readableStreamBody!;
-				const fileContent = (await streamToBuffer(streamBody)).toString();
+		const { privateClient } = getClient();
+		const blobClient = privateClient.getBlobClient(filePath);
+		try {
+			const downloadBlockBlobResponse = await blobClient.download();
+			const streamBody = downloadBlockBlobResponse.readableStreamBody!;
+			const fileContent = (await streamToBuffer(streamBody)).toString();
 
-				return fileContent;
-			} catch (err: any) {
-				if (err.statusCode === 404) {
-					throw {
-						code: "file_not_found",
-						msg: `File "${filePath}" not found`,
-					};
-				}
-				throw err;
+			return fileContent;
+		} catch (err: any) {
+			if (err.statusCode === 404) {
+				throw {
+					code: "file_not_found",
+					msg: `File "${filePath}" not found`,
+				};
 			}
-		};
-
-		const result = await getFromAzure();
-
-		return result;
+			throw err;
+		}
 	};
 
 	const save = async (dirInput: string, dirOutput: string) => {

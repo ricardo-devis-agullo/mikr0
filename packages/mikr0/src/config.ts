@@ -48,10 +48,40 @@ const AzureStorage = Type.Object({
 		accountKey: Type.Optional(Type.String()),
 	}),
 });
+
+const BaseS3Options = Type.Object({
+	componentsDir: Type.String(),
+	path: Type.String(),
+	verbosity: Type.Optional(Type.Boolean()),
+	refreshInterval: Type.Optional(Type.Number()),
+	bucket: Type.String(),
+	region: Type.String(),
+	sslEnabled: Type.Optional(Type.Boolean()),
+	s3ForcePathStyle: Type.Optional(Type.Boolean()),
+	timeout: Type.Optional(Type.Number()),
+	agentProxy: Type.Optional(Type.Union([Type.Any(), Type.Any()])),
+	endpoint: Type.Optional(Type.String()),
+	debug: Type.Optional(Type.Boolean()),
+});
+const S3Storage = Type.Object({
+	type: Type.Literal("s3"),
+	options: Type.Union([
+		BaseS3Options,
+		Type.Intersect([
+			BaseS3Options,
+			Type.Object({
+				key: Type.String(),
+				secret: Type.String(),
+			}),
+		]),
+	]),
+});
+
 const StaticStorageOpts = Type.Union([
 	FilesystemStorage,
 	MemoryStorage,
 	AzureStorage,
+	S3Storage,
 ]);
 
 export const OptionsSchema = Type.Object({
@@ -95,8 +125,17 @@ type AssertOptionsAreEqual = Assert<
 	// Omitting plugins because TypeBox doesnt support yet variadic any types on functions
 	// https://github.com/sinclairzx81/typebox/issues/931
 	AssertEqual<
-		Omit<Options, "plugins" | "cors" | "availableDependencies">,
-		Omit<OptionsSchema, "plugins" | "cors" | "availableDependencies">
+		Omit<Options, "plugins" | "cors" | "availableDependencies" | "storage">,
+		Omit<
+			OptionsSchema,
+			"plugins" | "cors" | "availableDependencies" | "storage"
+		>
+	>
+>;
+type AssertPlugins = Assert<
+	AssertEqual<
+		Omit<Exclude<Options["plugins"], undefined>[string], "handler">,
+		Omit<Exclude<OptionsSchema["plugins"], undefined>[string], "handler">
 	>
 >;
 

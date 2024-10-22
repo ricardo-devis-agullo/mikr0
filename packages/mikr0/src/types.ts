@@ -1,4 +1,6 @@
 import type { FastifyCorsOptions } from "@fastify/cors";
+import type { Agent as httpAgent } from "node:http";
+import type { Agent as httpsAgent } from "node:https";
 
 type BaseCoreLibraries =
 	| "assert"
@@ -80,10 +82,40 @@ interface AzureStorage {
 	};
 }
 
+type RequireAllOrNone<ObjectType, KeysType extends keyof ObjectType = never> = (
+	| Required<Pick<ObjectType, KeysType>> // Require all of the given keys.
+	| Partial<Record<KeysType, never>> // Require none of the given keys.
+) &
+	Omit<ObjectType, KeysType>; // The rest of the keys.
+
+export type S3Storage = {
+	type: "s3";
+	options: RequireAllOrNone<
+		{
+			componentsDir: string;
+			path: string;
+			verbosity?: boolean;
+			refreshInterval?: number;
+			bucket: string;
+			region: string;
+			key?: string;
+			secret?: string;
+			sslEnabled?: boolean;
+			s3ForcePathStyle?: boolean;
+			timeout?: number;
+			agentProxy?: httpAgent | httpsAgent;
+			endpoint?: string;
+			debug?: boolean;
+		},
+		"key" | "secret"
+	>;
+};
+
 export type StaticStorageOptions =
 	| FilesystemStorage
 	| MemoryStorage
-	| AzureStorage;
+	| AzureStorage
+	| S3Storage;
 
 export interface Options {
 	/**

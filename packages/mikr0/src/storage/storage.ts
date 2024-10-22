@@ -1,5 +1,6 @@
 import type { StaticStorageOptions } from "../types.js";
 import { AzureStorage } from "./azure.js";
+import { S3Storage } from "./s3.js";
 import { FilesystemStorage } from "./filesystem.js";
 import { MemoryStorage } from "./memory.js";
 
@@ -22,5 +23,7 @@ export function StaticStorage(config: StaticStorageOptions): StaticStorage {
 				privateContainerName: config.options.privateContainerName,
 				publicContainerName: config.options.publicContainerName,
 			});
+		case "s3":
+			return S3Storage(config.options);
 	}
 }
