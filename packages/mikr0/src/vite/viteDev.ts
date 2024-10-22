@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import os from "node:os";
 import FastifyExpress from "@fastify/express";
 import Fastify from "fastify";
-import { temporaryDirectory } from "tempy";
 import { createServer } from "vite";
 import esbuild from "esbuild";
 import { createRegistry } from "../Registry.js";
@@ -33,7 +33,7 @@ async function cleanup() {
 }
 
 async function getServerParts(entry: string) {
-	tmpServer = temporaryDirectory();
+	tmpServer = await fs.mkdtemp(path.join(os.tmpdir(), "mikr0-"));
 	await esbuild.build({
 		bundle: true,
 		minify: false,
