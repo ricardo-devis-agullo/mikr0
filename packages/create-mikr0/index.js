@@ -121,7 +121,7 @@ async function createRegistry() {
 		dependencies,
 		devDependencies: {
 			"@types/node": "^22.7.7",
-			typescript: "^5.4.5",
+			typescript: "^5.6.3",
 		},
 	});
 	writeText(
