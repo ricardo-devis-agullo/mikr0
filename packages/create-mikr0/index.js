@@ -91,6 +91,22 @@ async function createRegistry() {
 	}
 
 	createFolder(`./${folder}`);
+	writeText(
+		`./${folder}/Dockerfile`,
+		`FROM node:22-slim AS BUILD_IMAGE
+
+RUN mkdir "/app"
+
+WORKDIR "/app"
+ADD ["./package.json", "./package-lock.json", "./"]
+
+RUN npm install
+
+ADD ["./", "./"]
+
+EXPOSE 3000
+ENTRYPOINT [ "node", "--experimental-strip-types" ,"/app/main.ts" ]`,
+	);
 	writeText(`./${folder}/.gitignore`, ["node_modules"].join("\n"));
 	writeJson(`./${folder}/tsconfig.json`, {
 		compilerOptions: {
