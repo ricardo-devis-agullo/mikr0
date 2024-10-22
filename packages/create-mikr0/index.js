@@ -56,7 +56,7 @@ async function createRegistry() {
 
 	/** @type Record<string, string> */
 	const dependencies = {
-		mikr0: "0.0.1-beta.5",
+		mikr0: "0.0.1-beta.7",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";
@@ -138,7 +138,7 @@ async function createComponent() {
 			type: "text",
 			name: "componentName",
 			message: "Component name",
-			initial: "oc-component",
+			initial: "component",
 		},
 		{
 			type: "select",

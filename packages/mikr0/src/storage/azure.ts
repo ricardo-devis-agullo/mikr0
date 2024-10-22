@@ -17,6 +17,8 @@ const getPaths: (path: string) => Promise<PathsResult> = promisify(
 	nodeDir.paths,
 );
 
+let containersStatus: "unknown" | "checked" = "unknown";
+
 async function streamToBuffer(readableStream: NodeJS.ReadableStream) {
 	return new Promise<Buffer>((resolve, reject) => {
 		const chunks: Buffer[] = [];
@@ -92,11 +94,16 @@ export function AzureStorage(options: {
 	};
 
 	const saveFile = async (filePath: string, fileName: string) => {
+		const { publicClient, privateClient } = getClient();
+		if (containersStatus === "unknown") {
+			await Promise.all([
+				privateClient.createIfNotExists(),
+				publicClient.createIfNotExists(),
+			]);
+			containersStatus = "checked";
+		}
 		const content = await streamToBuffer(fs.createReadStream(filePath));
 
-		/**
-		 * @param {ContainerClient} client
-		 */
 		const uploadToAzureContainer = (client: ContainerClient) => {
 			const fileInfo = getFileInfo(fileName);
 			const blobHTTPHeaders: BlockBlobUploadOptions["blobHTTPHeaders"] = {
@@ -114,7 +121,6 @@ export function AzureStorage(options: {
 			});
 		};
 
-		const { publicClient, privateClient } = getClient();
 		await uploadToAzureContainer(privateClient);
 		if (!isFilePrivate(filePath)) {
 			await uploadToAzureContainer(publicClient);

@@ -18,6 +18,7 @@
 - Allow multiple versions of a dependency
 
 === CUTE LITTLE THINGS
+- Add message of when to do when creating registry through CLI
 - Add JSON schema for json config style
 - Improve performance on publishing (too much redundancy)
 - Add CLI option to run registry from json

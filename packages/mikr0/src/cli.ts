@@ -51,7 +51,7 @@ let {
 					message: "Username",
 				},
 				{
-					type: password ? null : "text",
+					type: password ? null : "password",
 					name: "password",
 					message: "Password",
 				},
