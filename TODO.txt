@@ -1,5 +1,4 @@
 === CRITICAL
-- Authenticate publish
 - Use import maps on vite when bundling
 - Add s3 storage adapter
 - Add component actions
