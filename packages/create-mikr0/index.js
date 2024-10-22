@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import prompts from "prompts";
 
-async function run({ debugging = false } = {}) {
+async function run() {
 	const { creationType } = await prompts([
 		{
 			type: "select",
@@ -20,13 +20,13 @@ async function run({ debugging = false } = {}) {
 	]);
 
 	if (creationType === "component") {
-		await createComponent({ debugging });
+		await createComponent();
 	} else if (creationType === "registry") {
-		await createRegistry({ debugging });
+		await createRegistry();
 	}
 }
 
-async function createRegistry({ debugging }) {
+async function createRegistry() {
 	const { folder, database, storage } = await prompts([
 		{
 			type: "text",
@@ -54,6 +54,7 @@ async function createRegistry({ debugging }) {
 		},
 	]);
 
+	/** @type Record<string, string> */
 	const dependencies = {
 		mikr0: "0.0.1-beta.4",
 	};
@@ -62,6 +63,8 @@ async function createRegistry({ debugging }) {
 	} else if (database === "mssql") {
 		dependencies.tedious = "18.6.1";
 	}
+
+	/** @type any */
 	const config = {
 		auth: {
 			username: "admin",
@@ -87,51 +90,49 @@ async function createRegistry({ debugging }) {
 		};
 	}
 
-	if (!debugging) {
-		createFolder(`./${folder}`);
-		writeText(`./${folder}/.gitignore`, ["node_modules"].join("\n"));
-		writeJson(`./${folder}/tsconfig.json`, {
-			compilerOptions: {
-				esModuleInterop: true,
-				skipLibCheck: true,
-				target: "ESNext",
-				resolveJsonModule: true,
-				moduleDetection: "force",
-				isolatedModules: true,
-				verbatimModuleSyntax: true,
-				strict: true,
-				noEmit: true,
-				module: "NodeNext",
-			},
-		});
-		writeJson(`./${folder}/package.json`, {
-			name: "registry",
-			version: "1.0.0",
-			type: "module",
-			private: true,
-			scripts: {
-				start: "node --experimental-strip-types index.ts",
-			},
-			keywords: [],
-			author: "",
-			license: "ISC",
-			description: "",
-			dependencies,
-			devDependencies: {
-				"@types/node": "^22.7.7",
-				typescript: "^5.6.3",
-			},
-		});
-		writeText(
-			`./${folder}/index.ts`,
-			`import { createRegistry } from "mikr0";
+	createFolder(`./${folder}`);
+	writeText(`./${folder}/.gitignore`, ["node_modules"].join("\n"));
+	writeJson(`./${folder}/tsconfig.json`, {
+		compilerOptions: {
+			esModuleInterop: true,
+			skipLibCheck: true,
+			target: "ESNext",
+			resolveJsonModule: true,
+			moduleDetection: "force",
+			isolatedModules: true,
+			verbatimModuleSyntax: true,
+			strict: true,
+			noEmit: true,
+			module: "NodeNext",
+		},
+	});
+	writeJson(`./${folder}/package.json`, {
+		name: "registry",
+		version: "1.0.0",
+		type: "module",
+		private: true,
+		scripts: {
+			start: "node --experimental-strip-types index.ts",
+		},
+		keywords: [],
+		author: "",
+		license: "ISC",
+		description: "",
+		dependencies,
+		devDependencies: {
+			"@types/node": "^22.7.7",
+			typescript: "^5.4.5",
+		},
+	});
+	writeText(
+		`./${folder}/index.ts`,
+		`import { createRegistry } from "mikr0";
 
 createRegistry(${JSON.stringify(config, null, 2)});`,
-		);
-	}
+	);
 }
 
-async function createComponent({ debugging }) {
+async function createComponent() {
 	const { componentName, template } = await prompts([
 		{
 			type: "text",
@@ -147,9 +148,7 @@ async function createComponent({ debugging }) {
 		},
 	]);
 
-	if (!debugging) {
-		createFolder(`./${componentName}`);
-	}
+	createFolder(`./${componentName}`);
 
 	const templateDir = path.resolve(
 		import.meta.dirname,
@@ -158,16 +157,14 @@ async function createComponent({ debugging }) {
 
 	console.log();
 	console.log("Creating the template");
-	if (!debugging) {
-		fs.cpSync(templateDir, `./${componentName}`, {
-			recursive: true,
-		});
-		writeText(`./${componentName}/.gitignore`, ["node_modules"].join("\n"));
-		replaceJson(`./${componentName}/package.json`, (pkg) => ({
-			...pkg,
-			name: componentName,
-		}));
-	}
+	fs.cpSync(templateDir, `./${componentName}`, {
+		recursive: true,
+	});
+	writeText(`./${componentName}/.gitignore`, ["node_modules"].join("\n"));
+	replaceJson(`./${componentName}/package.json`, (/** @type any */ pkg) => ({
+		...pkg,
+		name: componentName,
+	}));
 
 	console.log("Finished. To start your oc for the first time:");
 	console.log();
@@ -176,19 +173,20 @@ async function createComponent({ debugging }) {
 	console.log("  npm start");
 }
 
-const writeText = (file, text) => fs.writeFileSync(file, text, "utf-8");
-const writeJson = (file, json) =>
+const writeText = (/** @type string */ file, /** @type string */ text) =>
+	fs.writeFileSync(file, text, "utf-8");
+const writeJson = (/** @type string */ file, /** @type any */ json) =>
 	writeText(file, JSON.stringify(json, null, 2));
-function replaceJson(file, transformer) {
+function replaceJson(/** @type string */ file, /** @type any */ transformer) {
 	const json = JSON.parse(fs.readFileSync(file, "utf-8"));
 	const transformed = transformer(json);
 	writeJson(file, transformed);
 }
 
-function createFolder(folderName) {
+function createFolder(/** @type string */ folderName) {
 	try {
 		fs.mkdirSync(`./${folderName}`);
-	} catch (err) {
+	} catch (/** @type any */ err) {
 		if (err.code === "EEXIST") {
 			console.log("Folder already exists");
 			process.exit(1);
