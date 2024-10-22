@@ -4,6 +4,7 @@
 - In dev mode specify params through query params
 
 === NICE TO HAVE
+- Error with nice message when missing a DB library
 - Add auth + user creation
 - Add solid template
 - Add vanilla template

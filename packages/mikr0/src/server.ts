@@ -2,6 +2,7 @@ import Domain from "node:domain";
 import vm from "node:vm";
 import requireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
+import { LRUCache } from "lru-cache";
 
 type Loader = (...args: unknown[]) => Promise<void>;
 
@@ -9,7 +10,7 @@ export default function getServerData(opts: {
 	repository: Repository;
 	dependencies: string[];
 }) {
-	const cache: Map<string, Loader> = new Map();
+	const cache = new LRUCache<string, Loader>({ max: 500 });
 
 	const getLoader = async (name: string, version: string) => {
 		const cached = cache.get(`${name}/${version}`);
