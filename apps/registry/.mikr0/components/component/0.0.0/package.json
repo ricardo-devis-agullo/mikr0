@@ -19,5 +19,15 @@
     "typescript": "^5.5.3",
     "vite": "^5.4.1",
     "vite-plugin-solid": "^2.10.2"
+  },
+  "mikr0": {
+    "parameters": {
+      "position": {
+        "type": "number",
+        "default": 0
+      }
+    },
+    "serverSize": 380,
+    "clientSize": 73
   }
 }

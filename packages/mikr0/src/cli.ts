@@ -64,8 +64,8 @@ let {
 		await sendFolderToServer({
 			distPath: "./dist",
 			serverUrl: registry,
-			username,
-			password,
+			username: username!,
+			password: password!,
 		});
 		return;
 	}
