@@ -3,6 +3,7 @@ import path from "node:path";
 import cors from "@fastify/cors";
 import fastifyMultipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
+import fastifyBasicAuth from "@fastify/basic-auth";
 import Fastify, { type FastifyInstance } from "fastify";
 
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
@@ -27,6 +28,20 @@ export async function createRegistry(
 	);
 
 	server.register(fastifyMultipart);
+	server.register(fastifyBasicAuth, {
+		validate(username, password, _req, _reply, done) {
+			if (
+				username === config.auth.username &&
+				password === config.auth.password
+			) {
+				done();
+			} else {
+				done(new Error("Not authenticated"));
+			}
+		},
+		authenticate: { realm: "Mikr0" },
+	});
+
 	server.decorate("conf", config);
 	server.decorate("repository", Repository({ storage: config.storage }));
 

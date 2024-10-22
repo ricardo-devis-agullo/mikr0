@@ -8,10 +8,11 @@ import FormData from "form-data";
 import undici from "undici";
 import { build } from "./vite/Vite.js";
 import { runServer } from "./vite/viteDev.js";
+import prompts from "prompts";
 
-const {
+let {
 	positionals: [command],
-	values: { registry },
+	values: { registry, username, password },
 } = parseArgs({
 	args: process.argv.slice(2),
 	allowPositionals: true,
@@ -20,6 +21,16 @@ const {
 			type: "string",
 			alias: "r",
 			description: "Registry URL",
+		},
+		username: {
+			type: "string",
+			alias: "u",
+			description: "Username to authenticate with",
+		},
+		password: {
+			type: "string",
+			alias: "p",
+			description: "Password to authenticate with",
 		},
 	},
 });
@@ -32,8 +43,30 @@ const {
 
 	if (command === "publish") {
 		if (!registry) exit("Missing --registry");
+		if (!username || !password) {
+			const result = await prompts([
+				{
+					type: username ? null : "text",
+					name: "username",
+					message: "Username",
+				},
+				{
+					type: password ? null : "text",
+					name: "password",
+					message: "Password",
+				},
+			]);
+			username ??= result.username;
+			password ??= result.password;
+		}
+		if (!password) exit("Missing --password");
 		await build();
-		await sendFolderToServer("./dist", registry);
+		await sendFolderToServer({
+			distPath: "./dist",
+			serverUrl: registry,
+			username,
+			password,
+		});
 		return;
 	}
 
@@ -50,7 +83,17 @@ function exit(msg: string): never {
 	process.exit(1);
 }
 
-export async function sendFolderToServer(distPath: string, serverUrl: string) {
+export async function sendFolderToServer({
+	distPath,
+	password,
+	serverUrl,
+	username,
+}: {
+	distPath: string;
+	serverUrl: string;
+	username: string;
+	password: string;
+}) {
 	const form = new FormData();
 	const zipPath = path.join(distPath, "package.zip");
 	const pkg = JSON.parse(
@@ -69,7 +112,10 @@ export async function sendFolderToServer(distPath: string, serverUrl: string) {
 			`${sanitizedUrl}/r/publish/${pkg.name}/${pkg.version}`,
 			{
 				method: "POST",
-				headers: form.getHeaders(),
+				headers: {
+					...form.getHeaders(),
+					Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`,
+				},
 				body: form,
 				throwOnError: true,
 			},

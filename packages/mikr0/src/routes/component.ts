@@ -24,64 +24,67 @@ const ComponentRequest = Type.Object({
 type ComponentRequest = Static<typeof ComponentRequest>;
 
 export default async function routes(fastify: FastifyInstance) {
-	fastify.withTypeProvider<TypeBoxTypeProvider>().post(
-		"/publish/:name/:version",
-		{
-			schema: {
-				params: Component,
-				response: {
-					200: {
-						type: "string",
+	fastify.after(() => {
+		fastify.withTypeProvider<TypeBoxTypeProvider>().post(
+			"/publish/:name/:version",
+			{
+				onRequest: fastify.basicAuth,
+				schema: {
+					params: Component,
+					response: {
+						200: {
+							type: "string",
+						},
 					},
 				},
 			},
-		},
-		async function publishComponent(request, reply) {
-			const { name, version } = request.params;
-			const exists = Boolean(
-				await fastify.conf.database.versionExists(name, version),
-			);
-			if (exists) {
-				reply.code(400).send("Version already exists");
-				return;
-			}
-			const id = crypto.randomUUID();
-
-			await mkdir(`./uploads/${id}`, { recursive: true });
-			try {
-				const files = await request.saveRequestFiles();
-				const [zipFile, pkg] = files;
-				if (pkg) {
-					const pkgJson = JSON.parse(await readFile(pkg.filepath, "utf-8"));
-					pkgJson.mikr0.publishDate = Date.now();
-					await writeFile(
-						`./uploads/${id}/package.json`,
-						JSON.stringify(pkgJson, null, 2),
-					);
-				}
-				if (zipFile) {
-					const zip = new AdmZip(zipFile.filepath);
-					const extract = promisify(zip.extractAllToAsync).bind(zip);
-					await extract(`./uploads/${id}`, true, true);
-				} else {
-					reply.code(400).send("Missing zip");
+			async function publishComponent(request, reply) {
+				const { name, version } = request.params;
+				const exists = Boolean(
+					await fastify.conf.database.versionExists(name, version),
+				);
+				if (exists) {
+					reply.code(400).send("Version already exists");
 					return;
 				}
+				const id = crypto.randomUUID();
 
-				await fastify.repository.saveComponent(`./uploads/${id}`);
-				await fastify.conf.database.insertComponent({
-					name,
-					version,
-					client_size: 0,
-					server_size: 0,
-					published_at: new Date(),
-				});
-				reply.code(200).send("OK");
-			} finally {
-				rm(`./uploads/${id}`, { recursive: true }).catch(() => {});
-			}
-		},
-	);
+				await mkdir(`./uploads/${id}`, { recursive: true });
+				try {
+					const files = await request.saveRequestFiles();
+					const [zipFile, pkg] = files;
+					if (pkg) {
+						const pkgJson = JSON.parse(await readFile(pkg.filepath, "utf-8"));
+						pkgJson.mikr0.publishDate = Date.now();
+						await writeFile(
+							`./uploads/${id}/package.json`,
+							JSON.stringify(pkgJson, null, 2),
+						);
+					}
+					if (zipFile) {
+						const zip = new AdmZip(zipFile.filepath);
+						const extract = promisify(zip.extractAllToAsync).bind(zip);
+						await extract(`./uploads/${id}`, true, true);
+					} else {
+						reply.code(400).send("Missing zip");
+						return;
+					}
+
+					await fastify.repository.saveComponent(`./uploads/${id}`);
+					await fastify.conf.database.insertComponent({
+						name,
+						version,
+						client_size: 0,
+						server_size: 0,
+						published_at: new Date(),
+					});
+					reply.code(200).send("OK");
+				} finally {
+					rm(`./uploads/${id}`, { recursive: true }).catch(() => {});
+				}
+			},
+		);
+	});
 
 	fastify.withTypeProvider<TypeBoxTypeProvider>().get(
 		"/component/:name/:version?",
