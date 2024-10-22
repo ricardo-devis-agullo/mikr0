@@ -44,11 +44,17 @@ export class Database {
 	}) {
 		this.#client.transaction(async (trx) => {
 			let componentId = (
-				await trx("components").where("name", data.name).first()
+				(await trx("components")
+					.where("name", data.name)
+					.first()
+					.returning("id")) as { id?: string }
 			)?.id;
 			if (!componentId) {
-				[componentId] = await trx("components").insert({ name: data.name });
+				[{ id: componentId }] = await trx("components")
+					.insert({ name: data.name })
+					.returning("id");
 			}
+
 			const [major, minor, patch] = data.version.split(".").map(Number);
 			if (
 				typeof major !== "number" ||
