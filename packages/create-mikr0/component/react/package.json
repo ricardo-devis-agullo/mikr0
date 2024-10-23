@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "mikr0 dev",
+    "build": "tsc -b && mikr0 build",
     "publish-component": "tsc -b && mikr0 publish",
     "lint": "eslint ."
   },
