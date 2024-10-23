@@ -124,7 +124,13 @@ export default async function routes(fastify: FastifyInstance) {
 				]),
 			);
 			if (pkg.mikr0.server) {
-				data = await getServerData(name, version, parsedParameters, plugins);
+				data = await getServerData({
+					name,
+					version,
+					parameters: parsedParameters,
+					plugins,
+					request,
+				});
 			}
 
 			return {

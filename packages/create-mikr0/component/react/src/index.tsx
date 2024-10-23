@@ -8,12 +8,14 @@ export default createComponent({
 	parameters: {
 		name: {
 			type: "string",
-			default: "Mikr0",
+			mandatory: true,
+			example: "Mikr0",
 			description: "Name of the component",
 		},
 	},
-	async loader({ parameters: { name } }) {
-		return { data: 3 };
+	async loader({ parameters: { name }, headers }) {
+		const lang = headers["accept-language"]?.split(",")[0] ?? "en";
+		return { name, lang };
 	},
 	render(element, props) {
 		createRoot(element).render(

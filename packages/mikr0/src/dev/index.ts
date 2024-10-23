@@ -7,6 +7,7 @@ type AnyPlugins = Record<string, AnyPlugin>;
 export interface Context<M, P extends AnyPlugins = {}> {
 	parameters: M;
 	plugins: P;
+	headers: Record<string, string>;
 }
 
 type Prettify<T> = {

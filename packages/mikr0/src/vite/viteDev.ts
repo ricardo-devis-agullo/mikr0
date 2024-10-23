@@ -8,6 +8,7 @@ import esbuild from "esbuild";
 import { createRegistry } from "../Registry.js";
 import { MemoryStorage } from "../storage/memory.js";
 import { ocClientPlugin } from "./plugins.js";
+import { parseParameters } from "../parameters.js";
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
@@ -29,14 +30,16 @@ async function cleanup() {
 	if (tmpServer) {
 		await fs.rm(tmpServer, { recursive: true }).catch(() => {});
 	}
-	process.exit(1);
 }
 
 async function getServerParts(entry: string) {
-	tmpServer = await fs.mkdtemp(path.join(os.tmpdir(), "mikr0-"));
+	tmpServer = await fs.mkdtemp(
+		path.join(await fs.realpath(os.tmpdir()), "mikr0-"),
+	);
 	await esbuild.build({
 		bundle: true,
 		minify: false,
+		platform: "node",
 		entryPoints: ["src/index.tsx"],
 		outfile: path.join(tmpServer, "server.js"),
 		format: "esm",
@@ -60,10 +63,10 @@ async function getServerParts(entry: string) {
 		],
 	});
 	const {
-		default: { loader, plugins },
+		default: { loader, plugins, parameters },
 	} = await import(path.join(tmpServer, "server.js"));
 
-	return { loader, plugins };
+	return { loader, plugins, parameters };
 }
 
 function getBaseTemplate(name: string, version: string, appBlock: string) {
@@ -92,16 +95,17 @@ function getBaseTemplate(name: string, version: string, appBlock: string) {
 }
 
 export async function runServer() {
-	const { loader, plugins } = await getServerParts(entryPoint);
-	const { name, version } = await getPkgInfo();
-	const data = await loader({
-		parameters: {},
+	const {
+		loader,
 		plugins,
-	});
+		parameters: parametersSchema,
+	} = await getServerParts(entryPoint);
+	const { name, version } = await getPkgInfo();
+
 	await fs.writeFile(
 		tmpEntryPoint,
 		`import component from './index.tsx';
-     component.render(document.getElementById('app'), ${JSON.stringify(data)});`,
+     component.render(document.getElementById('app'), window.__MIKR0_DATA__);`,
 		"utf-8",
 	);
 	const vite = await createServer({
@@ -114,6 +118,7 @@ export async function runServer() {
 	});
 
 	const app = Fastify({ logger: false });
+	app.addHook("onClose", cleanup);
 
 	await app.register(FastifyExpress);
 	app.use(vite.middlewares);
@@ -142,11 +147,27 @@ export async function runServer() {
 	app.get("*", async (request, reply) => {
 		try {
 			const url = request.originalUrl.replace(base, "");
+			let data = {};
+			if (!url || url.startsWith("?")) {
+				const parameters = parseParameters(
+					parametersSchema,
+					(request.query as Record<string, unknown>) ?? {},
+					true,
+				);
+				data = await loader({
+					headers: request.headers ?? {},
+					parameters,
+					plugins,
+				});
+			}
 
 			const template = await vite.transformIndexHtml(
 				url,
 				baseTemplate(`
         <div id="app"></div>
+        <script>
+        window.__MIKR0_DATA__ = ${JSON.stringify(data)};
+        </script>
         <script type="module" src="/src/_entry.tsx"></script>
           `),
 			);
@@ -255,3 +276,8 @@ export async function runIdealServer() {
 
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
+process.on("uncaughtException", async (error) => {
+	await cleanup();
+	console.error(error);
+	process.exit(1);
+});

@@ -12,7 +12,7 @@ export default createComponent({
 		position: { type: "number", default: 0 },
 	},
 	plugins: {
-		defaultPosition: () => 0,
+		defaultPosition: () => 5,
 	},
 	loader: (ctx) => {
 		const dirs = fs.readdirSync(".");

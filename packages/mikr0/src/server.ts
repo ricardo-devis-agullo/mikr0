@@ -3,6 +3,7 @@ import vm from "node:vm";
 import requireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
 import { LRUCache } from "lru-cache";
+import type { FastifyRequest } from "fastify";
 
 type Loader = (...args: unknown[]) => Promise<void>;
 
@@ -50,18 +51,26 @@ export default function getServerData(opts: {
 		return loader;
 	};
 
-	return async (
-		name: string,
-		version: string,
-		parameters: unknown,
-		plugins: Record<string, (...params: any[]) => any>,
-	) => {
+	return async ({
+		name,
+		parameters,
+		plugins,
+		version,
+		request,
+	}: {
+		request: FastifyRequest;
+		name: string;
+		version: string;
+		parameters: unknown;
+		plugins: Record<string, (...params: any[]) => any>;
+	}) => {
 		const domain = Domain.create();
 		const loader = await getLoader(name, version);
 
 		const serverContext = {
 			parameters,
 			plugins,
+			headers: request.headers ?? {},
 		};
 
 		const { promise, resolve, reject } = Promise.withResolvers();

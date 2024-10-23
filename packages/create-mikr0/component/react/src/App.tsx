@@ -2,7 +2,7 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import styles from "./App.module.css";
 
-function App() {
+function App(props: { name: string; lang: string }) {
 	const [count, setCount] = useState(0);
 
 	return (
@@ -30,7 +30,10 @@ function App() {
 				type="button"
 				onClick={() => setCount((count) => count + 1)}
 			>
-				count is {count}
+				Hi, {props.name}! Click me! The count is{" "}
+				{new Intl.NumberFormat(props.lang, {
+					maximumSignificantDigits: 3,
+				}).format(count)}
 			</button>
 		</div>
 	);
