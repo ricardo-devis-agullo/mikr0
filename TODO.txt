@@ -3,6 +3,7 @@
 - Add component actions
 
 === NICE TO HAVE
+- Benchmarks
 - Error with nice message when missing a DB library
 - Add auth + user creation
 - Add solid template
