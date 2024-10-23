@@ -1,7 +1,6 @@
 === CRITICAL
 - Use import maps on vite when bundling
 - Add component actions
-- In dev mode specify params through query params
 
 === NICE TO HAVE
 - Error with nice message when missing a DB library
