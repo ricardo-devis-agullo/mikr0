@@ -1,11 +1,18 @@
 <!doctype html>
 <html>
   <body>
-    <script src="http://localhost:3000/r/client.min.js"></script>
+    <script src="http://localhost:4910/r/client.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "solid-js": "https://cdn.jsdelivr.net/npm/solid-js@1.9.3/+esm"
+        }
+      }
+      </script>
     <h1>My First Heading</h1>
     <p>My first paragraph.</p>
     <mikro-component
-      src="http://localhost:3000/r/component/component/0.0.0?position=2"
+      src="http://localhost:4910/r/component/component/0.0.0?position=2"
     ></mikro-component>
   </body>
 </html>

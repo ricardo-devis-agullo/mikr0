@@ -1,4 +1,5 @@
-import { i as f } from "./index-CHj9IF83.js";
+import { i as a } from "./index-B-lVkEke.js";
+import "solid-js";
 export {
-  f as default
+  a as default
 };
