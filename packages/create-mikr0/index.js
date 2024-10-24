@@ -5,17 +5,36 @@
 import fs from "node:fs";
 import path from "node:path";
 import prompts from "prompts";
+import { parseArgs } from "node:util";
+
+let {
+	values: { type: creationType },
+} = parseArgs({
+	args: process.argv.slice(2),
+	options: {
+		type: {
+			type: "string",
+			short: "t",
+		},
+	},
+});
+if (creationType !== "component" && creationType !== "registry") {
+	creationType = "";
+}
 
 async function run() {
-	const { creationType } = await prompts([
+	await prompts([
 		{
-			type: "select",
-			name: "creationType",
+			type: creationType ? null : "select",
+			name: "type",
 			message: "What do you want to create?",
 			choices: [
 				{ title: "Component", value: "component" },
 				{ title: "Registry", value: "registry" },
 			],
+			onState(state) {
+				creationType = state.value;
+			},
 		},
 	]);
 
@@ -56,7 +75,7 @@ async function createRegistry() {
 
 	/** @type Record<string, string> */
 	const dependencies = {
-		mikr0: "0.0.1-beta.13",
+		mikr0: "0.0.1-beta.14",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";
