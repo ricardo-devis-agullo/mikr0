@@ -146,5 +146,8 @@ export function S3Storage(conf: S3Config): StaticStorage {
 		get,
 		save,
 		saveFile,
+		getUrl(file: string) {
+			return new URL(file, `https://${bucket}.s3.${region}.amazonaws.com`);
+		},
 	};
 }

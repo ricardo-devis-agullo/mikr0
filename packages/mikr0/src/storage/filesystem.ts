@@ -2,11 +2,13 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import type { StaticStorage } from "./storage.js";
+import url from "node:url";
 
 export function FilesystemStorage(options: {
 	folderPath: string;
 }): StaticStorage {
-	fs.mkdirSync(options.folderPath, { recursive: true });
+	const absolutePath = path.resolve(options.folderPath);
+	fs.mkdirSync(absolutePath, { recursive: true });
 
 	return {
 		async save(src: string, destination: string) {
@@ -23,7 +25,10 @@ export function FilesystemStorage(options: {
 			);
 		},
 		get(file: string) {
-			return fsp.readFile(path.join(options.folderPath, file), "utf-8");
+			return fsp.readFile(path.join(absolutePath, file), "utf-8");
+		},
+		getUrl(file: string) {
+			return url.pathToFileURL(path.join(absolutePath, file));
 		},
 	};
 }

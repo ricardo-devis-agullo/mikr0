@@ -8,6 +8,7 @@ import superjson from "superjson";
 import { parseParameters } from "../parameters.js";
 import makeServerData from "../server.js";
 import { getAvailableVersion } from "./versions.js";
+import { getMimeType } from "../storage/utils.js";
 
 export const Component = Type.Object({
 	name: Type.String(),
@@ -133,8 +134,13 @@ export default async function routes(fastify: FastifyInstance) {
 				});
 			}
 
+			const templateUrl = fastify.repository.getTemplateUrl(name, version);
+			const isLocal = templateUrl.protocol === "file:";
+
 			return {
-				src: `${request.protocol}://${request.host}/r/template/${name}/${version}/entry.js`,
+				src: isLocal
+					? `${request.protocol}://${request.host}/r/template/${name}/${version}/entry.js`
+					: templateUrl.href,
 				data: superjson.stringify(data),
 			};
 		},
@@ -177,16 +183,11 @@ export default async function routes(fastify: FastifyInstance) {
 				`/r/template/${name}/${version}/`,
 				"",
 			);
-			const file = await (await import("node:fs")).readFileSync(
-				(await import("node:path")).join(
-					process.cwd(),
-					`components/${name}/${version}`,
-					filePath,
-				),
-				"utf-8",
-			);
+			// TODO: Improve by streaming the file
+			const file = await fastify.repository.getFile(name, version, filePath);
+			const mime = getMimeType(filePath);
 
-			reply.type("application/javascript").send(file);
+			reply.type(mime ?? "application/javascript").send(file);
 		},
 	);
 }

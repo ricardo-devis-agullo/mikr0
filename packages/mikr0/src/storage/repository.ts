@@ -16,6 +16,9 @@ interface Pkg {
 
 export const Repository = (options: { storage: StaticStorage }) => {
 	return {
+		getUrl(file: string) {
+			return options.storage.getUrl(file);
+		},
 		async saveComponent(folderPath: string) {
 			const pkg = JSON.parse(
 				await fsp.readFile(path.join(folderPath, "package.json"), "utf-8"),
@@ -24,6 +27,12 @@ export const Repository = (options: { storage: StaticStorage }) => {
 		},
 		getTemplate(name: string, version: string) {
 			return options.storage.get(`${name}/${version}/template.js`);
+		},
+		getFile(name: string, version: string, file: string) {
+			return options.storage.get(`${name}/${version}/${file}`);
+		},
+		getTemplateUrl(name: string, version: string) {
+			return options.storage.getUrl(`${name}/${version}/template.js`);
 		},
 		getServer(name: string, version: string) {
 			return options.storage.get(`${name}/${version}/server.cjs`);

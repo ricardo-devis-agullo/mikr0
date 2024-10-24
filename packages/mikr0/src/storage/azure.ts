@@ -131,5 +131,9 @@ export function AzureStorage(options: {
 		get,
 		save,
 		saveFile,
+		getUrl(file: string) {
+			const { publicClient } = getClient();
+			return new URL(file, publicClient.url);
+		},
 	};
 }

@@ -8,6 +8,7 @@ export interface StaticStorage {
 	save: (src: string, destination: string) => Promise<void>;
 	saveFile: (destination: string, contents: string) => Promise<void>;
 	get: (file: string) => Promise<string>;
+	getUrl: (file: string) => URL;
 }
 
 export function StaticStorage(config: StaticStorageOptions): StaticStorage {

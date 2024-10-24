@@ -1,4 +1,5 @@
 import fsp from "node:fs/promises";
+import url from "node:url";
 import type { StaticStorage } from "./storage.js";
 
 export function MemoryStorage(): StaticStorage {
@@ -17,6 +18,9 @@ export function MemoryStorage(): StaticStorage {
 				throw new Error(`File not found: ${filePath}`);
 			}
 			return file;
+		},
+		getUrl(file: string) {
+			return url.pathToFileURL(file);
 		},
 	};
 }
