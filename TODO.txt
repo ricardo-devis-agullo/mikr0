@@ -7,8 +7,6 @@
 - Add auth + user creation
 - Add svelte template
 - Add vue template
-- Add postgres sql adapter
-- Add mysql sql adapter
 - Allow specifying entry point
 - Handle errors on CLI when publishing the registry
 

@@ -57,7 +57,38 @@ interface MssqlDatabase {
 		};
 	};
 }
-export type DatabaseOptions = Sqlite3Database | MssqlDatabase;
+interface MySqlDatabase {
+	client: "mysql";
+	version?: string;
+	connection: {
+		socketPath?: string;
+		host?: string;
+		port?: number;
+		user: string;
+		password: string;
+		database: string;
+	};
+}
+interface PostgreSQLDatabase {
+	client: "pg";
+	connection:
+		| {
+				host: string;
+				port: number;
+				user: string;
+				database: string;
+				password: string;
+				ssl?: boolean;
+		  }
+		| {
+				connectionString: string;
+		  };
+}
+export type DatabaseOptions =
+	| Sqlite3Database
+	| MssqlDatabase
+	| MySqlDatabase
+	| PostgreSQLDatabase;
 
 /**
  * Storage configuration to where store the components files and statics

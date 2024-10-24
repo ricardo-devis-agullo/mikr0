@@ -59,7 +59,9 @@ async function createRegistry() {
 			message: "Select your SQL provider",
 			choices: [
 				{ title: "SQLite", value: "sqlite" },
-				{ title: "MSSQL", value: "mssql" },
+				{ title: "MySQL", value: "mysql" },
+				{ title: "PostgreSQL", value: "pg" },
+				{ title: "Microsoft SQL Server", value: "mssql" },
 			],
 		},
 		{
@@ -75,12 +77,16 @@ async function createRegistry() {
 
 	/** @type Record<string, string> */
 	const dependencies = {
-		mikr0: "0.0.1-beta.14",
+		mikr0: "0.0.1-beta.15",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";
 	} else if (database === "mssql") {
 		dependencies.tedious = "18.6.1";
+	} else if (database === "mysql") {
+		dependencies.mysql2 = "3.11.3";
+	} else if (database === "pg") {
+		dependencies.pg = "8.13.1";
 	}
 
 	/** @type any */
@@ -100,6 +106,26 @@ async function createRegistry() {
 	} else if (database === "mssql") {
 		config.database = {
 			client: "mssql",
+			connection: {
+				database: "--FILL THIS VALUE--",
+				host: "--FILL THIS VALUE--",
+				user: "--FILL THIS VALUE--",
+				password: "--FILL THIS VALUE--",
+			},
+		};
+	} else if (database === "mysql") {
+		config.database = {
+			client: "mysql",
+			connection: {
+				database: "--FILL THIS VALUE--",
+				host: "--FILL THIS VALUE--",
+				user: "--FILL THIS VALUE--",
+				password: "--FILL THIS VALUE--",
+			},
+		};
+	} else if (database === "pg") {
+		config.database = {
+			client: "pg",
 			connection: {
 				database: "--FILL THIS VALUE--",
 				host: "--FILL THIS VALUE--",

@@ -28,7 +28,40 @@ const MssqlDatabase = Type.Object({
 		),
 	}),
 });
-const DatabaseOptionsSchema = Type.Union([Sqlite3Database, MssqlDatabase]);
+const MySqlDatabase = Type.Object({
+	client: Type.Literal("mysql"),
+	version: Type.Optional(Type.String()),
+	connection: Type.Object({
+		socketPath: Type.Optional(Type.String()),
+		host: Type.Optional(Type.String()),
+		port: Type.Optional(Type.Number()),
+		user: Type.String(),
+		password: Type.String(),
+		database: Type.String(),
+	}),
+});
+const PostgreSQLDatabase = Type.Object({
+	client: Type.Literal("pg"),
+	connection: Type.Union([
+		Type.Object({
+			connectionString: Type.String(),
+		}),
+		Type.Object({
+			host: Type.String(),
+			port: Type.Number(),
+			user: Type.String(),
+			database: Type.String(),
+			password: Type.String(),
+			ssl: Type.Optional(Type.Boolean()),
+		}),
+	]),
+});
+const DatabaseOptionsSchema = Type.Union([
+	Sqlite3Database,
+	MssqlDatabase,
+	MySqlDatabase,
+	PostgreSQLDatabase,
+]);
 
 const MemoryStorage = Type.Object({
 	type: Type.Literal("memory"),
