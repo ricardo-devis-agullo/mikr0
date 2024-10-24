@@ -182,6 +182,7 @@ async function createComponent() {
 			choices: [
 				{ title: "Vanilla", value: "vanilla" },
 				{ title: "React", value: "react" },
+				{ title: "Solid", value: "solid" },
 			],
 		},
 	]);
