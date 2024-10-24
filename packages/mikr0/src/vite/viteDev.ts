@@ -48,7 +48,7 @@ async function getServerParts(entry: string) {
 				name: "ignore-media",
 				setup(build) {
 					build.onResolve(
-						{ filter: /.*\.(svg|css|jpg|png|gif|jpeg)$/ },
+						{ filter: /.*\.(svg|css|jpg|png|gif|vue|svelte|jpeg)$/ },
 						(args) => ({
 							path: args.path,
 							namespace: "media-filtered",
