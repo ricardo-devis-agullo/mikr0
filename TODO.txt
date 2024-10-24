@@ -6,7 +6,6 @@
 - Error with nice message when missing a DB library
 - Add auth + user creation
 - Add solid template
-- Add vanilla template
 - Add svelte template
 - Add vue template
 - Add postgres sql adapter
