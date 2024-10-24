@@ -1,5 +1,4 @@
 === CRITICAL
-- Use import maps on vite when bundling
 - Add component actions
 
 === NICE TO HAVE
