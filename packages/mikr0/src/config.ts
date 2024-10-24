@@ -28,7 +28,7 @@ const MssqlDatabase = Type.Object({
 		),
 	}),
 });
-const DatabaseOpts = Type.Union([Sqlite3Database, MssqlDatabase]);
+const DatabaseOptionsSchema = Type.Union([Sqlite3Database, MssqlDatabase]);
 
 const MemoryStorage = Type.Object({
 	type: Type.Literal("memory"),
@@ -77,7 +77,7 @@ const S3Storage = Type.Object({
 	]),
 });
 
-const StaticStorageOpts = Type.Union([
+const StaticStorageOptionsSchema = Type.Union([
 	FilesystemStorage,
 	MemoryStorage,
 	AzureStorage,
@@ -86,8 +86,8 @@ const StaticStorageOpts = Type.Union([
 
 export const OptionsSchema = Type.Object({
 	port: Type.Optional(Type.Union([Type.String(), Type.Number()])),
-	storage: Type.Optional(StaticStorageOpts),
-	database: Type.Optional(DatabaseOpts),
+	storage: Type.Optional(StaticStorageOptionsSchema),
+	database: Type.Optional(DatabaseOptionsSchema),
 	auth: Type.Object({
 		username: Type.String(),
 		password: Type.String(),
@@ -97,7 +97,7 @@ export const OptionsSchema = Type.Object({
 			imports: Type.Record(Type.String(), Type.String()),
 		}),
 	),
-	availableDependencies: Type.Optional(Type.Array(Type.String())),
+	dependencies: Type.Optional(Type.Array(Type.String())),
 	cors: Type.Optional(Type.Record(Type.String(), Type.String())),
 	plugins: Type.Optional(
 		Type.Record(
@@ -125,11 +125,8 @@ type AssertOptionsAreEqual = Assert<
 	// Omitting plugins because TypeBox doesnt support yet variadic any types on functions
 	// https://github.com/sinclairzx81/typebox/issues/931
 	AssertEqual<
-		Omit<Options, "plugins" | "cors" | "availableDependencies" | "storage">,
-		Omit<
-			OptionsSchema,
-			"plugins" | "cors" | "availableDependencies" | "storage"
-		>
+		Omit<Options, "plugins" | "cors" | "dependencies" | "storage">,
+		Omit<OptionsSchema, "plugins" | "cors" | "dependencies" | "storage">
 	>
 >;
 type AssertPlugins = Assert<
@@ -159,7 +156,7 @@ export function parseConfig(options: Options) {
 		module,
 		`node:${module}`,
 	]);
-	for (const dependency of options.availableDependencies ?? []) {
+	for (const dependency of options.dependencies ?? []) {
 		if (coreModules.includes(dependency)) {
 			availableDependencies.push(
 				dependency.startsWith("node:") ? dependency : `node:${dependency}`,
