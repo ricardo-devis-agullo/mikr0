@@ -38,7 +38,6 @@ export default createComponent({
           cursor: pointer;
         "
         type="button"
-        onclick="setCount(count => count + 1)"
       >
         Hi, ${props.name}! Click me! The count is 
         <span>0</span>
