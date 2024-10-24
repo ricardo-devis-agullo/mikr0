@@ -6,7 +6,6 @@
 - Error with nice message when missing a DB library
 - Add auth + user creation
 - Add svelte template
-- Add vue template
 - Allow specifying entry point
 - Handle errors on CLI when publishing the registry
 
