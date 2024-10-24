@@ -20,7 +20,7 @@ const formatted = computed(() => {
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
     <button type="button" @click="count++">
-      Hi, {{ props.name }}! Click me! The count is {{ computed }}
+      Hi, {{ props.name }}! Click me! The count is {{ formatted }}
     </button>
   </div>
 </template>
