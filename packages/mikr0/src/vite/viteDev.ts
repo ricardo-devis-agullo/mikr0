@@ -105,7 +105,7 @@ export async function runServer() {
 	await fs.writeFile(
 		tmpEntryPoint,
 		`import component from './index.tsx';
-     component.render(document.getElementById('app'), window.__MIKR0_DATA__);`,
+     component.mount(document.getElementById('app'), window.__MIKR0_DATA__);`,
 		"utf-8",
 	);
 	const vite = await createServer({
@@ -233,7 +233,7 @@ export async function runIdealServer() {
 					);
 					template = `
           export default {
-            render: (element, data) => {
+            mount: (element, data) => {
               element.innerHTML = \`
                 ${template}
               \`

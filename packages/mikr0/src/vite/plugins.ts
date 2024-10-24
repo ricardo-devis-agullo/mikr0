@@ -11,7 +11,9 @@ export const ocClientPlugin = (opts: { entry: string }): PluginOption => {
 				// biome-ignore lint/performance/noDelete: required for tree shaking
 				delete mod.exports.default.$args[0].loader;
 				// biome-ignore lint/performance/noDelete: required for tree shaking
-				delete mod.exports.default.$args[0].validateParams;
+				delete mod.exports.default.$args[0].parameters;
+				// biome-ignore lint/performance/noDelete: required for tree shaking
+				delete mod.exports.default.$args[0].plugins;
 				return generateCode(mod);
 			}
 		},
@@ -26,7 +28,9 @@ export const ocServerPlugin = (opts: { entry: string }): PluginOption => {
 			if (id === opts.entry) {
 				const mod = parseModule(code);
 				// biome-ignore lint/performance/noDelete: <explanation>
-				delete mod.exports.default.$args[0].render;
+				delete mod.exports.default.$args[0].mount;
+				// biome-ignore lint/performance/noDelete: <explanation>
+				delete mod.exports.default.$args[0].unmount;
 				return generateCode(mod);
 			}
 		},

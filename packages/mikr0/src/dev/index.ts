@@ -53,12 +53,14 @@ export function createComponent<
 	loader?: (
 		context: Context<TransformOcParameters<Schema>, Plugins>,
 	) => Data | Promise<Data>;
-	render: (element: HTMLElement, props: Data) => unknown;
+	mount: (element: HTMLElement, props: Data) => unknown;
+	unmount?: (element: HTMLElement) => void;
 }) {
 	return {
 		plugins: options.plugins,
 		parameters: options.parameters,
 		loader: options.loader,
-		render: options.render,
+		mount: options.mount,
+		unmount: options.unmount,
 	};
 }

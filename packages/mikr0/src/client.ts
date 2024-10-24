@@ -40,7 +40,7 @@ class Mikr0 extends HTMLElement {
 			const template = await import(templateSrc);
 			Mikr0.log(`Rendering component: ${src}`);
 			this.innerHTML = "";
-			template.default.render(this, data ?? {});
+			template.default.mount(this, data ?? {});
 			this.#reanimateScripts();
 		} catch (err) {
 			console.log("Error:", err);

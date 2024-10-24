@@ -14,7 +14,7 @@ export default createComponent({
 	plugins: {
 		defaultPosition: () => 5,
 	},
-	loader: (ctx) => {
+	loader(ctx) {
 		const dirs = fs.readdirSync(".");
 		return Promise.resolve({
 			folder:
@@ -22,7 +22,7 @@ export default createComponent({
 				dirs[ctx.plugins.defaultPosition()],
 		});
 	},
-	render: (element, props) => {
+	mount(element, props) {
 		render(() => <App {...props} />, element);
 	},
 });

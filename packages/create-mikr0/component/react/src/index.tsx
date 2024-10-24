@@ -1,7 +1,9 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, type Root } from "react-dom/client";
 import App from "./App.tsx";
 import { createComponent } from "mikr0/dev";
+
+let root: Root | undefined;
 
 // eslint-disable-next-line react-refresh/only-export-components
 export default createComponent({
@@ -17,11 +19,15 @@ export default createComponent({
 		const lang = headers["accept-language"]?.split(",")[0] ?? "en";
 		return { name, lang };
 	},
-	render(element, props) {
-		createRoot(element).render(
+	mount(element, props) {
+		root = createRoot(element);
+		root.render(
 			<StrictMode>
 				<App {...props} />
 			</StrictMode>,
 		);
+	},
+	unmount() {
+		root?.unmount();
 	},
 });
