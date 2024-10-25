@@ -42,8 +42,14 @@ type TransformOcParameters<T extends ParametersSchema> = Prettify<
 
 type AnyPlugin = (...args: any[]) => any;
 type AnyPlugins = Record<string, AnyPlugin>;
-type AnyAction = (parameters: any, ctx: Context<any>) => any;
-type AnyActions = Record<string, AnyAction>;
+type AnyAction<Plugins extends AnyPlugins = any> = (
+	parameters: any,
+	ctx: Context<unknown, Plugins>,
+) => any;
+type AnyActions<Plugins extends AnyPlugins = any> = Record<
+	string,
+	AnyAction<Plugins>
+>;
 
 type Component<
 	Schema extends ParametersSchema,
@@ -79,7 +85,7 @@ export type ComponentParameters = GetParameters<RegisteredComponent>;
 export function createComponent<
 	Schema extends ParametersSchema,
 	Plugins extends AnyPlugins,
-	Actions extends AnyActions,
+	Actions extends AnyActions<Plugins>,
 	Data,
 >(options: {
 	parameters?: Schema;

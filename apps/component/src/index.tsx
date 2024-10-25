@@ -15,8 +15,8 @@ const component = createComponent({
 		defaultPosition: () => 5,
 	},
 	actions: {
-		clickMe(para: { stuff: boolean }) {
-			return { a: 3, wat: para.stuff };
+		clickMe(para: { stuff: boolean }, ctx) {
+			return { a: 3, wat: para.stuff ? 1 : ctx.plugins.defaultPosition() };
 		},
 		async doIt() {
 			return { no: 3 };
