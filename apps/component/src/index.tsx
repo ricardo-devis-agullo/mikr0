@@ -7,12 +7,20 @@ import App from "./App";
 
 import { createComponent } from "mikr0/dev";
 
-export default createComponent({
+const component = createComponent({
 	parameters: {
 		position: { type: "number", default: 0 },
 	},
 	plugins: {
 		defaultPosition: () => 5,
+	},
+	actions: {
+		clickMe(para: { stuff: boolean }) {
+			return { a: 3, wat: para.stuff };
+		},
+		async doIt() {
+			return { no: 3 };
+		},
 	},
 	loader(ctx) {
 		const dirs = fs.readdirSync(".");
@@ -26,3 +34,11 @@ export default createComponent({
 		render(() => <App {...props} />, element);
 	},
 });
+
+declare module "mikr0/dev" {
+	interface Register {
+		component: typeof component;
+	}
+}
+
+export default component;
