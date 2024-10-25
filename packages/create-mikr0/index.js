@@ -7,6 +7,8 @@ import path from "node:path";
 import prompts from "prompts";
 import { parseArgs } from "node:util";
 
+const placeholder = "--FILL THIS VALUE--";
+
 let {
 	values: { type: creationType },
 } = parseArgs({
@@ -70,6 +72,7 @@ async function createRegistry() {
 			message: "Select your storage provider",
 			choices: [
 				{ title: "Filesystem", value: "filesystem" },
+				{ title: "Amazon S3", value: "s3" },
 				{ title: "Azure Storage", value: "azure" },
 			],
 		},
@@ -93,44 +96,73 @@ async function createRegistry() {
 	const config = {
 		auth: {
 			username: "admin",
-			password: "password",
+			password: crypto.randomUUID(),
 		},
 	};
 	if (database === "sqlite") {
 		config.database = {
 			client: "sqlite3",
 			connection: {
-				filename: "./data.sqlite",
+				filename: ".mikro/db.sqlite",
 			},
 		};
 	} else if (database === "mssql") {
 		config.database = {
 			client: "mssql",
 			connection: {
-				database: "--FILL THIS VALUE--",
-				host: "--FILL THIS VALUE--",
-				user: "--FILL THIS VALUE--",
-				password: "--FILL THIS VALUE--",
+				database: placeholder,
+				host: placeholder,
+				user: placeholder,
+				password: placeholder,
 			},
 		};
 	} else if (database === "mysql") {
 		config.database = {
 			client: "mysql",
 			connection: {
-				database: "--FILL THIS VALUE--",
-				host: "--FILL THIS VALUE--",
-				user: "--FILL THIS VALUE--",
-				password: "--FILL THIS VALUE--",
+				database: placeholder,
+				host: placeholder,
+				user: placeholder,
+				password: placeholder,
 			},
 		};
 	} else if (database === "pg") {
 		config.database = {
 			client: "pg",
 			connection: {
-				database: "--FILL THIS VALUE--",
-				host: "--FILL THIS VALUE--",
-				user: "--FILL THIS VALUE--",
-				password: "--FILL THIS VALUE--",
+				database: placeholder,
+				host: placeholder,
+				user: placeholder,
+				password: placeholder,
+			},
+		};
+	}
+
+	if (storage === "filesystem") {
+		config.storage = {
+			type: "filesystem",
+			options: {
+				folder: ".mikro/components",
+			},
+		};
+	} else if (storage === "s3") {
+		config.storage = {
+			type: "s3",
+			options: {
+				bucket: placeholder,
+				componentsDir: "components",
+				path: placeholder,
+				region: placeholder,
+			},
+		};
+	} else if (storage === "azure") {
+		config.storage = {
+			type: "azure",
+			options: {
+				accountName: placeholder,
+				accountKey: placeholder,
+				privateContainerName: "mikro-private",
+				publicContainerName: "mikro-public",
 			},
 		};
 	}

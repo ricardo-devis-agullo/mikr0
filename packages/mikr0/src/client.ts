@@ -1,5 +1,5 @@
 class Mikr0 extends HTMLElement {
-	static observedAttributes = ["src"];
+	static observedAttributes = ["src", "data"];
 	static config = {
 		verbose: window.mikr0?.verbose ?? false,
 	};
