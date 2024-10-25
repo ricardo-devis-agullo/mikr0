@@ -25,6 +25,12 @@ const ComponentRequest = Type.Object({
 type ComponentRequest = Static<typeof ComponentRequest>;
 
 export default async function routes(fastify: FastifyInstance) {
+	const getServerData = makeServerData({
+		timeout: fastify.conf.executionTimeout,
+		repository: fastify.repository,
+		dependencies: fastify.conf.availableDependencies,
+	});
+
 	fastify.after(() => {
 		fastify.withTypeProvider<TypeBoxTypeProvider>().post(
 			"/publish/:name/:version",
@@ -93,13 +99,16 @@ export default async function routes(fastify: FastifyInstance) {
 			schema: {
 				params: ComponentRequest,
 				querystring: Type.Record(Type.String(), Type.Unknown()),
+				response: {
+					200: Type.Object({
+						src: Type.String(),
+						data: Type.String(),
+					}),
+					400: Type.String(),
+				},
 			},
 		},
 		async function getComponent(request, reply) {
-			const getServerData = makeServerData({
-				repository: fastify.repository,
-				dependencies: fastify.conf.availableDependencies,
-			});
 			const { name, version: versionRequested } = request.params;
 			const versions = await fastify.conf.database.getComponentVersions(name);
 			if (!versions.length) {
@@ -130,7 +139,7 @@ export default async function routes(fastify: FastifyInstance) {
 					version,
 					parameters: parsedParameters,
 					plugins,
-					request,
+					headers: request.headers,
 				});
 			}
 
@@ -147,13 +156,65 @@ export default async function routes(fastify: FastifyInstance) {
 	);
 
 	fastify.withTypeProvider<TypeBoxTypeProvider>().get(
+		"/action/:name/:version?",
+		{
+			schema: {
+				params: ComponentRequest,
+				body: Type.Object({
+					action: Type.String(),
+					parameters: Type.Unknown(),
+				}),
+				response: {
+					200: Type.Object({
+						data: Type.String(),
+					}),
+					400: Type.String(),
+				},
+			},
+		},
+		async function getComponentAction(request, reply) {
+			const { name, version: versionRequested } = request.params;
+			const versions = await fastify.conf.database.getComponentVersions(name);
+			if (!versions.length) {
+				reply.code(400).send("Component not found");
+				return;
+			}
+			const version = getAvailableVersion(versions, versionRequested);
+			if (!version) {
+				reply.code(400).send("Version not found");
+				return;
+			}
+
+			let data: unknown = undefined;
+			const plugins = Object.fromEntries(
+				Object.entries(fastify.conf.plugins).map(([name, plugin]) => [
+					name,
+					plugin.handler,
+				]),
+			);
+			data = await getServerData({
+				name,
+				version,
+				action: request.body.action,
+				parameters: request.body.parameters,
+				plugins,
+				headers: request.headers,
+			});
+
+			return {
+				data: superjson.stringify(data),
+			};
+		},
+	);
+
+	fastify.withTypeProvider<TypeBoxTypeProvider>().get(
 		"/template/:name/:version/entry.js",
 		{
 			schema: {
 				params: Component,
 				response: {
 					200: {
-						type: "string",
+						type: Type.String(),
 					},
 				},
 			},

@@ -3,17 +3,18 @@ import vm from "node:vm";
 import requireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
 import { LRUCache } from "lru-cache";
-import type { FastifyRequest } from "fastify";
 
 type Loader = (...args: unknown[]) => Promise<void>;
+type Server = { loader: Loader; actions: Record<string, Loader> };
 
 export default function getServerData(opts: {
+	timeout: number;
 	repository: Repository;
 	dependencies: string[];
 }) {
-	const cache = new LRUCache<string, Loader>({ max: 500 });
+	const cache = new LRUCache<string, Server>({ max: 500 });
 
-	const getLoader = async (name: string, version: string) => {
+	const getServer = async (name: string, version: string) => {
 		const cached = cache.get(`${name}/${version}`);
 		if (cached) return cached;
 
@@ -44,43 +45,55 @@ export default function getServerData(opts: {
 		vm.runInNewContext(server, vmContext, options);
 
 		const loader = vmContext.module.exports.loader || vmContext.exports.loader;
+		const actions =
+			vmContext.module.exports.actions || vmContext.exports.actions;
 		if (!loader) throw new Error("Missing loader");
 
 		cache.set(`${name}/${version}`, loader);
 
-		return loader;
+		return { loader, actions };
 	};
 
 	return async ({
+		action,
 		name,
+		version,
 		parameters,
 		plugins,
-		version,
-		request,
+		headers,
 	}: {
-		request: FastifyRequest;
+		action?: string;
 		name: string;
 		version: string;
 		parameters: unknown;
 		plugins: Record<string, (...params: any[]) => any>;
+		headers?: Record<string, string | string[] | undefined>;
 	}) => {
 		const domain = Domain.create();
-		const loader = await getLoader(name, version);
+		const { loader, actions } = await getServer(name, version);
 
 		const serverContext = {
 			parameters,
 			plugins,
-			headers: request.headers ?? {},
+			headers: headers ?? {},
 		};
 
 		const { promise, resolve, reject } = Promise.withResolvers();
 
 		domain.on("error", (err) => reject(err));
 		domain.run(async () => {
+			setTimeout(() => {
+				reject(new Error("Timeout exceeded"));
+			}, opts.timeout);
+
 			try {
-				const data = await loader(serverContext);
+				let data: unknown;
+				if (action) {
+					data = await actions[action](parameters, serverContext);
+				} else {
+					data = await loader(serverContext);
+				}
 				resolve(data);
-				// setCallbackTimeout();
 			} catch (err) {
 				reject(err);
 			}
