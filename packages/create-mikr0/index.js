@@ -98,6 +98,15 @@ async function createRegistry() {
 			username: "admin",
 			password: crypto.randomUUID(),
 		},
+		importmap: {
+			imports: {
+				react: "https://unpkg.com/react@18/umd/react.production.min.js",
+				"react-dom":
+					"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
+				"solid-js": "https://cdn.jsdelivr.net/npm/solid-js@1.9/+esm",
+				vue: "https://cdn.jsdelivr.net/npm/vue@3.5/+esm",
+			},
+		},
 	};
 	if (database === "sqlite") {
 		config.database = {
