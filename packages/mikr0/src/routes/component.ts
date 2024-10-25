@@ -155,7 +155,7 @@ export default async function routes(fastify: FastifyInstance) {
 		},
 	);
 
-	fastify.withTypeProvider<TypeBoxTypeProvider>().get(
+	fastify.withTypeProvider<TypeBoxTypeProvider>().post(
 		"/action/:name/:version?",
 		{
 			schema: {
@@ -165,10 +165,17 @@ export default async function routes(fastify: FastifyInstance) {
 					parameters: Type.Unknown(),
 				}),
 				response: {
-					200: Type.Object({
-						data: Type.String(),
-					}),
-					400: Type.String(),
+					200: {
+						type: "object",
+						properties: {
+							data: {
+								type: "string",
+							},
+						},
+					},
+					400: {
+						type: "string",
+					},
 				},
 			},
 		},
@@ -214,7 +221,7 @@ export default async function routes(fastify: FastifyInstance) {
 				params: Component,
 				response: {
 					200: {
-						type: Type.String(),
+						type: "string",
 					},
 				},
 			},
