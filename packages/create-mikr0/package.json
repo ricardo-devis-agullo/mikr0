@@ -1,6 +1,6 @@
 {
   "name": "create-mikr0",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "type": "module",
   "main": "index.js",
   "bin": {

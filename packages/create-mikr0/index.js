@@ -229,12 +229,23 @@ ENTRYPOINT [ "node", "--experimental-strip-types" ,"/app/main.ts" ]`,
 			typescript: "^5.6.3",
 		},
 	});
+	const stringifiedConfig = JSON.stringify(config, null, 2);
 	writeText(
 		`./${folder}/index.ts`,
 		`import { createRegistry } from "mikr0";
 
-createRegistry(${JSON.stringify(config, null, 2)});`,
+createRegistry(${stringifiedConfig});`,
 	);
+
+	const doesNeedToFillValues = stringifiedConfig.includes(placeholder);
+
+	console.log("Finished. To start your registry for the first time:");
+	console.log();
+	console.log(`  cd ${folder}`);
+	doesNeedToFillValues &&
+		console.log(`  Fill the missing values in: ./${folder}/index.ts`);
+	console.log("  npm install");
+	console.log("  npm start");
 }
 
 async function createComponent() {
@@ -278,7 +289,7 @@ async function createComponent() {
 		name: componentName,
 	}));
 
-	console.log("Finished. To start your oc for the first time:");
+	console.log("Finished. To start your component for the first time:");
 	console.log();
 	console.log(`  cd ${componentName}`);
 	console.log("  npm install");
