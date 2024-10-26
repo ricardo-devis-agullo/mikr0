@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "mikr0 dev",
     "build": "vue-tsc -b && mikr0 build",
-    "publish-component": "vue-tsc -b && mikr0 publish",
-    "preview": "vite preview"
+    "publish-component": "vue-tsc -b && mikr0 publish"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
