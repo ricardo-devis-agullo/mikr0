@@ -103,6 +103,8 @@ export default async function routes(fastify: FastifyInstance) {
 					200: Type.Object({
 						src: Type.String(),
 						data: Type.String(),
+						component: Type.String(),
+						version: Type.String(),
 					}),
 					400: Type.String(),
 				},
@@ -151,6 +153,8 @@ export default async function routes(fastify: FastifyInstance) {
 					? `${request.protocol}://${request.host}/r/template/${name}/${version}/entry.js`
 					: templateUrl.href,
 				data: superjson.stringify(data),
+				component: name,
+				version,
 			};
 		},
 	);

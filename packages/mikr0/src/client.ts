@@ -5,6 +5,7 @@ class Mikr0 extends HTMLElement {
 	};
 	static log = (msg: string) => Mikr0.config.verbose && console.log(msg);
 	#connected = false;
+	#parser?: (data: string) => any;
 
 	async connectedCallback() {
 		const src = this.getAttribute("src");
@@ -25,22 +26,38 @@ class Mikr0 extends HTMLElement {
 		}
 	}
 
-	async #render(src: string) {
-		Mikr0.log(`Fetching component:, ${src}`);
-		const { src: templateSrc, data: serializedData } = await fetch(src).then(
-			(x) => x.json(),
-		);
+	async #parse(data: string) {
+		if (this.#parser) {
+			return this.#parser(data);
+		}
 		const { parse } = await import(
 			// @ts-expect-error
 			"https://cdn.jsdelivr.net/npm/superjson@2.2.1/+esm"
 		);
-		const data = parse(serializedData);
+		this.#parser = parse;
+		return parse(data);
+	}
+
+	async #render(src: string) {
+		Mikr0.log(`Fetching component:, ${src}`);
+		const {
+			src: templateSrc,
+			data: serializedData,
+			component,
+			version,
+		} = await fetch(src).then((x) => x.json());
+		const data = this.#parse(serializedData);
+		const { origin } = new URL(src);
 
 		try {
 			const template = await import(templateSrc);
 			Mikr0.log(`Rendering component: ${src}`);
 			this.innerHTML = "";
-			template.default.mount(this, data ?? {});
+			template.default.mount(this, data ?? {}, {
+				baseUrl: origin,
+				name: component,
+				version,
+			});
 			this.#reanimateScripts();
 		} catch (err) {
 			console.log("Error:", err);
@@ -61,9 +78,22 @@ class Mikr0 extends HTMLElement {
 }
 
 if (!window.mikr0?.loaded) {
-	customElements.define("mikro-component", Mikr0);
 	window.mikr0 = window.mikr0 ?? {};
 	window.mikr0.loaded = true;
+	window.mikr0.getAction = async ({ action, baseUrl, name, version, data }) => {
+		const url = `${baseUrl}/r/action/${name}/${version}`;
+		const res = await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ action, data }),
+		});
+		if (!res.ok) {
+			throw new Error(`Failed to fetch action: ${action}`);
+		}
+		return await res.json();
+	};
 
 	window.mikr0.events = (() => {
 		let listeners: Record<string, Array<(...data: any[]) => void>> = {};
@@ -107,4 +137,5 @@ if (!window.mikr0?.loaded) {
 			},
 		};
 	})();
+	customElements.define("mikro-component", Mikr0);
 }

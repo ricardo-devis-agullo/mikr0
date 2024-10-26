@@ -13,6 +13,13 @@ declare global {
 		mikr0?: {
 			verbose?: boolean;
 			loaded?: boolean;
+			getAction?: (options: {
+				action: string;
+				baseUrl: string;
+				name: string;
+				version: string;
+				data: unknown;
+			}) => Promise<unknown>;
 			events?: {
 				on: (eventName: string, fn: (...data: any[]) => void) => void;
 				off: (eventName: string, fn?: (...data: any[]) => void) => void;

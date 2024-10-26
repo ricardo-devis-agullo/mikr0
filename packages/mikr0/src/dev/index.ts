@@ -1,5 +1,11 @@
 import type { ParametersSchema } from "../parameters.js";
 
+const info = {
+	baseUrl: "",
+	name: "",
+	version: "",
+};
+
 // biome-ignore lint/complexity/noBannedTypes: it's fine
 interface Context<M, P extends AnyPlugins = {}> {
 	parameters: M;
@@ -102,7 +108,16 @@ export function createComponent<
 		plugins: options.plugins,
 		parameters: options.parameters,
 		loader: options.loader,
-		mount: options.mount,
+		mount: (
+			element: HTMLElement,
+			props: Data,
+			meta: { baseUrl: string; name: string; version: string },
+		) => {
+			info.baseUrl = meta.baseUrl;
+			info.name = meta.name;
+			info.version = meta.version;
+			options.mount(element, props);
+		},
 		unmount: options.unmount,
 	};
 }
@@ -137,9 +152,23 @@ export const serverClient: ServerClient<RegisteredComponent> = new Proxy(
 	{},
 	{
 		get(_target, prop: string) {
+			if (prop === "$___set_info___$") {
+				return (data: typeof info) => {
+					info.baseUrl = data.baseUrl;
+					info.name = data.name;
+					info.version = data.version;
+				};
+			}
+
 			return (data: any) => {
 				// @ts-ignore
-				return window.mikr0.getAction({ action: prop });
+				return window.mikr0.getAction({
+					action: prop,
+					baseUrl: info.baseUrl,
+					name: info.name,
+					version: info.version,
+					data,
+				});
 			};
 		},
 	},
