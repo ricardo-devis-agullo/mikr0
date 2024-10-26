@@ -2,7 +2,6 @@
 - Benchmarks
 - Error with nice message when missing a DB library
 - Add auth + user creation
-- Add svelte template
 - Allow specifying entry point
 - Handle errors on CLI when publishing the registry
 
