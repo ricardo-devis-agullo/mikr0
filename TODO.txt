@@ -1,6 +1,3 @@
-=== CRITICAL
-- Add component actions
-
 === NICE TO HAVE
 - Benchmarks
 - Error with nice message when missing a DB library
