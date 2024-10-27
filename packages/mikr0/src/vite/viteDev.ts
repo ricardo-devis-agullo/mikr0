@@ -105,12 +105,12 @@ export async function runServer() {
 		parameters: parametersSchema,
 	} = await getServerParts(entryPoint);
 	const { name, version } = await getPkgInfo();
+	const meta = { name, version, baseUrl: "/" };
 
 	await fs.writeFile(
 		tmpEntryPoint,
-		// TODO: Use proper base data for third parameter of mount
 		`import component from './index.tsx';
-     component.mount(document.getElementById('app'), window.__MIKR0_DATA__, {});`,
+     component.mount(document.getElementById('app'), window.__MIKR0_DATA__, ${JSON.stringify(meta)});`,
 		"utf-8",
 	);
 	const vite = await createServer({
