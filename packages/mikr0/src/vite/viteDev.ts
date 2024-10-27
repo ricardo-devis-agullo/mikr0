@@ -12,6 +12,7 @@ import { parseParameters } from "../parameters.js";
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
+let app: Fastify.FastifyInstance | undefined = undefined;
 
 async function getPkgInfo() {
 	const pkg = JSON.parse(
@@ -26,6 +27,9 @@ let tmpServer = "";
 const entryPoint = path.join(process.cwd(), "src/index.tsx");
 
 async function cleanup() {
+	if (app) {
+		await app.close().catch(() => {});
+	}
 	await fs.rm(tmpEntryPoint).catch(() => {});
 	if (tmpServer) {
 		await fs.rm(tmpServer, { recursive: true }).catch(() => {});
@@ -117,7 +121,7 @@ export async function runServer() {
 		plugins: [ocClientPlugin({ entry: entryPoint })],
 	});
 
-	const app = Fastify({ logger: false });
+	app = Fastify({ logger: false });
 	app.addHook("onClose", cleanup);
 
 	await app.register(FastifyExpress);

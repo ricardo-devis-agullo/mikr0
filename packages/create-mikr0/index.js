@@ -80,7 +80,7 @@ async function createRegistry() {
 
 	/** @type Record<string, string> */
 	const dependencies = {
-		mikr0: "0.0.1-beta.25",
+		mikr0: "0.0.1-beta.26",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";
@@ -287,6 +287,7 @@ async function createComponent() {
 	replaceJson(`./${componentName}/package.json`, (/** @type any */ pkg) => ({
 		...pkg,
 		name: componentName,
+		description: `A sample component written in ${template}`,
 	}));
 
 	console.log("Finished. To start your component for the first time:");

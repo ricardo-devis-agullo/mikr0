@@ -42,7 +42,7 @@ function EmptyList() {
 			<p>No components have been published yet.</p>
 			<div class="mt-8 flex flex-col space-y-4 border-solid border-2 p-4 text-sm">
 				<p>Create your first component running</p>
-				<p class="font-mono">npx create mikr0@latest -t component</p>
+				<p class="font-mono">npm create mikr0@latest -- -t component</p>
 				<p>And when you are ready to publish it</p>
 				<p class="font-mono">
 					npm run publish-component -- --registry {window.location.origin}
