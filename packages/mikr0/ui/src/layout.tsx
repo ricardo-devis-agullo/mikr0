@@ -29,14 +29,14 @@ export default function Layout(props: FlowProps) {
 								Components
 							</a>
 						</li>
-						<li class="flex items-center space-x-2">
+						{/* <li class="flex items-center space-x-2">
 							<TbPlug class="ml-2" size={18} />
 							<a href="/ui/">Plugins</a>
 						</li>
 						<li class="flex items-center space-x-2">
 							<CgProfile class="ml-2" size={18} />
 							<a href="/ui/">Admin</a>
-						</li>
+						</li> */}
 					</ul>
 				</div>
 				<main>{props.children}</main>
