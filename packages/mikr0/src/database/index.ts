@@ -1,14 +1,39 @@
 import knex from "knex";
 import type { DatabaseOptions } from "../types.js";
 
+type DatabaseClient = DatabaseOptions["client"];
+const requiredDependency: Record<DatabaseClient, string[]> = {
+	pg: ["pg", "pg-native"],
+	mysql: ["mysql", "mysql2"],
+	sqlite3: ["sqlite3", "better-sqlite3"],
+	mssql: ["tedious"],
+};
+
 export class Database {
 	#client: knex.Knex;
+	#clientType: DatabaseClient;
 
 	constructor(options: DatabaseOptions) {
+		this.#clientType = options.client;
 		this.#client = knex(options);
 	}
 
 	async init() {
+		const dependencies = requiredDependency[this.#clientType];
+		let dependencyReady = false;
+		for (const dependency of dependencies) {
+			try {
+				await import(dependency);
+				dependencyReady = true;
+				break;
+			} catch {}
+		}
+		if (!dependencyReady) {
+			throw new Error(
+				`You need to install one of the following dependencies for your ${this.#clientType} database: ${dependencies.join(", ")}`,
+			);
+		}
+
 		const existsComponents = await this.#client.schema.hasTable("components");
 		const existsVersions = await this.#client.schema.hasTable("components");
 		if (!existsComponents) {
