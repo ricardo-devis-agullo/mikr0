@@ -9,9 +9,7 @@
 - Allow multiple versions of a dependency
 
 === CUTE LITTLE THINGS
-- Add JSON schema for json config style
 - Improve performance on publishing (too much redundancy)
-- Add CLI option to run registry from json
 - Add "registry" option to component entry so CLI can read from it
 - Bundle superjson on registry (make it an option)
 - In dev mode floating window that lets you edit params
