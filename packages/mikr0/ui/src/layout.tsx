@@ -1,7 +1,7 @@
 import { BiRegularSun } from "solid-icons/bi";
-import { CgProfile } from "solid-icons/cg";
+// import { CgProfile } from "solid-icons/cg";
 import { FiBox } from "solid-icons/fi";
-import { TbPlug } from "solid-icons/tb";
+// import { TbPlug } from "solid-icons/tb";
 import type { FlowProps } from "solid-js";
 import { useTheme } from "./ThemeProvider";
 
