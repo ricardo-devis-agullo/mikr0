@@ -6,7 +6,7 @@ import { createComponent } from "mikr0/dev";
 let root: Root | undefined;
 
 // eslint-disable-next-line react-refresh/only-export-components
-export default createComponent({
+const component = createComponent({
 	parameters: {
 		name: {
 			type: "string",
@@ -31,3 +31,5 @@ export default createComponent({
 		root?.unmount();
 	},
 });
+
+export default component;
