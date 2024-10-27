@@ -18,7 +18,7 @@ declare global {
 				baseUrl: string;
 				name: string;
 				version: string;
-				data: unknown;
+				parameters: unknown;
 			}) => Promise<unknown>;
 			events?: {
 				on: (eventName: string, fn: (...data: any[]) => void) => void;

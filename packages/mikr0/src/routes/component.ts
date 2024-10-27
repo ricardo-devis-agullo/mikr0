@@ -166,7 +166,7 @@ export default async function routes(fastify: FastifyInstance) {
 				params: ComponentRequest,
 				body: Type.Object({
 					action: Type.String(),
-					parameters: Type.Unknown(),
+					parameters: Type.String(),
 				}),
 				response: {
 					200: {
@@ -186,6 +186,7 @@ export default async function routes(fastify: FastifyInstance) {
 		async function getComponentAction(request, reply) {
 			const { name, version: versionRequested } = request.params;
 			const versions = await fastify.conf.database.getComponentVersions(name);
+			const parameters = superjson.parse(request.body.parameters);
 			if (!versions.length) {
 				reply.code(400).send("Component not found");
 				return;
@@ -207,7 +208,7 @@ export default async function routes(fastify: FastifyInstance) {
 				name,
 				version,
 				action: request.body.action,
-				parameters: request.body.parameters,
+				parameters,
 				plugins,
 				headers: request.headers,
 			});

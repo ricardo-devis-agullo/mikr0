@@ -1,3 +1,11 @@
+import type { SuperJSON } from "superjson";
+
+const superjson = (): Promise<SuperJSON> =>
+	import(
+		// @ts-expect-error
+		"https://cdn.jsdelivr.net/npm/superjson@2.2.1/+esm"
+	);
+
 class Mikr0 extends HTMLElement {
 	static observedAttributes = ["src", "data"];
 	static config = {
@@ -5,7 +13,6 @@ class Mikr0 extends HTMLElement {
 	};
 	static log = (msg: string) => Mikr0.config.verbose && console.log(msg);
 	#connected = false;
-	#parser?: (data: string) => any;
 
 	async connectedCallback() {
 		const src = this.getAttribute("src");
@@ -26,18 +33,6 @@ class Mikr0 extends HTMLElement {
 		}
 	}
 
-	async #parse(data: string) {
-		if (this.#parser) {
-			return this.#parser(data);
-		}
-		const { parse } = await import(
-			// @ts-expect-error
-			"https://cdn.jsdelivr.net/npm/superjson@2.2.1/+esm"
-		);
-		this.#parser = parse;
-		return parse(data);
-	}
-
 	async #render(src: string) {
 		Mikr0.log(`Fetching component:, ${src}`);
 		const {
@@ -46,7 +41,8 @@ class Mikr0 extends HTMLElement {
 			component,
 			version,
 		} = await fetch(src).then((x) => x.json());
-		const data = this.#parse(serializedData);
+		const { parse } = await superjson();
+		const data = parse(serializedData);
 		const { origin } = new URL(src);
 
 		try {
@@ -80,19 +76,28 @@ class Mikr0 extends HTMLElement {
 if (!window.mikr0?.loaded) {
 	window.mikr0 = window.mikr0 ?? {};
 	window.mikr0.loaded = true;
-	window.mikr0.getAction = async ({ action, baseUrl, name, version, data }) => {
+	window.mikr0.getAction = async ({
+		action,
+		baseUrl,
+		name,
+		version,
+		parameters,
+	}) => {
 		const url = `${baseUrl}/r/action/${name}/${version}`;
-		const res = await fetch(url, {
+		const { stringify, parse } = await superjson();
+		const stringifiedParameters = stringify(parameters);
+		const response = await fetch(url, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ action, data }),
+			body: JSON.stringify({ action, parameters: stringifiedParameters }),
 		});
-		if (!res.ok) {
+		if (!response.ok) {
 			throw new Error(`Failed to fetch action: ${action}`);
 		}
-		return await res.json();
+		const json = await response.json();
+		return parse(json.data);
 	};
 
 	window.mikr0.events = (() => {

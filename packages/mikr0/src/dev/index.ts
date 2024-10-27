@@ -160,14 +160,14 @@ export const serverClient: ServerClient<RegisteredComponent> = new Proxy(
 				};
 			}
 
-			return (data: any) => {
+			return (parameters: any) => {
 				// @ts-ignore
 				return window.mikr0.getAction({
 					action: prop,
 					baseUrl: info.baseUrl,
 					name: info.name,
 					version: info.version,
-					data,
+					parameters,
 				});
 			};
 		},
