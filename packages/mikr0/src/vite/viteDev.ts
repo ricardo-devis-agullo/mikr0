@@ -108,8 +108,9 @@ export async function runServer() {
 
 	await fs.writeFile(
 		tmpEntryPoint,
+		// TODO: Use proper base data for third parameter of mount
 		`import component from './index.tsx';
-     component.mount(document.getElementById('app'), window.__MIKR0_DATA__);`,
+     component.mount(document.getElementById('app'), window.__MIKR0_DATA__, {});`,
 		"utf-8",
 	);
 	const vite = await createServer({
