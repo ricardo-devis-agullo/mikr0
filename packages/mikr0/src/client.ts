@@ -3,7 +3,7 @@ import type { SuperJSON } from "superjson";
 const superjson = (): Promise<SuperJSON> =>
 	import(
 		// @ts-expect-error
-		"https://cdn.jsdelivr.net/npm/superjson@2.2.1/+esm"
+		"https://cdn.jsdelivr.net/npm/superjson@2/+esm"
 	);
 
 class Mikr0 extends HTMLElement {
