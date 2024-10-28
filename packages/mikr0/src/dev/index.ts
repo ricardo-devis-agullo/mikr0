@@ -156,14 +156,6 @@ export const serverClient: ServerClient<RegisteredComponent> = new Proxy(
 	{},
 	{
 		get(_target, prop: string) {
-			if (prop === "$___set_info___$") {
-				return (data: typeof info) => {
-					info.baseUrl = data.baseUrl;
-					info.name = data.name;
-					info.version = data.version;
-				};
-			}
-
 			return (parameters: any) => {
 				// @ts-ignore
 				return window.mikr0.getAction({
