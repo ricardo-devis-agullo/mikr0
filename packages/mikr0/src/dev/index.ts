@@ -101,7 +101,7 @@ export function createComponent<
 		context: Context<TransformOcParameters<Schema>, Plugins>,
 	) => Data | Promise<Data>;
 	mount: (element: HTMLElement, props: Data) => void;
-	unmount?: (element: HTMLElement) => void;
+	unmount?: () => void;
 }) {
 	return {
 		actions: options.actions,
@@ -121,6 +121,10 @@ export function createComponent<
 		unmount: options.unmount,
 	};
 }
+export type BrowserComponent = Pick<
+	ReturnType<typeof createComponent>,
+	"mount" | "unmount"
+>;
 
 type Actions<TComponent extends AnyComponent> = Exclude<
 	TComponent["actions"],

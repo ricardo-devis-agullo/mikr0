@@ -1,4 +1,5 @@
 import type { SuperJSON } from "superjson";
+import type { BrowserComponent } from "./dev/index.js";
 
 const superjson = (): Promise<SuperJSON> =>
 	import(
@@ -13,6 +14,7 @@ class Mikr0 extends HTMLElement {
 	};
 	static log = (msg: string) => Mikr0.config.verbose && console.log(msg);
 	#connected = false;
+	#unmount?: () => void;
 
 	async connectedCallback() {
 		const src = this.getAttribute("src");
@@ -33,6 +35,11 @@ class Mikr0 extends HTMLElement {
 		}
 	}
 
+	disconnectedCallback() {
+		this.#connected = false;
+		this.#unmount?.();
+	}
+
 	async #render(src: string) {
 		Mikr0.log(`Fetching component:, ${src}`);
 		const {
@@ -46,9 +53,10 @@ class Mikr0 extends HTMLElement {
 		const { origin } = new URL(src);
 
 		try {
-			const template = await import(templateSrc);
+			const template: { default: BrowserComponent } = await import(templateSrc);
 			Mikr0.log(`Rendering component: ${src}`);
 			this.innerHTML = "";
+			this.#unmount = template.default.unmount;
 			template.default.mount(this, data ?? {}, {
 				baseUrl: origin,
 				name: component,

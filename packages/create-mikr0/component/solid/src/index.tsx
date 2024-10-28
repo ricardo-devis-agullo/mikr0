@@ -4,6 +4,8 @@ import { render } from "solid-js/web";
 import App from "./App.tsx";
 import { createComponent } from "mikr0/dev";
 
+let dispose: (() => void) | undefined = undefined;
+
 // eslint-disable-next-line react-refresh/only-export-components
 export default createComponent({
 	parameters: {
@@ -19,7 +21,9 @@ export default createComponent({
 		return { name, lang };
 	},
 	mount(element, props) {
-		render(() => <App {...props} />, element);
+		dispose = render(() => <App {...props} />, element);
 	},
-	unmount() {},
+	unmount() {
+		dispose?.();
+	},
 });
