@@ -1,7 +1,7 @@
-import { StrictMode } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import App from "./App.tsx";
 import { createComponent } from "mikr0/dev";
+import { StrictMode } from "react";
+import { type Root, createRoot } from "react-dom/client";
+import App from "./App.tsx";
 
 let root: Root | undefined;
 

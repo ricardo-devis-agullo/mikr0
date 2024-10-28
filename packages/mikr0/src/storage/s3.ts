@@ -1,11 +1,11 @@
+import fs from "node:fs";
+import { promisify } from "node:util";
 import { S3, type S3ClientConfig } from "@aws-sdk/client-s3";
 import {
 	NodeHttpHandler,
 	type NodeHttpHandlerOptions,
 } from "@aws-sdk/node-http-handler";
-import fs from "node:fs";
 import nodeDir, { type PathsResult } from "node-dir";
-import { promisify } from "node:util";
 
 import type { Agent as httpAgent } from "node:http";
 import type { Agent as httpsAgent } from "node:https";

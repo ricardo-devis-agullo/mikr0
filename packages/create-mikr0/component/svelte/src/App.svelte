@@ -1,16 +1,16 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
+import svelteLogo from "./assets/svelte.svg";
 
-	const { name, lang }: { name: string, lang: string } = $props();
-  let count: number = $state(0)
-  const increment = () => {
-    count += 1
-  }
-  const formatted = $derived(() => {
-    return new Intl.NumberFormat(lang, {
-      maximumSignificantDigits: 3,
-    }).format(count)
-  })
+const { name, lang }: { name: string; lang: string } = $props();
+let count: number = $state(0);
+const increment = () => {
+	count += 1;
+};
+const formatted = $derived(() => {
+	return new Intl.NumberFormat(lang, {
+		maximumSignificantDigits: 3,
+	}).format(count);
+});
 </script>
 
 <div>

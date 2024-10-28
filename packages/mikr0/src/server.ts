@@ -1,8 +1,8 @@
 import Domain from "node:domain";
 import vm from "node:vm";
+import { LRUCache } from "lru-cache";
 import requireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
-import { LRUCache } from "lru-cache";
 
 type Loader = (...args: unknown[]) => Promise<void>;
 type Server = { loader: Loader; actions: Record<string, Loader> };

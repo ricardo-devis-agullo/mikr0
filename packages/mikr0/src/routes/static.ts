@@ -1,8 +1,7 @@
-import path from "node:path";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { type Static, Type } from "@sinclair/typebox";
-import { buildSync } from "esbuild";
 import type { FastifyInstance } from "fastify";
+import { compileClient } from "../client/compile-client.js";
 
 export const Component = Type.Object({
 	name: Type.String(),
@@ -10,31 +9,7 @@ export const Component = Type.Object({
 });
 export type Component = Static<typeof Component>;
 
-const {
-	outputFiles: [clientMinOutput],
-} = buildSync({
-	bundle: true,
-	minify: true,
-	write: false,
-	target: ["chrome80", "firefox80", "safari12"],
-	entryPoints: [path.join(import.meta.dirname, "../client.js")],
-	format: "iife",
-});
-const {
-	outputFiles: [clientOutput],
-} = buildSync({
-	bundle: true,
-	minify: false,
-	write: false,
-	target: ["chrome80", "firefox80", "safari12"],
-	entryPoints: [path.join(import.meta.dirname, "../client.js")],
-	format: "iife",
-});
-const clientMin = clientMinOutput?.text;
-const client = clientOutput?.text;
-if (!clientMin || !client) {
-	throw new Error("Missing client");
-}
+const { code: client, minified: clientMin } = compileClient();
 
 export default async function routes(fastify: FastifyInstance) {
 	fastify.withTypeProvider<TypeBoxTypeProvider>().get(

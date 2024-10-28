@@ -1,6 +1,6 @@
+import { createComponent } from "mikr0/dev";
 import { render } from "preact";
 import { App } from "./app.tsx";
-import { createComponent } from "mikr0/dev";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export default createComponent({

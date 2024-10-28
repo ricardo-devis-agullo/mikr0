@@ -67,7 +67,7 @@ type Component<
 	plugins?: Plugins;
 	actions?: Actions;
 	loader?: (ctx: Context<any, Plugins>) => Data | Promise<Data>;
-	mount: (element: HTMLElement, props: any) => void;
+	mount: (element: HTMLElement, props: any, meta: any) => void;
 	unmount?: (element: HTMLElement) => void;
 };
 type AnyComponent = Component<any, any, any, any>;

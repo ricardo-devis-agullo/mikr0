@@ -1,8 +1,8 @@
 import type { StaticStorageOptions } from "../types.js";
 import { AzureStorage } from "./azure.js";
-import { S3Storage } from "./s3.js";
 import { FilesystemStorage } from "./filesystem.js";
 import { MemoryStorage } from "./memory.js";
+import { S3Storage } from "./s3.js";
 
 export interface StaticStorage {
 	save: (src: string, destination: string) => Promise<void>;

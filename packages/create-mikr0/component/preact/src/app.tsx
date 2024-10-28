@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
-import preactLogo from "./assets/preact.svg";
 import styles from "./app.module.css";
+import preactLogo from "./assets/preact.svg";
 
 export function App(props: { name: string; lang: string }) {
 	const [count, setCount] = useState(0);

@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import fastifyBasicAuth from "@fastify/basic-auth";
 import cors from "@fastify/cors";
 import fastifyMultipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
-import fastifyBasicAuth from "@fastify/basic-auth";
 import Fastify, { type FastifyInstance } from "fastify";
 
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";

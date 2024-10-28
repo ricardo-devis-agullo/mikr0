@@ -1,6 +1,6 @@
+import { createComponent } from "mikr0/dev";
 import { type App as VueApp, createApp } from "vue";
 import App from "./App.vue";
-import { createComponent } from "mikr0/dev";
 
 let app: VueApp<Element> | undefined = undefined;
 

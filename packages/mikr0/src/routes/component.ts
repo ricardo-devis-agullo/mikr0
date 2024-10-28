@@ -7,8 +7,8 @@ import type { FastifyInstance } from "fastify";
 import superjson from "superjson";
 import { parseParameters } from "../parameters.js";
 import makeServerData from "../server.js";
-import { getAvailableVersion } from "./versions.js";
 import { getMimeType } from "../storage/utils.js";
+import { getAvailableVersion } from "./versions.js";
 
 export const Component = Type.Object({
 	name: Type.String(),

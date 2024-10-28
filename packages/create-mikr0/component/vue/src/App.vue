@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from "vue";
 
-const props = defineProps<{ name: string, lang: string }>()
+const props = defineProps<{ name: string; lang: string }>();
 
-const count = ref(0)
+const count = ref(0);
 const formatted = computed(() => {
-  return new Intl.NumberFormat(props.lang, {
-    maximumSignificantDigits: 3,
-  }).format(count.value)
-})
+	return new Intl.NumberFormat(props.lang, {
+		maximumSignificantDigits: 3,
+	}).format(count.value);
+});
 </script>
 
 <template>

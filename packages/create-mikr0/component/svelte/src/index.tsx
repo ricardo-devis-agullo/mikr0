@@ -1,6 +1,6 @@
+import { createComponent } from "mikr0/dev";
 import { mount, unmount } from "svelte";
 import App from "./App.svelte";
-import { createComponent } from "mikr0/dev";
 
 let app: any = undefined;
 

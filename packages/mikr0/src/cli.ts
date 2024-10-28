@@ -5,10 +5,10 @@ import fsp from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import FormData from "form-data";
+import prompts from "prompts";
 import undici from "undici";
 import { build } from "./vite/Vite.js";
 import { runServer } from "./vite/viteDev.js";
-import prompts from "prompts";
 
 let {
 	positionals: [command],

@@ -1,14 +1,15 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import os from "node:os";
+import path from "node:path";
 import FastifyExpress from "@fastify/express";
+import esbuild from "esbuild";
 import Fastify from "fastify";
 import { createServer } from "vite";
-import esbuild from "esbuild";
 import { createRegistry } from "../Registry.js";
+import { parseParameters } from "../parameters.js";
 import { MemoryStorage } from "../storage/memory.js";
 import { ocClientPlugin } from "./plugins.js";
-import { parseParameters } from "../parameters.js";
+import { compileClient } from "../client/compile-client.js";
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
@@ -106,6 +107,7 @@ export async function runServer() {
 	} = await getServerParts(entryPoint);
 	const { name, version } = await getPkgInfo();
 	const meta = { name, version, baseUrl: "/" };
+	const { code: client } = compileClient();
 
 	await fs.writeFile(
 		tmpEntryPoint,
@@ -142,12 +144,17 @@ export async function runServer() {
         margin: 0;
       };
       </style>
+      <script src="/r/client.js"></script>
     </head>
     <body>
       ${body}
     </body>
   </html>
     `;
+
+	app.get("/r/client.js", (request, reply) => {
+		reply.type("application/javascript").send(client);
+	});
 
 	app.get("*", async (request, reply) => {
 		try {

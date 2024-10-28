@@ -1,6 +1,6 @@
-import type { FastifyCorsOptions } from "@fastify/cors";
 import type { Agent as httpAgent } from "node:http";
 import type { Agent as httpsAgent } from "node:https";
+import type { FastifyCorsOptions } from "@fastify/cors";
 
 type BaseCoreLibraries =
 	| "assert"

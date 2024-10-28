@@ -1,8 +1,8 @@
 /* @refresh reload */
 
+import { createComponent } from "mikr0/dev";
 import { render } from "solid-js/web";
 import App from "./App.tsx";
-import { createComponent } from "mikr0/dev";
 
 let dispose: (() => void) | undefined = undefined;
 

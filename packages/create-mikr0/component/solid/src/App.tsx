@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
-import solidLogo from "./assets/solid.svg";
 import styles from "./App.module.css";
+import solidLogo from "./assets/solid.svg";
 
 function App(props: { name: string; lang: string }) {
 	const [count, setCount] = createSignal(0);

@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
-import type { StaticStorage } from "./storage.js";
 import url from "node:url";
+import type { StaticStorage } from "./storage.js";
 
 export function FilesystemStorage(options: {
 	folderPath: string;
