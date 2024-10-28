@@ -4,6 +4,7 @@ import path from "node:path";
 import FastifyExpress from "@fastify/express";
 import esbuild from "esbuild";
 import Fastify from "fastify";
+import superjson from "superjson";
 import { createServer } from "vite";
 import { createRegistry } from "../Registry.js";
 import { parseParameters } from "../parameters.js";
@@ -68,10 +69,10 @@ async function getServerParts(entry: string) {
 		],
 	});
 	const {
-		default: { loader, plugins, parameters },
+		default: { actions, loader, plugins, parameters },
 	} = await import(path.join(tmpServer, "server.js"));
 
-	return { loader, plugins, parameters };
+	return { actions, loader, plugins, parameters };
 }
 
 function getBaseTemplate(name: string, version: string, appBlock: string) {
@@ -101,6 +102,7 @@ function getBaseTemplate(name: string, version: string, appBlock: string) {
 
 export async function runServer() {
 	const {
+		actions,
 		loader,
 		plugins,
 		parameters: parametersSchema,
@@ -112,7 +114,7 @@ export async function runServer() {
 	await fs.writeFile(
 		tmpEntryPoint,
 		`import component from './index.tsx';
-     component.mount(document.getElementById('app'), window.__MIKR0_DATA__, ${JSON.stringify(meta)});`,
+     component.mount(document.getElementById('app'), window.__MIKR0_DATA__, {name: "${name}", version: "${version}", baseUrl: window.location.origin});`,
 		"utf-8",
 	);
 	const vite = await createServer({
@@ -154,6 +156,14 @@ export async function runServer() {
 
 	app.get("/r/client.js", (request, reply) => {
 		reply.type("application/javascript").send(client);
+	});
+
+	app.post("/r/action/:name/:version", async (request, reply) => {
+		const body: any = request.body;
+		const action = actions[body.action];
+		const parameters = JSON.parse(body.parameters);
+		const data = await action(parameters);
+		return { data: superjson.stringify(data) };
 	});
 
 	app.get("*", async (request, reply) => {
