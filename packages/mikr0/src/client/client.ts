@@ -1,5 +1,5 @@
 import type { SuperJSON } from "superjson";
-import type { BrowserComponent } from "./dev/index.js";
+import type { BrowserComponent } from "../dev/index.js";
 
 const superjson = (): Promise<SuperJSON> =>
 	import(
