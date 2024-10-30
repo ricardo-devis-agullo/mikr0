@@ -1,6 +1,28 @@
 import type { Agent as httpAgent } from "node:http";
 import type { Agent as httpsAgent } from "node:https";
 import type { FastifyCorsOptions } from "@fastify/cors";
+import type { ParametersSchema } from "./parameters.js";
+
+interface PackageJson {
+	name: string;
+	version: string;
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+}
+
+export interface BuiltPackageJson extends PackageJson {
+	mikr0: {
+		clientSize: number;
+		serverSize?: number;
+		parameters?: ParametersSchema;
+	};
+}
+
+export interface PublishedPackageJson extends BuiltPackageJson {
+	mikr0: BuiltPackageJson["mikr0"] & {
+		publishDate: string;
+	};
+}
 
 type BaseCoreLibraries =
 	| "assert"

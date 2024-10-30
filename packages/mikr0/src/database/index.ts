@@ -63,7 +63,7 @@ export class Database {
 		name: string;
 		version: string;
 		client_size: number;
-		server_size: number;
+		server_size: number | null;
 		published_at: Date;
 		description?: string;
 	}) {

@@ -5,6 +5,7 @@ import path from "node:path";
 import AdmZip from "adm-zip";
 import * as vite from "vite";
 import { ocClientPlugin, ocServerPlugin } from "./plugins.js";
+import type { BuiltPackageJson } from "../types.js";
 
 const config = await vite.loadConfigFromFile(
 	{ command: "build", mode: "production" },
@@ -57,9 +58,10 @@ export async function build() {
 		throw new Error("Expected builds to be a single bundle");
 	const serverSize = server[0]?.output[0].code.length;
 	const clientSize = client[0]?.output[0].code.length;
+	if (!clientSize) throw new Error("Could not determine client size");
 
 	const { parameters } = require(path.join(process.cwd(), "dist/server.cjs"));
-	const pkg = JSON.parse(
+	const pkg: BuiltPackageJson = JSON.parse(
 		await fsp.readFile(path.join(process.cwd(), "package.json"), "utf-8"),
 	);
 	pkg.mikr0 = { parameters, serverSize, clientSize };

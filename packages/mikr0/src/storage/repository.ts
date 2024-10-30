@@ -1,18 +1,7 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
-import type { ParametersSchema } from "../parameters.js";
 import type { StaticStorage } from "./storage.js";
-
-interface Mikr0Info {
-	parameters: ParametersSchema;
-	server: boolean;
-}
-
-interface Pkg {
-	name: string;
-	version: string;
-	mikr0: Mikr0Info;
-}
+import type { BuiltPackageJson } from "../types.js";
 
 export const Repository = (options: { storage: StaticStorage }) => {
 	return {
@@ -37,7 +26,10 @@ export const Repository = (options: { storage: StaticStorage }) => {
 		getServer(name: string, version: string) {
 			return options.storage.get(`${name}/${version}/server.cjs`);
 		},
-		async getPackageJson(name: string, version: string): Promise<Pkg> {
+		async getPackageJson(
+			name: string,
+			version: string,
+		): Promise<BuiltPackageJson> {
 			const pkg = await options.storage.get(`${name}/${version}/package.json`);
 
 			return JSON.parse(pkg);

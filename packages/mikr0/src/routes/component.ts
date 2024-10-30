@@ -9,6 +9,7 @@ import { parseParameters } from "../parameters.js";
 import makeServerData from "../server.js";
 import { getMimeType } from "../storage/utils.js";
 import { getAvailableVersion } from "./versions.js";
+import type { PublishedPackageJson } from "../types.js";
 
 export const Component = Type.Object({
 	name: Type.String(),
@@ -60,29 +61,31 @@ export default async function routes(fastify: FastifyInstance) {
 				try {
 					const files = await request.saveRequestFiles();
 					const [zipFile, pkg] = files;
-					if (pkg) {
-						const pkgJson = JSON.parse(await readFile(pkg.filepath, "utf-8"));
-						pkgJson.mikr0.publishDate = Date.now();
-						await writeFile(
-							`./uploads/${id}/package.json`,
-							JSON.stringify(pkgJson, null, 2),
-						);
-					}
-					if (zipFile) {
-						const zip = new AdmZip(zipFile.filepath);
-						const extract = promisify(zip.extractAllToAsync).bind(zip);
-						await extract(`./uploads/${id}`, true, true);
-					} else {
-						reply.code(400).send("Missing zip");
+					const publishDate = new Date();
+
+					if (!pkg || !zipFile) {
+						reply.code(400).send("Missing package.json or zip file");
 						return;
 					}
+
+					const pkgJson: PublishedPackageJson = JSON.parse(
+						await readFile(pkg.filepath, "utf-8"),
+					);
+					pkgJson.mikr0.publishDate = publishDate.toISOString();
+					await writeFile(
+						`./uploads/${id}/package.json`,
+						JSON.stringify(pkgJson, null, 2),
+					);
+					const zip = new AdmZip(zipFile.filepath);
+					const extract = promisify(zip.extractAllToAsync).bind(zip);
+					await extract(`./uploads/${id}`, true, true);
 
 					await fastify.repository.saveComponent(`./uploads/${id}`);
 					await fastify.conf.database.insertComponent({
 						name,
 						version,
-						client_size: 0,
-						server_size: 0,
+						client_size: pkgJson.mikr0.clientSize ?? null,
+						server_size: pkgJson.mikr0.serverSize ?? null,
 						published_at: new Date(),
 					});
 					reply.code(200).send("OK");
@@ -124,10 +127,9 @@ export default async function routes(fastify: FastifyInstance) {
 			}
 
 			const pkg = await fastify.repository.getPackageJson(name, version);
-			const parsedParameters = parseParameters(
-				pkg.mikr0.parameters,
-				request.query,
-			);
+			const parsedParameters = pkg.mikr0.parameters
+				? parseParameters(pkg.mikr0.parameters, request.query)
+				: {};
 			let data: unknown = undefined;
 			const plugins = Object.fromEntries(
 				Object.entries(fastify.conf.plugins).map(([name, plugin]) => [
@@ -135,7 +137,7 @@ export default async function routes(fastify: FastifyInstance) {
 					plugin.handler,
 				]),
 			);
-			if (pkg.mikr0.server) {
+			if (pkg.mikr0.serverSize) {
 				data = await getServerData({
 					name,
 					version,

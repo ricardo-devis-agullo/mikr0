@@ -19,8 +19,8 @@ export async function createRegistry(
 	const server = Fastify({
 		logger: opts.verbose,
 	}).withTypeProvider<TypeBoxTypeProvider>();
-	await server.register(cors, opts.cors);
 	const config = parseConfig(opts);
+	await server.register(cors, config.cors);
 	await config.database.init();
 	const html = readFileSync(
 		path.join(import.meta.dirname, "/ui-dist/index.html"),
