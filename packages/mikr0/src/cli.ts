@@ -7,7 +7,7 @@ import { parseArgs } from "node:util";
 import FormData from "form-data";
 import prompts from "prompts";
 import undici from "undici";
-import { build } from "./vite/Vite.js";
+import { build } from "./vite/build.js";
 import { runServer } from "./vite/viteDev.js";
 
 let {
