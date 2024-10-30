@@ -3,6 +3,9 @@
 - Add auth + user creation
 - Allow specifying entry point
 - Handle errors on CLI when publishing the registry
+- Add preview mode that runs a real registry
+- Add option for registryFallBackUrl on preview mode like OC
+- Add option to publish without building (decide which one should be the default)
 
 === AFTER MVP
 - Allow multiple versions of a dependency
