@@ -1,6 +1,5 @@
 === NICE TO HAVE
 - Benchmarks
-- Add auth + user creation
 - Allow specifying entry point
 - Handle errors on CLI when publishing the registry
 - Add preview mode that runs a real registry
@@ -9,6 +8,7 @@
 
 === AFTER MVP
 - Allow multiple versions of a dependency
+- Add auth + user creation
 
 === CUTE LITTLE THINGS
 - Improve performance on publishing (too much redundancy)
