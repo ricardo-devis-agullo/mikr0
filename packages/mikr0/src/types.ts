@@ -3,7 +3,7 @@ import type { Agent as httpsAgent } from "node:https";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { ParametersSchema } from "./parameters.js";
 
-interface PackageJson {
+export interface PackageJson {
 	name: string;
 	version: string;
 	dependencies?: Record<string, string>;

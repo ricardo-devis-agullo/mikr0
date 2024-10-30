@@ -1,7 +1,7 @@
 import Domain from "node:domain";
 import vm from "node:vm";
 import { LRUCache } from "lru-cache";
-import requireWrapper from "./require-wrapper.js";
+import createRequireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
 
 type Loader = (...args: unknown[]) => Promise<void>;
@@ -29,7 +29,7 @@ export default function getServerData(opts: {
 				: {};
 
 		const vmContext = {
-			require: requireWrapper(opts.dependencies),
+			require: createRequireWrapper(opts.dependencies),
 			module: {
 				exports: {} as any,
 			},
