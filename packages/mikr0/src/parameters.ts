@@ -14,9 +14,13 @@ export function parseParameters(
 	parameters: Record<string, unknown>,
 	fillWithExample = false,
 ) {
-	const parsedParameters: Record<string, unknown> = {};
+	const parsedParameters: Record<
+		string,
+		string | boolean | number | undefined
+	> = {};
 
-	for (const [key, value] of Object.entries(schema)) {
+	for (const key in schema) {
+		const value = schema[key]!;
 		if (
 			value.mandatory &&
 			parameters[key] === undefined &&
@@ -34,7 +38,7 @@ export function parseParameters(
 				newValue = value.example;
 			}
 		} else {
-			newValue = String(parameters[key]);
+			newValue = parameters[key] as string;
 		}
 
 		parsedParameters[key] = newValue;

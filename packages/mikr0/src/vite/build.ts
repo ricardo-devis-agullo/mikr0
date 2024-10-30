@@ -4,8 +4,8 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import AdmZip from "adm-zip";
 import * as vite from "vite";
-import { ocClientPlugin, ocServerPlugin } from "./plugins.js";
 import type { BuiltPackageJson } from "../types.js";
+import { ocClientPlugin, ocServerPlugin } from "./plugins.js";
 
 const config = await vite.loadConfigFromFile(
 	{ command: "build", mode: "production" },

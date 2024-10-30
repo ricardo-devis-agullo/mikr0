@@ -1,7 +1,7 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
-import type { StaticStorage } from "./storage.js";
 import type { BuiltPackageJson } from "../types.js";
+import type { StaticStorage } from "./storage.js";
 
 export const Repository = (options: { storage: StaticStorage }) => {
 	return {

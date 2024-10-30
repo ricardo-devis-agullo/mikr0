@@ -7,10 +7,10 @@ import Fastify from "fastify";
 import superjson from "superjson";
 import { createServer } from "vite";
 import { createRegistry } from "../Registry.js";
+import { compileClient } from "../client/compile-client.js";
 import { parseParameters } from "../parameters.js";
 import { MemoryStorage } from "../storage/memory.js";
 import { ocClientPlugin } from "./plugins.js";
-import { compileClient } from "../client/compile-client.js";
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";

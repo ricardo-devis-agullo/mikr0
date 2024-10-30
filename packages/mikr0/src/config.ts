@@ -1,6 +1,6 @@
+import { readFileSync } from "node:fs";
 import { builtinModules } from "node:module";
 import path from "node:path";
-import { readFileSync } from "node:fs";
 import { Database } from "./database/index.js";
 import { StaticStorage } from "./storage/storage.js";
 import type {
