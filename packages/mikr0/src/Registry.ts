@@ -10,7 +10,7 @@ import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { parseConfig } from "./config.js";
 import * as routes from "./routes/index.js";
 import { Repository } from "./storage/repository.js";
-import type { Options } from "./types.js";
+import type { Options, PackageJson } from "./types.js";
 import { Database } from "./database/index.js";
 import { StaticStorage } from "./storage/storage.js";
 
@@ -21,7 +21,10 @@ export async function createRegistry(
 	const server = Fastify({
 		logger: opts.verbose,
 	}).withTypeProvider<TypeBoxTypeProvider>();
-	const config = parseConfig(opts);
+  const pkg: PackageJson = JSON.parse(
+		readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
+	);
+	const config = parseConfig(opts, pkg);
   const database = new Database(config.database);
 	await database.init();
 

@@ -1,8 +1,6 @@
 import { readFileSync } from "node:fs";
 import { builtinModules } from "node:module";
 import path from "node:path";
-import { Database } from "./database/index.js";
-import { StaticStorage } from "./storage/storage.js";
 import type {
 	DatabaseOptions,
 	Options,
@@ -10,7 +8,7 @@ import type {
 	StaticStorageOptions,
 } from "./types.js";
 
-export function parseConfig(options: Options) {
+export function parseConfig(options: Options, pkg: PackageJson) {
 	const databaseConfig: DatabaseOptions = options.database ?? {
 		client: "sqlite3",
 		connection: {
@@ -29,9 +27,7 @@ export function parseConfig(options: Options) {
 		module,
 		`node:${module}`,
 	]);
-	const pkg: PackageJson = JSON.parse(
-		readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
-	);
+
 	for (const dependency of options.dependencies ?? []) {
 		if (coreModules.includes(dependency)) {
 			availableDependencies.push(
