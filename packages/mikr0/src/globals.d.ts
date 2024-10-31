@@ -1,12 +1,12 @@
 import type { Config } from "./config.js";
-import type { Repository } from "./storage/repository.js";
 import type { Database } from "./database/index.js";
+import type { Repository } from "./storage/repository.js";
 
 declare module "fastify" {
 	interface FastifyInstance {
 		conf: Config;
 		repository: Repository;
-    database: Database; 
+		database: Database;
 	}
 }
 

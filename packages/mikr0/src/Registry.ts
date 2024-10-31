@@ -7,25 +7,25 @@ import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyInstance } from "fastify";
 
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { parseConfig } from "./config.js";
+import { type Config, parseConfig } from "./config.js";
+import { Database } from "./database/index.js";
 import * as routes from "./routes/index.js";
 import { Repository } from "./storage/repository.js";
-import type { Options, PackageJson } from "./types.js";
-import { Database } from "./database/index.js";
 import { StaticStorage } from "./storage/storage.js";
+import type { Options, PackageJson } from "./types.js";
 
-export async function createRegistry(
-	opts: Options,
-	cb?: (server: FastifyInstance) => void | Promise<void>,
-) {
+export async function createServer({
+	config,
+}: {
+	config: Config;
+}) {
 	const server = Fastify({
-		logger: opts.verbose,
+		logger: config.verbose,
 	}).withTypeProvider<TypeBoxTypeProvider>();
-  const pkg: PackageJson = JSON.parse(
+	const pkg: PackageJson = JSON.parse(
 		readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
 	);
-	const config = parseConfig(opts, pkg);
-  const database = new Database(config.database);
+	const database = new Database(config.database);
 	await database.init();
 
 	await server.register(cors, config.cors);
@@ -52,7 +52,10 @@ export async function createRegistry(
 
 	server.decorate("conf", config);
 	server.decorate("database", database);
-	server.decorate("repository", Repository({ storage: StaticStorage(config.storage)  }));
+	server.decorate(
+		"repository",
+		Repository({ storage: StaticStorage(config.storage) }),
+	);
 
 	server.register(routes.component, { prefix: "/r" });
 	server.register(routes.static, { prefix: "/r" });
@@ -75,6 +78,19 @@ export async function createRegistry(
 
 		reply.type("text/html").send(dataHtml);
 	});
+
+	return server;
+}
+
+export async function createRegistry(
+	opts: Options,
+	cb?: (server: FastifyInstance) => void | Promise<void>,
+) {
+	const pkg: PackageJson = JSON.parse(
+		readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
+	);
+	const config = parseConfig(opts, pkg);
+	const server = await createServer({ config });
 
 	try {
 		await cb?.(server);
