@@ -11,6 +11,8 @@ import { parseConfig } from "./config.js";
 import * as routes from "./routes/index.js";
 import { Repository } from "./storage/repository.js";
 import type { Options } from "./types.js";
+import { Database } from "./database/index.js";
+import { StaticStorage } from "./storage/storage.js";
 
 export async function createRegistry(
 	opts: Options,
@@ -20,8 +22,11 @@ export async function createRegistry(
 		logger: opts.verbose,
 	}).withTypeProvider<TypeBoxTypeProvider>();
 	const config = parseConfig(opts);
+  const database = new Database(config.database);
+	await database.init();
+
 	await server.register(cors, config.cors);
-	await config.database.init();
+
 	const html = readFileSync(
 		path.join(import.meta.dirname, "/ui-dist/index.html"),
 		"utf-8",
@@ -43,7 +48,8 @@ export async function createRegistry(
 	});
 
 	server.decorate("conf", config);
-	server.decorate("repository", Repository({ storage: config.storage }));
+	server.decorate("database", database);
+	server.decorate("repository", Repository({ storage: StaticStorage(config.storage)  }));
 
 	server.register(routes.component, { prefix: "/r" });
 	server.register(routes.static, { prefix: "/r" });
@@ -52,7 +58,7 @@ export async function createRegistry(
 		prefix: "/ui/",
 	});
 	server.get("/ui", async (req, reply) => {
-		const components = await server.conf.database.getComponentsDetails();
+		const components = await server.database.getComponentsDetails();
 		const dataHtml = html.replace(
 			"<body>",
 			`<body>

@@ -49,7 +49,7 @@ export default async function routes(fastify: FastifyInstance) {
 			async function publishComponent(request, reply) {
 				const { name, version } = request.params;
 				const exists = Boolean(
-					await fastify.conf.database.versionExists(name, version),
+					await fastify.database.versionExists(name, version),
 				);
 				if (exists) {
 					reply.code(400).send("Version already exists");
@@ -81,7 +81,7 @@ export default async function routes(fastify: FastifyInstance) {
 					await extract(`./uploads/${id}`, true, true);
 
 					await fastify.repository.saveComponent(`./uploads/${id}`);
-					await fastify.conf.database.insertComponent({
+					await fastify.database.insertComponent({
 						name,
 						version,
 						client_size: pkgJson.mikr0.clientSize ?? null,
@@ -115,7 +115,7 @@ export default async function routes(fastify: FastifyInstance) {
 		},
 		async function getComponent(request, reply) {
 			const { name, version: versionRequested } = request.params;
-			const versions = await fastify.conf.database.getComponentVersions(name);
+			const versions = await fastify.database.getComponentVersions(name);
 			if (!versions.length) {
 				reply.code(400).send("Component not found");
 				return;
@@ -187,7 +187,7 @@ export default async function routes(fastify: FastifyInstance) {
 		},
 		async function getComponentAction(request, reply) {
 			const { name, version: versionRequested } = request.params;
-			const versions = await fastify.conf.database.getComponentVersions(name);
+			const versions = await fastify.database.getComponentVersions(name);
 			const parameters = superjson.parse(request.body.parameters);
 			if (!versions.length) {
 				reply.code(400).send("Component not found");

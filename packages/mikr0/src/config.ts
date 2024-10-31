@@ -56,8 +56,8 @@ export function parseConfig(options: Options) {
 		executionTimeout: options.executionTimeout ?? 5_000,
 		auth: options.auth,
 		verbose: options.verbose ?? false,
-		database: new Database(databaseConfig),
-		storage: StaticStorage(storageConfig),
+		database: databaseConfig,
+		storage: storageConfig,
 		cors: options.cors ?? {
 			origin: "*",
 		},
