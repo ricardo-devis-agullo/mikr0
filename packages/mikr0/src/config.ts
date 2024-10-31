@@ -1,6 +1,4 @@
-import { readFileSync } from "node:fs";
 import { builtinModules } from "node:module";
-import path from "node:path";
 import type {
 	DatabaseOptions,
 	Options,
@@ -35,7 +33,7 @@ export function parseConfig(options: Options, pkg: PackageJson) {
 			);
 		} else {
 			if (
-				!pkg.dependencies?.[dependency] ||
+				!pkg.dependencies?.[dependency] &&
 				!pkg.devDependencies?.[dependency]
 			) {
 				throw new Error(

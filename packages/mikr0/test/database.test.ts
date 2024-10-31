@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { Database } from "./index.js";
+import { Database } from "../src/database/index.ts";
 
 function setup() {
 	const database = new Database({
@@ -175,4 +175,5 @@ test("gets all components details", async () => {
 
 	const versions = Object.keys(components.name);
 	assert.deepStrictEqual(versions, ["1.100.0", "1.11.0", "1.0.0"]);
+	await database.close();
 });

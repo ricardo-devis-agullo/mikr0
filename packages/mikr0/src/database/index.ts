@@ -15,7 +15,10 @@ export class Database {
 
 	constructor(options: DatabaseOptions) {
 		this.#clientType = options.client;
-		this.#client = knex(options);
+		this.#client = knex({
+			...options,
+			useNullAsDefault: true,
+		});
 	}
 
 	async init() {

@@ -12,7 +12,7 @@
 		"lint": "biome check --write --unsafe .",
 		"build": "tsc && npm run build:ui",
 		"build:ui": "cd ui && npm run build",
-		"test": "node --experimental-strip-types --test './src/**/*.test.*'",
+		"test": "node --experimental-strip-types --test './test/**/*.test.*'",
 		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
 		"check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm"
 	},
