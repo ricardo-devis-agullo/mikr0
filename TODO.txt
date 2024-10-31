@@ -1,5 +1,9 @@
 === NICE TO HAVE
 - Benchmarks (easy to start)
+  | Benchmark of HTTP calling component endpoint
+  | Benchmark of rendering on the browser (1000x times)
+  | Micro-benchmark of files
+
 - Allow specifying entry point (easy)
 - Handle errors on CLI when publishing the registry (a lot but easy to start)
 - Add preview mode that runs a real registry (doable)
