@@ -87,6 +87,7 @@ export default async function routes(fastify: FastifyInstance) {
 						client_size: pkgJson.mikr0.clientSize ?? null,
 						server_size: pkgJson.mikr0.serverSize ?? null,
 						published_at: new Date(),
+						serialized: pkgJson.mikr0.serialized,
 					});
 					reply.code(200).send("OK");
 				} finally {
@@ -105,7 +106,7 @@ export default async function routes(fastify: FastifyInstance) {
 				response: {
 					200: Type.Object({
 						src: Type.String(),
-						data: Type.String(),
+						data: Type.Any(),
 						component: Type.String(),
 						version: Type.String(),
 					}),
@@ -127,6 +128,7 @@ export default async function routes(fastify: FastifyInstance) {
 			}
 
 			const pkg = await fastify.repository.getPackageJson(name, version);
+			// TODO: Add support for parameters in the database
 			const parsedParameters = pkg.mikr0.parameters
 				? parseParameters(pkg.mikr0.parameters, request.query)
 				: {};
@@ -154,7 +156,7 @@ export default async function routes(fastify: FastifyInstance) {
 				src: isLocal
 					? `${request.protocol}://${request.host}/r/template/${name}/${version}/entry.js`
 					: templateUrl.href,
-				data: superjson.stringify(data),
+				data: pkg.mikr0.serialized ? superjson.stringify(data) : data,
 				component: name,
 				version,
 			};
@@ -168,14 +170,14 @@ export default async function routes(fastify: FastifyInstance) {
 				params: ComponentRequest,
 				body: Type.Object({
 					action: Type.String(),
-					parameters: Type.String(),
+					parameters: Type.Any(),
 				}),
 				response: {
 					200: {
 						type: "object",
 						properties: {
 							data: {
-								type: "string",
+								type: {},
 							},
 						},
 					},
@@ -188,7 +190,6 @@ export default async function routes(fastify: FastifyInstance) {
 		async function getComponentAction(request, reply) {
 			const { name, version: versionRequested } = request.params;
 			const versions = await fastify.database.getComponentVersions(name);
-			const parameters = superjson.parse(request.body.parameters);
 			if (!versions.length) {
 				reply.code(400).send("Component not found");
 				return;
@@ -198,6 +199,10 @@ export default async function routes(fastify: FastifyInstance) {
 				reply.code(400).send("Version not found");
 				return;
 			}
+			const component = await fastify.database.getComponent(name, version);
+			const parameters = component.serialized
+				? superjson.parse(request.body.parameters)
+				: request.body.parameters;
 
 			let data: unknown = undefined;
 			const plugins = Object.fromEntries(
@@ -216,7 +221,7 @@ export default async function routes(fastify: FastifyInstance) {
 			});
 
 			return {
-				data: superjson.stringify(data),
+				data: component.serialized ? superjson.stringify(data) : data,
 			};
 		},
 	);

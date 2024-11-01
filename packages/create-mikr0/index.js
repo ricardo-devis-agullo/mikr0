@@ -80,7 +80,7 @@ async function createRegistry() {
 
 	/** @type Record<string, string> */
 	const dependencies = {
-		mikr0: "0.0.6",
+		mikr0: "0.0.7",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";

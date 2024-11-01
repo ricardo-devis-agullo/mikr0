@@ -15,6 +15,7 @@ class Mikr0 extends HTMLElement {
 	static log = (msg: string) => Mikr0.config.verbose && console.log(msg);
 	#connected = false;
 	#unmount?: () => void;
+	#serialize = false;
 
 	async connectedCallback() {
 		const src = this.getAttribute("src");
@@ -42,14 +43,17 @@ class Mikr0 extends HTMLElement {
 
 	async #render(src: string) {
 		Mikr0.log(`Fetching component:, ${src}`);
-		const {
+		let {
 			src: templateSrc,
-			data: serializedData,
+			data,
 			component,
 			version,
 		} = await fetch(src).then((x) => x.json());
-		const { parse } = await superjson();
-		const data = parse(serializedData);
+		if (typeof data === "string") {
+			this.#serialize = true;
+			const { parse } = await superjson();
+			data = parse(data);
+		}
 		const { origin } = new URL(src);
 
 		try {
@@ -61,6 +65,7 @@ class Mikr0 extends HTMLElement {
 				baseUrl: origin,
 				name: component,
 				version,
+				serialize: this.#serialize,
 			});
 			this.#reanimateScripts();
 		} catch (err) {
@@ -90,22 +95,30 @@ if (!window.mikr0?.loaded) {
 		name,
 		version,
 		parameters,
+		serialize,
 	}) => {
 		const url = `${baseUrl}/r/action/${name}/${version}`;
-		const { stringify, parse } = await superjson();
-		const stringifiedParameters = stringify(parameters);
+		if (serialize) {
+			const { stringify } = await superjson();
+			parameters = stringify(parameters);
+		}
+		const { parse } = await superjson();
 		const response = await fetch(url, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ action, parameters: stringifiedParameters }),
+			body: JSON.stringify({ action, parameters }),
 		});
 		if (!response.ok) {
 			throw new Error(`Failed to fetch action: ${action}`);
 		}
 		const json = await response.json();
-		return parse(json.data);
+		if (serialize) {
+			return parse(json.data);
+		}
+
+		return json.data;
 	};
 
 	window.mikr0.events = (() => {

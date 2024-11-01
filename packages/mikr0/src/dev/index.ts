@@ -1,9 +1,11 @@
+import { serialize } from "node:v8";
 import type { ParametersSchema } from "../parameters.js";
 
 const info = {
 	baseUrl: "",
 	name: "",
 	version: "",
+	serialize: false,
 };
 
 // biome-ignore lint/complexity/noBannedTypes: it's fine
@@ -63,6 +65,7 @@ type Component<
 	Actions extends AnyActions,
 	Data,
 > = {
+	serialized?: boolean;
 	parameters?: Schema;
 	plugins?: Plugins;
 	actions?: Actions;
@@ -94,6 +97,12 @@ export function createComponent<
 	Actions extends AnyActions<Plugins>,
 	Data,
 >(options: {
+	/**
+	 * Enable serialization of the data to be able to pass back things like Dates, Sets, etc.
+	 * Has a performance impact, so use it only if you need it.
+	 * @default false
+	 */
+	serialize?: boolean;
 	parameters?: Schema;
 	plugins?: Plugins;
 	actions?: Actions;
@@ -104,6 +113,7 @@ export function createComponent<
 	unmount?: () => void;
 }) {
 	return {
+		serialize: options.serialize ?? false,
 		actions: options.actions,
 		plugins: options.plugins,
 		parameters: options.parameters,
@@ -111,11 +121,17 @@ export function createComponent<
 		mount: (
 			element: HTMLElement,
 			props: Data,
-			meta: { baseUrl: string; name: string; version: string },
+			meta: {
+				baseUrl: string;
+				name: string;
+				version: string;
+				serialize: boolean;
+			},
 		) => {
 			info.baseUrl = meta.baseUrl;
 			info.name = meta.name;
 			info.version = meta.version;
+			info.serialize = meta.serialize;
 			options.mount(element, props);
 		},
 		unmount: options.unmount,
@@ -163,6 +179,7 @@ export const serverClient: ServerClient<RegisteredComponent> = new Proxy(
 					baseUrl: info.baseUrl,
 					name: info.name,
 					version: info.version,
+					serialize: info.serialize,
 					parameters,
 				});
 			};

@@ -21,6 +21,7 @@ declare global {
 				name: string;
 				version: string;
 				parameters: unknown;
+				serialize?: boolean;
 			}) => Promise<unknown>;
 			events?: {
 				on: (eventName: string, fn: (...data: any[]) => void) => void;

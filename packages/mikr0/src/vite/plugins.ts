@@ -17,6 +17,8 @@ export const ocClientPlugin = (opts: { entry: string }): PluginOption => {
 					delete mod.exports.default.$args[0].plugins;
 					// biome-ignore lint/performance/noDelete: required for tree shaking
 					delete mod.exports.default.$args[0].actions;
+					// biome-ignore lint/performance/noDelete: required for tree shaking
+					delete mod.exports.default.$args[0].serialized;
 					return generateCode(mod);
 				}
 				if (mod.exports.default.$type === "identifier") {

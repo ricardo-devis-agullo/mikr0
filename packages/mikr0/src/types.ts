@@ -12,6 +12,7 @@ export interface PackageJson {
 
 export interface BuiltPackageJson extends PackageJson {
 	mikr0: {
+		serialized: boolean;
 		clientSize: number;
 		serverSize?: number;
 		parameters?: ParametersSchema;
