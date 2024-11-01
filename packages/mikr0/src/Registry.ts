@@ -3,7 +3,6 @@ import path from "node:path";
 import fastifyBasicAuth from "@fastify/basic-auth";
 import cors from "@fastify/cors";
 import fastifyMultipart from "@fastify/multipart";
-import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyInstance } from "fastify";
 
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
@@ -22,9 +21,6 @@ export async function createServer({
 	const server = Fastify({
 		logger: config.verbose,
 	}).withTypeProvider<TypeBoxTypeProvider>();
-	const pkg: PackageJson = JSON.parse(
-		readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
-	);
 	const database = new Database(config.database);
 	await database.init();
 
@@ -59,25 +55,7 @@ export async function createServer({
 
 	server.register(routes.component, { prefix: "/r" });
 	server.register(routes.static, { prefix: "/r" });
-	server.register(fastifyStatic, {
-		root: path.join(import.meta.dirname, "ui-dist"),
-		prefix: "/ui/",
-	});
-	server.get("/ui", async (req, reply) => {
-		const components = await server.database.getComponentsDetails();
-		const dataHtml = html.replace(
-			"<body>",
-			`<body>
-      <script>
-        window.mikr0Data = {
-          components: ${JSON.stringify(components)},
-          importMap: ${JSON.stringify(server.conf.importmap)}
-        }
-      </script>`,
-		);
-
-		reply.type("text/html").send(dataHtml);
-	});
+	server.register(routes.ui, { prefix: "/ui" });
 
 	return server;
 }
