@@ -60,13 +60,13 @@ export async function build() {
 	const clientSize = client[0]?.output[0].code.length;
 	if (!clientSize) throw new Error("Could not determine client size");
 
-	const { parameters, serialized } = require(
+	const { parameters, serialize } = require(
 		path.join(process.cwd(), "dist/server.cjs"),
 	);
 	const pkg: BuiltPackageJson = JSON.parse(
 		await fsp.readFile(path.join(process.cwd(), "package.json"), "utf-8"),
 	);
-	pkg.mikr0 = { parameters, serverSize, clientSize, serialized };
+	pkg.mikr0 = { parameters, serverSize, clientSize, serialized: serialize };
 	await fsp.writeFile(
 		path.join(process.cwd(), "dist/package.json"),
 		JSON.stringify(pkg, null, 2),
