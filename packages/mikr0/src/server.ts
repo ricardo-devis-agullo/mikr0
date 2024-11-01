@@ -8,17 +8,16 @@ type Loader = (...args: unknown[]) => Promise<void>;
 type Server = { loader: Loader; actions: Record<string, Loader> };
 
 // Polyfill to support Node 20
-const withResolvers =
-	Promise.withResolvers ||
-	(() => {
-		let resolve: any;
-		let reject: any;
-		const promise = new Promise((res, rej) => {
-			resolve = res;
-			reject = rej;
-		});
-		return { promise, resolve, reject };
-	});
+if (typeof Promise.withResolvers === 'undefined') {
+  Promise.withResolvers = function () {
+    let resolve, reject
+    const promise = new Promise((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    return { promise, resolve, reject }
+  } as any
+}
 
 export default function getServerData(opts: {
 	timeout: number;
@@ -92,7 +91,7 @@ export default function getServerData(opts: {
 			headers: headers ?? {},
 		};
 
-		const { promise, resolve, reject } = withResolvers();
+		const { promise, resolve, reject } = Promise.withResolvers();
 
 		domain.on("error", (err) => reject(err));
 		domain.run(async () => {
