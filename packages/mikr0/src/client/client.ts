@@ -14,7 +14,7 @@ class Mikr0 extends HTMLElement {
 	};
 	static log = (msg: string) => Mikr0.config.verbose && console.log(msg);
 	#connected = false;
-	#unmount?: () => void;
+	#unmount?: (element: HTMLElement) => void;
 	#serialize = false;
 
 	async connectedCallback() {
@@ -38,7 +38,7 @@ class Mikr0 extends HTMLElement {
 
 	disconnectedCallback() {
 		this.#connected = false;
-		this.#unmount?.();
+		this.#unmount?.(this);
 	}
 
 	async #render(src: string) {
