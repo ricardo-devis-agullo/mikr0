@@ -173,14 +173,7 @@ export default async function routes(fastify: FastifyInstance) {
 					parameters: Type.Any(),
 				}),
 				response: {
-					200: {
-						type: "object",
-						properties: {
-							data: {
-								type: {},
-							},
-						},
-					},
+					200: {},
 					400: {
 						type: "string",
 					},
