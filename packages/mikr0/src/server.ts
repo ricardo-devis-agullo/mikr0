@@ -7,6 +7,19 @@ import type { Repository } from "./storage/repository.js";
 type Loader = (...args: unknown[]) => Promise<void>;
 type Server = { loader: Loader; actions: Record<string, Loader> };
 
+// Polyfill to support Node 20
+const withResolvers =
+	Promise.withResolvers ||
+	(() => {
+		let resolve: any;
+		let reject: any;
+		const promise = new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+		return { promise, resolve, reject };
+	});
+
 export default function getServerData(opts: {
 	timeout: number;
 	repository: Repository;
@@ -79,7 +92,7 @@ export default function getServerData(opts: {
 			headers: headers ?? {},
 		};
 
-		const { promise, resolve, reject } = Promise.withResolvers();
+		const { promise, resolve, reject } = withResolvers();
 
 		domain.on("error", (err) => reject(err));
 		domain.run(async () => {
