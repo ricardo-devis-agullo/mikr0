@@ -117,7 +117,8 @@ export function S3Storage(conf: S3Config): StaticStorage {
 
 		await Promise.all(
 			paths.files.map((file: string) => {
-				const relativeFile = file.slice(dirInput.length);
+				const formattedDirInput = dirInput.replace(/^[./\\]+/, "");
+				const relativeFile = file.slice(formattedDirInput.length);
 				const url = (dirOutput + relativeFile).replace(/\\/g, "/");
 
 				return saveFile(file, url);

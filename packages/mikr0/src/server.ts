@@ -49,9 +49,10 @@ export default function getServerData(opts: {
 			vmContext.module.exports.actions || vmContext.exports.actions;
 		if (!loader) throw new Error("Missing loader");
 
-		cache.set(`${name}/${version}`, loader);
+		const serverFns = { loader, actions };
+		cache.set(`${name}/${version}`, serverFns);
 
-		return { loader, actions };
+		return serverFns;
 	};
 
 	return async ({

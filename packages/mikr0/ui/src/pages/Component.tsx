@@ -87,6 +87,15 @@ ${importMaps}`;
 						innerHTML={htmlComponent}
 					/>
 				</div>
+				<div>
+					<h1 class="text-3xl my-8">Preview</h1>
+					<div class="w-[800px] h-96 border-dotted border-2 border-rose-300">
+						{/* @ts-ignore */}
+						<mikro-component
+							attr:src={`${window.location.origin}/r/component/${params.name}/${version()}`}
+						/>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

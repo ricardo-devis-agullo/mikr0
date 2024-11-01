@@ -82,10 +82,20 @@ export function AzureStorage(options: {
 
 	const save = async (dirInput: string, dirOutput: string) => {
 		const paths = await getPaths(dirInput);
+		const { publicClient, privateClient } = getClient();
+
+		if (containersStatus === "unknown") {
+			await Promise.all([
+				privateClient.createIfNotExists(),
+				publicClient.createIfNotExists({ access: "blob" }),
+			]);
+			containersStatus = "checked";
+		}
 
 		await Promise.all(
 			paths.files.map((file: string) => {
-				const relativeFile = file.slice(dirInput.length);
+				const formattedDirInput = dirInput.replace(/^[./\\]+/, "");
+				const relativeFile = file.slice(formattedDirInput.length);
 				const url = (dirOutput + relativeFile).replace(/\\/g, "/");
 
 				return saveFile(file, url);
@@ -95,13 +105,6 @@ export function AzureStorage(options: {
 
 	const saveFile = async (filePath: string, fileName: string) => {
 		const { publicClient, privateClient } = getClient();
-		if (containersStatus === "unknown") {
-			await Promise.all([
-				privateClient.createIfNotExists(),
-				publicClient.createIfNotExists(),
-			]);
-			containersStatus = "checked";
-		}
 		const content = await streamToBuffer(fs.createReadStream(filePath));
 
 		const uploadToAzureContainer = (client: ContainerClient) => {
@@ -133,7 +136,10 @@ export function AzureStorage(options: {
 		saveFile,
 		getUrl(file: string) {
 			const { publicClient } = getClient();
-			return new URL(file, publicClient.url);
+			return new URL(
+				`${options.publicContainerName}/${file}`,
+				publicClient.url,
+			);
 		},
 	};
 }

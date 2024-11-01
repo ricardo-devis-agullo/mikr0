@@ -7,7 +7,13 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["dist", "./apps/component", "apps/registry"]
+		"ignore": [
+			"dist",
+			"./apps/component",
+			"apps/registry",
+			"packages/create-mikr0/component",
+			".vscode"
+		]
 	},
 	"formatter": {
 		"enabled": true,
