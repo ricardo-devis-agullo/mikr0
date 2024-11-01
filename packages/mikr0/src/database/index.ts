@@ -1,4 +1,3 @@
-import { serialize } from "node:v8";
 import knex from "knex";
 import type { DatabaseOptions } from "../types.js";
 

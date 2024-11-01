@@ -1,4 +1,3 @@
-import { serialize } from "node:v8";
 import type { ParametersSchema } from "../parameters.js";
 
 const info = {
