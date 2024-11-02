@@ -8,15 +8,16 @@ type Loader = (...args: unknown[]) => Promise<void>;
 type Server = { loader: Loader; actions: Record<string, Loader> };
 
 // Polyfill to support Node 20
-if (typeof Promise.withResolvers === 'undefined') {
-  Promise.withResolvers = function () {
-    let resolve, reject
-    const promise = new Promise((res, rej) => {
-      resolve = res
-      reject = rej
-    })
-    return { promise, resolve, reject }
-  } as any
+if (typeof Promise.withResolvers === "undefined") {
+	Promise.withResolvers = (() => {
+		let resolve: any;
+		let reject: any;
+		const promise = new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+		return { promise, resolve, reject };
+	}) as any;
 }
 
 export default function getServerData(opts: {

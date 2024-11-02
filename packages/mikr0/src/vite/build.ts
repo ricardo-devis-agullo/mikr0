@@ -13,13 +13,14 @@ const config = await vite.loadConfigFromFile(
 );
 const require = createRequire(import.meta.url);
 
-export async function build() {
+export async function build(options: { entry: string }) {
 	rmSync("dist", { recursive: true, force: true });
-	const entry = path.join(process.cwd(), "src/index.tsx");
 
 	const client = await vite.build({
 		appType: "custom",
-		plugins: config?.config.plugins?.concat(ocClientPlugin({ entry })),
+		plugins: config?.config.plugins?.concat(
+			ocClientPlugin({ entry: options.entry }),
+		),
 		build: {
 			emptyOutDir: false,
 			lib: {
@@ -36,7 +37,7 @@ export async function build() {
 	});
 	const server = await vite.build({
 		appType: "custom",
-		plugins: [ocServerPlugin({ entry })],
+		plugins: [ocServerPlugin({ entry: options.entry })],
 		build: {
 			emptyOutDir: false,
 			rollupOptions: {

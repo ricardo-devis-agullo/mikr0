@@ -35,9 +35,11 @@ let {
 	},
 });
 
+const entry = path.join(process.cwd(), "src/index.tsx");
+
 (async () => {
 	if (command === "build") {
-		await build();
+		await build({ entry });
 		return;
 	}
 
@@ -60,7 +62,7 @@ let {
 			password ??= result.password;
 		}
 		if (!password) exit("Missing --password");
-		await build();
+		await build({ entry });
 		await sendFolderToServer({
 			distPath: "./dist",
 			serverUrl: registry,

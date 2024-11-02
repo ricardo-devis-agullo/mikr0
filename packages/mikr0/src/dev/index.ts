@@ -96,51 +96,51 @@ export function createComponent<
 	Actions extends AnyActions<Plugins>,
 	Data,
 >(options: {
-  /**
-   * Provide imeplementations of the plugins that the component uses, provided by the registry
-   */
+	/**
+	 * Provide imeplementations of the plugins that the component uses, provided by the registry
+	 */
 	plugins?: Plugins;
-  /**
-   * The parameters schema for the component loader
-   * @example
-   * {
-   *   name: { type: "string", mandatory: true },
-   *   age: { type: "number", mandatory: false, default: 18 },
-   * }
-   */
+	/**
+	 * The parameters schema for the component loader
+	 * @example
+	 * {
+	 *   name: { type: "string", mandatory: true },
+	 *   age: { type: "number", mandatory: false, default: 18 },
+	 * }
+	 */
 	parameters?: Schema;
-  /**
-   * Server functions that can be called by the client
-  */
+	/**
+	 * Server functions that can be called by the client
+	 */
 	actions?: Actions;
-  /**
-   * Server function that loads the data for the component before render
-   * @param context Server context which includes the parameters, plugins, and headers
-   * @returns 
-   */
+	/**
+	 * Server function that loads the data for the component before render
+	 * @param context Server context which includes the parameters, plugins, and headers
+	 * @returns
+	 */
 	loader?: (
 		context: Context<TransformOcParameters<Schema>, Plugins>,
 	) => Data | Promise<Data>;
-  /**
-   * Mount the component to the root element 
-   * @param element The root element to mount the component to
-   * @param props The data to pass to the component returned from the loader
-   * @example
-   * {
-   *  mount(element, props) {
-   *   element.innerHTML = `<h1>${props.title}</h1>`;
-   * }
-   */
+	/**
+	 * Mount the component to the root element
+	 * @param element The root element to mount the component to
+	 * @param props The data to pass to the component returned from the loader
+	 * @example
+	 * {
+	 *  mount(element, props) {
+	 *   element.innerHTML = `<h1>${props.title}</h1>`;
+	 * }
+	 */
 	mount: (element: HTMLElement, props: Data) => void;
-  /**
-   * Unmount the component from the root element 
-   * @example
-   * {
-   *   unmount(element) {
-   *     element.innerHTML = "";
-   *   }
-   * }
-   */
+	/**
+	 * Unmount the component from the root element
+	 * @example
+	 * {
+	 *   unmount(element) {
+	 *     element.innerHTML = "";
+	 *   }
+	 * }
+	 */
 	unmount?: (element: HTMLElement) => void;
 	/**
 	 * Enable serialization of the data to be able to pass back things like Dates, Sets, etc.
