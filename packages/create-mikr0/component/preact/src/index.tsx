@@ -19,4 +19,7 @@ export default createComponent({
 	mount(element, props) {
 		render(<App {...props} />, element);
 	},
+  unmount(element) {
+    render(null, element);
+  }
 });
