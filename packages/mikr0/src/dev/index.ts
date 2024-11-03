@@ -4,7 +4,7 @@ const info = {
 	baseUrl: "",
 	name: "",
 	version: "",
-	serialize: false,
+	serialized: false,
 };
 
 // biome-ignore lint/complexity/noBannedTypes: it's fine
@@ -147,10 +147,10 @@ export function createComponent<
 	 * Has a performance impact, so use it only if you need it.
 	 * @default false
 	 */
-	serialize?: boolean;
+	serialized?: boolean;
 }) {
 	return {
-		serialize: options.serialize ?? false,
+		serialized: options.serialized ?? false,
 		actions: options.actions,
 		plugins: options.plugins,
 		parameters: options.parameters,
@@ -162,13 +162,13 @@ export function createComponent<
 				baseUrl: string;
 				name: string;
 				version: string;
-				serialize: boolean;
+				serialized: boolean;
 			},
 		) => {
 			info.baseUrl = meta.baseUrl;
 			info.name = meta.name;
 			info.version = meta.version;
-			info.serialize = meta.serialize;
+			info.serialized = meta.serialized;
 			options.mount(element, props);
 		},
 		unmount: options.unmount,
@@ -216,7 +216,7 @@ export const serverClient: ServerClient<RegisteredComponent> = new Proxy(
 					baseUrl: info.baseUrl,
 					name: info.name,
 					version: info.version,
-					serialize: info.serialize,
+					serialized: info.serialized,
 					parameters,
 				});
 			};

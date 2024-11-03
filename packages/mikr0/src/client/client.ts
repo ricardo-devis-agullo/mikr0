@@ -15,7 +15,7 @@ class Mikr0 extends HTMLElement {
 	static log = (msg: string) => Mikr0.config.verbose && console.log(msg);
 	#connected = false;
 	#unmount?: (element: HTMLElement) => void;
-	#serialize = false;
+	#serialized = false;
 
 	async connectedCallback() {
 		const src = this.getAttribute("src");
@@ -50,7 +50,7 @@ class Mikr0 extends HTMLElement {
 			version,
 		} = await fetch(src).then((x) => x.json());
 		if (typeof data === "string") {
-			this.#serialize = true;
+			this.#serialized = true;
 			const { parse } = await superjson();
 			data = parse(data);
 		}
@@ -65,7 +65,7 @@ class Mikr0 extends HTMLElement {
 				baseUrl: origin,
 				name: component,
 				version,
-				serialize: this.#serialize,
+				serialized: this.#serialized,
 			});
 			this.#reanimateScripts();
 		} catch (err) {
@@ -95,10 +95,10 @@ if (!window.mikr0?.loaded) {
 		name,
 		version,
 		parameters,
-		serialize,
+		serialized,
 	}) => {
 		const url = `${baseUrl}/r/action/${name}/${version}`;
-		if (serialize) {
+		if (serialized) {
 			const { stringify } = await superjson();
 			parameters = stringify(parameters);
 		}
@@ -114,7 +114,7 @@ if (!window.mikr0?.loaded) {
 			throw new Error(`Failed to fetch action: ${action}`);
 		}
 		const json = await response.json();
-		if (serialize) {
+		if (serialized) {
 			return parse(json.data);
 		}
 
