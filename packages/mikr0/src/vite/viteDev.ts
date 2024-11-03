@@ -10,6 +10,7 @@ import { createRegistry } from "../Registry.js";
 import { compileClient } from "../client/compile-client.js";
 import { parseParameters } from "../parameters.js";
 import { MemoryStorage } from "../storage/memory.js";
+import { getEntryPoint } from "./build.js";
 import { ocClientPlugin } from "./plugins.js";
 
 const port = Number(process.env.PORT) || 5173;
@@ -26,7 +27,7 @@ async function getPkgInfo() {
 
 const tmpEntryPoint = path.join(process.cwd(), "src/_entry.tsx");
 let tmpServer = "";
-const entryPoint = path.join(process.cwd(), "src/index.tsx");
+const { relative: entryPoint, filename: entryName } = getEntryPoint();
 
 async function cleanup() {
 	if (app) {
@@ -46,7 +47,7 @@ async function getServerParts(entry: string) {
 		bundle: true,
 		minify: false,
 		platform: "node",
-		entryPoints: ["src/index.tsx"],
+		entryPoints: [entry],
 		outfile: path.join(tmpServer, "server.js"),
 		format: "esm",
 		plugins: [
@@ -113,7 +114,7 @@ export async function runServer() {
 
 	await fs.writeFile(
 		tmpEntryPoint,
-		`import component from './index.tsx';
+		`import component from './${entryName}';
      component.mount(document.getElementById('app'), window.__MIKR0_DATA__, {name: "${name}", version: "${version}", baseUrl: window.location.origin});`,
 		"utf-8",
 	);
@@ -249,7 +250,7 @@ export async function runIdealServer() {
 					let template = await vite.transformIndexHtml(
 						url,
 						`<script type="module">
-               import component from '/src/index.tsx';
+               import component from '${entryPoint}';
                export default component;
              </script>`,
 					);

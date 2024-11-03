@@ -7,7 +7,7 @@ import { parseArgs } from "node:util";
 import FormData from "form-data";
 import prompts from "prompts";
 import undici from "undici";
-import { build } from "./vite/build.js";
+import { build, getEntryPoint } from "./vite/build.js";
 import { runServer } from "./vite/viteDev.js";
 
 let {
@@ -35,7 +35,7 @@ let {
 	},
 });
 
-const entry = path.join(process.cwd(), "src/index.tsx");
+const { relative: entry } = getEntryPoint();
 
 (async () => {
 	if (command === "build") {

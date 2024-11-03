@@ -1,7 +1,7 @@
-import { rmSync } from "node:fs";
+import { readdirSync, rmSync } from "node:fs";
 import fsp from "node:fs/promises";
 import { createRequire } from "node:module";
-import path from "node:path";
+import path, { relative } from "node:path";
 import AdmZip from "adm-zip";
 import * as vite from "vite";
 import type { BuiltPackageJson } from "../types.js";
@@ -12,6 +12,27 @@ const config = await vite.loadConfigFromFile(
 	"vite.config.ts",
 );
 const require = createRequire(import.meta.url);
+
+export function getEntryPoint() {
+	const dir = readdirSync(path.join(process.cwd(), "src"));
+	const fileInOrderOfPriority = [
+		"index.tsx",
+		"index.ts",
+		"index.jsx",
+		"index.js",
+	];
+	const entry = fileInOrderOfPriority.find((file) => dir.includes(file));
+	if (!entry)
+		throw new Error(
+			"Could not find entry point (index.(t|j)sx?) in the src folder",
+		);
+
+	return {
+		absolute: path.join(process.cwd(), "src", entry),
+		relative: `src/${entry}`,
+		filename: entry,
+	};
+}
 
 export async function build(options: { entry: string }) {
 	rmSync("dist", { recursive: true, force: true });
@@ -24,7 +45,7 @@ export async function build(options: { entry: string }) {
 		build: {
 			emptyOutDir: false,
 			lib: {
-				entry: "src/index.tsx",
+				entry: options.entry,
 				name: "myLib",
 				formats: ["es"],
 				fileName: "template",
@@ -47,7 +68,7 @@ export async function build(options: { entry: string }) {
 				},
 			},
 			lib: {
-				entry: "src/index.tsx",
+				entry: options.entry,
 				name: "myLib",
 				formats: ["cjs"],
 				fileName: "server",
