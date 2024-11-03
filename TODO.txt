@@ -7,7 +7,6 @@
 - Handle errors on CLI when publishing the registry (a lot but easy to start)
 - Add preview mode that runs a real registry (doable)
 - Add option for registryFallBackUrl on preview mode like OC
-- Add option to publish without building (decide which one should be the default) (very easy)
 
 === AFTER MVP
 - Allow multiple versions of a dependency (medium)
@@ -17,5 +16,4 @@
 === CUTE LITTLE THINGS
 - Improve performance on publishing (too much redundancy) (doable)
 - Add "registry" option to component entry so CLI can read from its (complex)
-- Bundle superjson on registry (make it an option) (not sure)
 - In dev mode floating window that lets you edit params (some work but doable)

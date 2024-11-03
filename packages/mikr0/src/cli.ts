@@ -12,7 +12,7 @@ import { runServer } from "./vite/viteDev.js";
 
 let {
 	positionals: [command],
-	values: { registry, username, password },
+	values: { registry, username, password, folder },
 } = parseArgs({
 	args: process.argv.slice(2),
 	allowPositionals: true,
@@ -31,6 +31,11 @@ let {
 			type: "string",
 			alias: "p",
 			description: "Password to authenticate with",
+		},
+		folder: {
+			type: "string",
+			alias: "f",
+			description: "Skip the build and specify the folder to publish",
 		},
 	},
 });
@@ -62,9 +67,12 @@ const { relative: entry } = getEntryPoint();
 			password ??= result.password;
 		}
 		if (!password) exit("Missing --password");
-		await build({ entry });
+
+		if (!folder) {
+			await build({ entry });
+		}
 		await sendFolderToServer({
-			distPath: "./dist",
+			distPath: folder ?? "./dist",
 			serverUrl: registry,
 			username: username!,
 			password: password!,
@@ -96,6 +104,7 @@ export async function sendFolderToServer({
 	username: string;
 	password: string;
 }) {
+  fs.existsSync(distPath) || exit(`Folder ${distPath} does not exist`);
 	const form = new FormData();
 	const zipPath = path.join(distPath, "package.zip");
 	const pkg = JSON.parse(
