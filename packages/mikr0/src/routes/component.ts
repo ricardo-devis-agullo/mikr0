@@ -71,6 +71,23 @@ export default async function routes(fastify: FastifyInstance) {
 					const pkgJson: PublishedPackageJson = JSON.parse(
 						await readFile(pkg.filepath, "utf-8"),
 					);
+					if (fastify.conf.publishValidation) {
+						const validation = fastify.conf.publishValidation?.(pkgJson);
+						if (
+							(typeof validation === "object" && !validation.isValid) ||
+							!validation
+						) {
+							reply
+								.code(400)
+								.send(
+									typeof validation === "boolean"
+										? "Did not pass publish validation"
+										: validation.error,
+								);
+							return;
+						}
+					}
+
 					pkgJson.mikr0.publishDate = publishDate.toISOString();
 					await writeFile(
 						`./uploads/${id}/package.json`,

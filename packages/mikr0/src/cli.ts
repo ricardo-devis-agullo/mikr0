@@ -104,7 +104,7 @@ export async function sendFolderToServer({
 	username: string;
 	password: string;
 }) {
-  fs.existsSync(distPath) || exit(`Folder ${distPath} does not exist`);
+	fs.existsSync(distPath) || exit(`Folder ${distPath} does not exist`);
 	const form = new FormData();
 	const zipPath = path.join(distPath, "package.zip");
 	const pkg = JSON.parse(

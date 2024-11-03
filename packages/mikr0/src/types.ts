@@ -1,29 +1,27 @@
 import type { Agent as httpAgent } from "node:http";
 import type { Agent as httpsAgent } from "node:https";
 import type { FastifyCorsOptions } from "@fastify/cors";
+import type { PackageJson } from "type-fest";
 import type { ParametersSchema } from "./parameters.js";
 
-export interface PackageJson {
+export type { PackageJson } from "type-fest";
+
+export type BuiltPackageJson = PackageJson & {
 	name: string;
 	version: string;
-	dependencies?: Record<string, string>;
-	devDependencies?: Record<string, string>;
-}
-
-export interface BuiltPackageJson extends PackageJson {
 	mikr0: {
 		serialized: boolean;
 		clientSize: number;
 		serverSize?: number;
 		parameters?: ParametersSchema;
 	};
-}
+};
 
-export interface PublishedPackageJson extends BuiltPackageJson {
+export type PublishedPackageJson = BuiltPackageJson & {
 	mikr0: BuiltPackageJson["mikr0"] & {
 		publishDate: string;
 	};
-}
+};
 
 type BaseCoreLibraries =
 	| "assert"
@@ -237,4 +235,10 @@ export interface Options {
 		username: string;
 		password: string;
 	};
+	publishValidation?: (data: BuiltPackageJson) =>
+		| boolean
+		| {
+				isValid: boolean;
+				error?: string;
+		  };
 }

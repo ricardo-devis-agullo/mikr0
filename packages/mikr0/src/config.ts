@@ -57,6 +57,7 @@ export function parseConfig(options: Options, pkg: PackageJson) {
 		},
 		importmap: options.importmap ?? { imports: {} },
 		plugins: options.plugins ?? {},
+		publishValidation: options.publishValidation,
 	};
 }
 
