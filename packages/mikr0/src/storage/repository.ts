@@ -1,9 +1,12 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
-import type { BuiltPackageJson } from "../types.js";
+import type { BuiltPackageJson, PublishedPackageJson } from "../types.js";
 import type { StaticStorage } from "./storage.js";
+import { LRUCache } from "lru-cache";
 
 export const Repository = (options: { storage: StaticStorage }) => {
+	const pkgCache = new LRUCache<string, PublishedPackageJson>({ max: 500 });
+
 	return {
 		getUrl(file: string) {
 			return options.storage.getUrl(file);
@@ -30,7 +33,11 @@ export const Repository = (options: { storage: StaticStorage }) => {
 			name: string,
 			version: string,
 		): Promise<BuiltPackageJson> {
+      const cached = pkgCache.get(`${name}/${version}`);
+      if (cached) return cached;
+
 			const pkg = await options.storage.get(`${name}/${version}/package.json`);
+      pkgCache.set(`${name}/${version}`, JSON.parse(pkg));
 
 			return JSON.parse(pkg);
 		},
