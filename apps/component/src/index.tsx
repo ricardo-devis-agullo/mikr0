@@ -9,7 +9,7 @@ import { createComponent } from "mikr0/dev";
 
 const component = createComponent({
 	parameters: {
-		position: { type: "number", default: 0 },
+		position: { type: "number", default: 0  },
 	},
 	plugins: {
 		defaultPosition: () => 5,

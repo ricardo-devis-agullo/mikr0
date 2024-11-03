@@ -1,10 +1,24 @@
-interface Parameter {
-	description?: string;
-	mandatory?: boolean;
-	type: "string" | "boolean" | "number";
-	default?: string | boolean | number;
-	example?: string | boolean | number;
+interface BaseParameter {
+  description?: string;
+  mandatory?: boolean;
 }
+interface StringParameter extends BaseParameter {
+  type: "string";
+  default?: string;
+  example?: string;
+}
+interface BooleanParameter extends BaseParameter {
+  type: "boolean";
+  default?: boolean;
+  example?: boolean;
+}
+interface NumberParameter extends BaseParameter {
+  type: "number";
+  default?: number;
+  example?: number;
+}
+
+type Parameter = StringParameter | BooleanParameter | NumberParameter;
 export interface ParametersSchema {
 	[key: string]: Parameter;
 }
