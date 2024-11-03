@@ -38,7 +38,7 @@ export class Database {
 		}
 
 		const existsComponents = await this.#client.schema.hasTable("components");
-		const existsVersions = await this.#client.schema.hasTable("components");
+		const existsVersions = await this.#client.schema.hasTable("versions");
 		if (!existsComponents) {
 			await this.#client.schema.createTable("components", (t) => {
 				t.increments("id").primary();
