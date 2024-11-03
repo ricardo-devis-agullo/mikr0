@@ -1,21 +1,21 @@
 interface BaseParameter {
-  description?: string;
-  mandatory?: boolean;
+	description?: string;
+	mandatory?: boolean;
 }
 interface StringParameter extends BaseParameter {
-  type: "string";
-  default?: string;
-  example?: string;
+	type: "string";
+	default?: string;
+	example?: string;
 }
 interface BooleanParameter extends BaseParameter {
-  type: "boolean";
-  default?: boolean;
-  example?: boolean;
+	type: "boolean";
+	default?: boolean;
+	example?: boolean;
 }
 interface NumberParameter extends BaseParameter {
-  type: "number";
-  default?: number;
-  example?: number;
+	type: "number";
+	default?: number;
+	example?: number;
 }
 
 type Parameter = StringParameter | BooleanParameter | NumberParameter;
