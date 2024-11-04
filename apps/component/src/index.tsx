@@ -7,7 +7,7 @@ import App from "./App";
 
 import { createComponent } from "mikr0/dev";
 
-const component = createComponent({
+export default createComponent({
 	parameters: {
 		position: { type: "number", default: 0  },
 	},
@@ -35,10 +35,3 @@ const component = createComponent({
 	},
 });
 
-declare module "mikr0/dev" {
-	interface Register {
-		component: typeof component;
-	}
-}
-
-export default component;

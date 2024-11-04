@@ -21,16 +21,7 @@ export const ocClientPlugin = (opts: { entry: string }): PluginOption => {
 					delete mod.exports.default.$args[0].serialized;
 					return generateCode(mod);
 				}
-				if (mod.exports.default.$type === "identifier") {
-					const identifier = mod.exports.default.$ast.name;
-
-					return `${code};
-          delete ${identifier}.loader;
-          delete ${identifier}.parameters;
-          delete ${identifier}.plugins;
-          delete ${identifier}.actions;
-          `;
-				}
+        console.error('You need export directly the creation of the component: export default createComponent(...)');
 				return code;
 			}
 		},
@@ -50,14 +41,6 @@ export const ocServerPlugin = (opts: { entry: string }): PluginOption => {
 					// biome-ignore lint/performance/noDelete: <explanation>
 					delete mod.exports.default.$args[0].unmount;
 					return generateCode(mod);
-				}
-				if (mod.exports.default.$type === "identifier") {
-					const identifier = mod.exports.default.$ast.name;
-
-					return `${code};
-          delete ${identifier}.mount;
-          delete ${identifier}.unmount;
-          `;
 				}
 				return code;
 			}

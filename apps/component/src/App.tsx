@@ -1,11 +1,13 @@
 import { Suspense, createSignal, lazy } from "solid-js";
 import solidLogo from "./assets/solid.svg";
 import "./App.css";
+import { serverClient } from "mikr0/dev";
 
 const Component = lazy(() => import("./Component"));
 
 function App(props: { folder: string }) {
 	const [count, setCount] = createSignal(0);
+  const x = serverClient.clickMe({stuff: true})
 
 	return (
 		<>
