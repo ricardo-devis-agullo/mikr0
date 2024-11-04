@@ -11,7 +11,7 @@ function RootComponent() {
     <>
       <div className="p-2 flex gap-2 text-lg">
         <Link
-          to="/"
+          to="/ui"
           activeProps={{
             className: 'font-bold',
           }}
@@ -20,7 +20,7 @@ function RootComponent() {
           Home
         </Link>{' '}
         <Link
-          to="/about"
+          to="/ui/about"
           activeProps={{
             className: 'font-bold',
           }}
