@@ -40,7 +40,7 @@ let {
 	},
 });
 
-const { relative: entry } = getEntryPoint();
+const { absolute: entry } = getEntryPoint();
 
 (async () => {
 	if (command === "build") {

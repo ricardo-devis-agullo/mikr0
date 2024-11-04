@@ -1,7 +1,7 @@
 import { readdirSync, rmSync } from "node:fs";
 import fsp from "node:fs/promises";
 import { createRequire } from "node:module";
-import path, { relative } from "node:path";
+import path from "node:path";
 import AdmZip from "adm-zip";
 import * as vite from "vite";
 import type { BuiltPackageJson } from "../types.js";
