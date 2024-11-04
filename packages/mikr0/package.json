@@ -1,7 +1,7 @@
 {
   "name": "mikr0",
   "type": "module",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Micro-frontend framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -53,6 +53,7 @@
     "knex": "^3.1.0",
     "lru-cache": "^11.0.1",
     "magicast": "^0.3.5",
+    "memfs": "^4.14.0",
     "node-dir": "^0.1.17",
     "prompts": "^2.4.2",
     "semver": "^7.6.3",

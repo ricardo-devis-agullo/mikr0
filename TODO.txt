@@ -10,8 +10,8 @@
 
 === AFTER MVP
 - Allow multiple versions of a dependency (medium)
-- Add auth + user creation (super hard)
-- Add migration for changes in DB (migrations table + versioning + checks)
+- Add auth + user creation (hard)
+- Add migration for changes in DB (migrations table + versioning + checks) (medium)
 
 === CUTE LITTLE THINGS
 - Improve performance on publishing (too much redundancy) (doable)
