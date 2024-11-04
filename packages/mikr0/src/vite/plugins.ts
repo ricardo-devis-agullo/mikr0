@@ -21,7 +21,9 @@ export const ocClientPlugin = (opts: { entry: string }): PluginOption => {
 					delete mod.exports.default.$args[0].serialized;
 					return generateCode(mod);
 				}
-        console.error('You need export directly the creation of the component: export default createComponent(...)');
+				console.error(
+					"You need export directly the creation of the component: export default createComponent(...)",
+				);
 				return code;
 			}
 		},

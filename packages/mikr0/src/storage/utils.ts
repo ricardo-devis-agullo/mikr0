@@ -1,6 +1,8 @@
 import path from "node:path";
 
-export function getMimeType(extension: string) {
+export function getMimeType(filePath: string) {
+  const extension = path.extname(filePath).toLowerCase();
+
 	return {
 		".js": "application/javascript",
 		".cjs": "application/javascript",
@@ -21,7 +23,7 @@ export function getFileInfo(filePath: string) {
 
 	return {
 		extname: ext,
-		mimeType: getMimeType(ext),
+		mimeType: getMimeType(filePath)
 	};
 }
 

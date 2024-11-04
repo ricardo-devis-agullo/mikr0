@@ -3,6 +3,7 @@ import fsp from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";
 import type { StaticStorage } from "./storage.js";
+import { getMimeType } from "./utils.js";
 
 export function FilesystemStorage(options: {
 	folderPath: string;
@@ -18,10 +19,11 @@ export function FilesystemStorage(options: {
 			});
 		},
 		async saveFile(destination: string, contents: string) {
+      const mime = getMimeType(destination);
 			await fsp.writeFile(
 				path.join(options.folderPath, destination),
 				contents,
-				"utf-8",
+				mime?.startsWith('image') ? 'binary' : 'utf-8',
 			);
 		},
 		get(file: string) {
