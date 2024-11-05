@@ -1,4 +1,4 @@
-import { ThemeProvider, useTheme } from "@/ThemeProvider";
+import { useTheme } from "@/ThemeProvider";
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { FiBox } from "react-icons/fi";
