@@ -1,5 +1,7 @@
 import { useTheme } from "@/ThemeProvider";
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
+import { FiBox } from "react-icons/fi";
+import { IoSunnyOutline } from "react-icons/io5";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 export const Route = createRootRoute({
@@ -15,7 +17,7 @@ function RootComponent() {
 				<h1 className="text-3xl font-['Sixtyfour_Convergence']">
 					Mikr0 registry
 				</h1>
-				<BiRegularSun
+				<IoSunnyOutline
 					className="ml-[auto] cursor-pointer mr-2"
 					size={18}
 					onClick={() => {
