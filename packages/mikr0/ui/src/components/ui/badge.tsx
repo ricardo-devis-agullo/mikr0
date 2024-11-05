@@ -1,10 +1,10 @@
-import { cn } from "@/libs/cn";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
-import { type ComponentProps, splitProps } from "solid-js";
+import { type VariantProps, cva } from "class-variance-authority";
+import type * as React from "react";
 
-export const badgeVariants = cva(
-	"inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-shadow focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring",
+import { cn } from "@/lib/utils";
+
+const badgeVariants = cva(
+	"inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
 	{
 		variants: {
 			variant: {
@@ -23,20 +23,14 @@ export const badgeVariants = cva(
 	},
 );
 
-export const Badge = (
-	props: ComponentProps<"div"> & VariantProps<typeof badgeVariants>,
-) => {
-	const [local, rest] = splitProps(props, ["class", "variant"]);
+export interface BadgeProps
+	extends React.HTMLAttributes<HTMLDivElement>,
+		VariantProps<typeof badgeVariants> {}
 
+function Badge({ className, variant, ...props }: BadgeProps) {
 	return (
-		<div
-			class={cn(
-				badgeVariants({
-					variant: local.variant,
-				}),
-				local.class,
-			)}
-			{...rest}
-		/>
+		<div className={cn(badgeVariants({ variant }), className)} {...props} />
 	);
-};
+}
+
+export { Badge, badgeVariants };

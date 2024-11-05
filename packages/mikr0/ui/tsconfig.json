@@ -1,27 +1,14 @@
 {
-	"include": ["src"],
 	"compilerOptions": {
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"allowJs": true,
-		"checkJs": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"moduleDetection": "force",
-		"isolatedModules": true,
-		"verbatimModuleSyntax": true,
-		"noImplicitOverride": true,
-		"noUnusedLocals": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUncheckedIndexedAccess": false,
-		"module": "preserve",
-		"moduleResolution": "bundler",
-		"jsx": "preserve",
-		"jsxImportSource": "solid-js",
-		"noEmit": true,
+		"baseUrl": ".",
 		"strict": true,
-		"target": "ES2021",
-		"lib": ["es2022", "dom", "dom.iterable"]
+		"esModuleInterop": true,
+		"jsx": "react-jsx",
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler"
 	}
 }

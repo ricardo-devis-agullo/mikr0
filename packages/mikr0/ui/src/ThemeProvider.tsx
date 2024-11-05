@@ -1,76 +1,76 @@
-import { Link } from "@solidjs/meta";
-import {
-	type FlowProps,
-	createContext,
-	createEffect,
-	createSignal,
-	useContext,
-} from "solid-js";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
-type ThemeProviderState = {
-	theme: () => Theme;
-	setTheme: (theme: Theme) => void;
-};
+
 type ThemeProviderProps = {
+	children: React.ReactNode;
 	defaultTheme?: Theme;
 	storageKey?: string;
 };
 
+type ThemeProviderState = {
+	theme: Theme;
+	resultingTheme: "dark" | "light";
+	setTheme: (theme: Theme) => void;
+};
+
 const initialState: ThemeProviderState = {
-	theme: () => "system",
+	theme: "system",
+	resultingTheme: "light",
 	setTheme: () => null,
 };
 
-const ThemeProviderContext = createContext(initialState);
+const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
-export function ThemeProvider(props: FlowProps<ThemeProviderProps>) {
-	const storageKey = () => props.storageKey ?? "vite-ui-theme";
-	const [theme, setTheme] = createSignal(
-		(localStorage.getItem(storageKey()) as Theme) ||
-			(props.defaultTheme ?? "system"),
+function getSystemTheme() {
+	const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+		? "dark"
+		: "light";
+
+	return systemTheme;
+}
+
+export function ThemeProvider({
+	children,
+	defaultTheme = "system",
+	storageKey = "vite-ui-theme",
+	...props
+}: ThemeProviderProps) {
+	const [theme, setTheme] = useState<Theme>(
+		() => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
 	);
-	const [chosenTheme, setChosenTheme] = createSignal(props.defaultTheme);
+	const resultingTheme = useRef(getSystemTheme() as "dark" | "light");
 
-	createEffect(() => {
-		let chosenTheme = theme();
+	useEffect(() => {
+		const root = window.document.documentElement;
 
-		if (theme() === "system") {
-			chosenTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-				? "dark"
-				: "light";
+		root.classList.remove("light", "dark");
+
+		if (theme === "system") {
+			const systemTheme = getSystemTheme();
+
+			resultingTheme.current = systemTheme;
+			root.classList.add(systemTheme);
+			return;
 		}
-		setChosenTheme(chosenTheme);
+		resultingTheme.current = theme;
 
-		if (chosenTheme === "dark") {
-			document.body.setAttribute("data-kb-theme", "dark");
-		} else {
-			document.body.removeAttribute("data-kb-theme");
-		}
-	});
+		root.classList.add(theme);
+	}, [theme]);
 
 	const value = {
 		theme,
 		setTheme: (theme: Theme) => {
-			localStorage.setItem(storageKey(), theme);
+			localStorage.setItem(storageKey, theme);
 			setTheme(theme);
 		},
+		resultingTheme: resultingTheme.current,
 	};
 
 	return (
-		<>
-			<Link
-				rel="stylesheet"
-				href={
-					chosenTheme() === "light"
-						? "/ui/prism-solarizedlight.css"
-						: "/ui/prism-tomorrow.css"
-				}
-			/>
-			<ThemeProviderContext.Provider value={value}>
-				{props.children}
-			</ThemeProviderContext.Provider>
-		</>
+		<ThemeProviderContext.Provider {...props} value={value}>
+			{children}
+		</ThemeProviderContext.Provider>
 	);
 }
 
