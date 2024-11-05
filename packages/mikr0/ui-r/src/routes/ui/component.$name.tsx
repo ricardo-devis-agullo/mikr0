@@ -1,3 +1,4 @@
+import { useTheme } from "@/ThemeProvider";
 import { Badge } from "@/components/ui/badge";
 import {
 	Select,
@@ -7,11 +8,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { IoArrowBack } from "react-icons/io5";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { IoArrowBack } from "react-icons/io5";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { arduinoLight  } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {
+	arduinoLight,
+	tomorrowNight,
+} from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export const Route = createFileRoute("/ui/component/$name")({
 	component: AboutComponent,
@@ -28,6 +32,8 @@ declare global {
 
 function AboutComponent() {
 	const params = useParams({ from: "/ui/component/$name" });
+	const { resultingTheme } = useTheme();
+	const style = resultingTheme === "dark" ? tomorrowNight : arduinoLight;
 
 	const componentVersions = window.mikr0Data.components[params.name];
 	const versions = Object.keys(componentVersions);
@@ -66,7 +72,9 @@ ${importMaps}`;
 						<SelectContent>
 							<SelectGroup>
 								{versions.map((v) => (
-									<SelectItem key={v} value={v}>{v}</SelectItem>
+									<SelectItem key={v} value={v}>
+										{v}
+									</SelectItem>
 								))}
 							</SelectGroup>
 						</SelectContent>
@@ -76,7 +84,7 @@ ${importMaps}`;
 				<div>
 					<h1 className="text-3xl my-8">Global setup</h1>
 					<div className="mb-4 text-sm border-solid border-2 p-6 rounded-2xl shadow-bigcen shadow-gray-200 dark:shadow-teal-900">
-						<SyntaxHighlighter language="html" style={arduinoLight}>
+						<SyntaxHighlighter language="html" style={style}>
 							{globalCode}
 						</SyntaxHighlighter>
 					</div>
@@ -84,7 +92,7 @@ ${importMaps}`;
 				<div>
 					<h1 className="text-3xl mb-8">Installation</h1>
 					<div className="text-sm border-solid border-2 p-6 rounded-2xl shadow-bigcen shadow-gray-200 dark:shadow-teal-900">
-						<SyntaxHighlighter language="html" style={arduinoLight}>
+						<SyntaxHighlighter language="html" style={style}>
 							{componentCode}
 						</SyntaxHighlighter>
 					</div>

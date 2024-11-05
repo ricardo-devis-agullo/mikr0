@@ -1,50 +1,61 @@
-import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
-type ThemeProviderState = {
-	theme: Theme;
-	setTheme: (theme: Theme) => void;
-};
+
 type ThemeProviderProps = {
+	children: React.ReactNode;
 	defaultTheme?: Theme;
 	storageKey?: string;
 };
 
+type ThemeProviderState = {
+	theme: Theme;
+	resultingTheme: "dark" | "light";
+	setTheme: (theme: Theme) => void;
+};
+
 const initialState: ThemeProviderState = {
 	theme: "system",
+	resultingTheme: "light",
 	setTheme: () => null,
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
-export function ThemeProvider(
-	props: React.PropsWithChildren<ThemeProviderProps>,
-) {
-	const storageKey = props.storageKey ?? "vite-ui-theme";
+function getSystemTheme() {
+	const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+		? "dark"
+		: "light";
+
+	return systemTheme;
+}
+
+export function ThemeProvider({
+	children,
+	defaultTheme = "system",
+	storageKey = "vite-ui-theme",
+	...props
+}: ThemeProviderProps) {
 	const [theme, setTheme] = useState<Theme>(
-		(localStorage.getItem(storageKey) as Theme) ||
-			(props.defaultTheme ?? "system"),
+		() => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
 	);
-	const [chosenTheme, setChosenTheme] = useState<Theme>(
-		props.defaultTheme ?? "system",
-	);
+	const resultingTheme = useRef(getSystemTheme() as "dark" | "light");
 
 	useEffect(() => {
-		let chosenTheme = theme;
+		const root = window.document.documentElement;
+
+		root.classList.remove("light", "dark");
 
 		if (theme === "system") {
-			chosenTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-				? "dark"
-				: "light";
-		}
-		setChosenTheme(chosenTheme);
+			const systemTheme = getSystemTheme();
 
-		if (chosenTheme === "dark") {
-			document.body.setAttribute("data-kb-theme", "dark");
-		} else {
-			document.body.removeAttribute("data-kb-theme");
+			resultingTheme.current = systemTheme;
+			root.classList.add(systemTheme);
+			return;
 		}
+		resultingTheme.current = theme;
+
+		root.classList.add(theme);
 	}, [theme]);
 
 	const value = {
@@ -53,22 +64,13 @@ export function ThemeProvider(
 			localStorage.setItem(storageKey, theme);
 			setTheme(theme);
 		},
+		resultingTheme: resultingTheme.current,
 	};
 
 	return (
-		<>
-			<link
-				rel="stylesheet"
-				href={
-					chosenTheme === "light"
-						? "/ui/prism-solarizedlight.css"
-						: "/ui/prism-tomorrow.css"
-				}
-			/>
-			<ThemeProviderContext.Provider value={value}>
-				{props.children}
-			</ThemeProviderContext.Provider>
-		</>
+		<ThemeProviderContext.Provider {...props} value={value}>
+			{children}
+		</ThemeProviderContext.Provider>
 	);
 }
 

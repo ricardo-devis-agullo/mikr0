@@ -10,85 +10,85 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as UiIndexImport } from './routes/ui/index'
-import { Route as UiComponentNameImport } from './routes/ui/component.$name'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as UiComponentNameImport } from "./routes/ui/component.$name";
+import { Route as UiIndexImport } from "./routes/ui/index";
 
 // Create/Update Routes
 
 const UiIndexRoute = UiIndexImport.update({
-  id: '/ui/',
-  path: '/ui/',
-  getParentRoute: () => rootRoute,
-} as any)
+	id: "/ui/",
+	path: "/ui/",
+	getParentRoute: () => rootRoute,
+} as any);
 
 const UiComponentNameRoute = UiComponentNameImport.update({
-  id: '/ui/component/$name',
-  path: '/ui/component/$name',
-  getParentRoute: () => rootRoute,
-} as any)
+	id: "/ui/component/$name",
+	path: "/ui/component/$name",
+	getParentRoute: () => rootRoute,
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/ui/': {
-      id: '/ui/'
-      path: '/ui'
-      fullPath: '/ui'
-      preLoaderRoute: typeof UiIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/ui/component/$name': {
-      id: '/ui/component/$name'
-      path: '/ui/component/$name'
-      fullPath: '/ui/component/$name'
-      preLoaderRoute: typeof UiComponentNameImport
-      parentRoute: typeof rootRoute
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/ui/": {
+			id: "/ui/";
+			path: "/ui";
+			fullPath: "/ui";
+			preLoaderRoute: typeof UiIndexImport;
+			parentRoute: typeof rootRoute;
+		};
+		"/ui/component/$name": {
+			id: "/ui/component/$name";
+			path: "/ui/component/$name";
+			fullPath: "/ui/component/$name";
+			preLoaderRoute: typeof UiComponentNameImport;
+			parentRoute: typeof rootRoute;
+		};
+	}
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/ui': typeof UiIndexRoute
-  '/ui/component/$name': typeof UiComponentNameRoute
+	"/ui": typeof UiIndexRoute;
+	"/ui/component/$name": typeof UiComponentNameRoute;
 }
 
 export interface FileRoutesByTo {
-  '/ui': typeof UiIndexRoute
-  '/ui/component/$name': typeof UiComponentNameRoute
+	"/ui": typeof UiIndexRoute;
+	"/ui/component/$name": typeof UiComponentNameRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/ui/': typeof UiIndexRoute
-  '/ui/component/$name': typeof UiComponentNameRoute
+	__root__: typeof rootRoute;
+	"/ui/": typeof UiIndexRoute;
+	"/ui/component/$name": typeof UiComponentNameRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/ui' | '/ui/component/$name'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/ui' | '/ui/component/$name'
-  id: '__root__' | '/ui/' | '/ui/component/$name'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths: "/ui" | "/ui/component/$name";
+	fileRoutesByTo: FileRoutesByTo;
+	to: "/ui" | "/ui/component/$name";
+	id: "__root__" | "/ui/" | "/ui/component/$name";
+	fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  UiIndexRoute: typeof UiIndexRoute
-  UiComponentNameRoute: typeof UiComponentNameRoute
+	UiIndexRoute: typeof UiIndexRoute;
+	UiComponentNameRoute: typeof UiComponentNameRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  UiIndexRoute: UiIndexRoute,
-  UiComponentNameRoute: UiComponentNameRoute,
-}
+	UiIndexRoute: UiIndexRoute,
+	UiComponentNameRoute: UiComponentNameRoute,
+};
 
 export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {
