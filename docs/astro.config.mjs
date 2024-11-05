@@ -20,6 +20,20 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Registry',
+					items: [
+						{ label: 'Introduction', slug: 'guides/registry-intro' },
+						{ label: 'Configuration', slug: 'guides/registry-configure' },
+					],
+				},
+				{
+					label: 'Components',
+					items: [
+						{ label: 'Introduction', slug: 'guides/component-intro' },
+						{ label: 'Configuration', slug: 'guides/component-configure' },
+					],
+				},
+				{
 					label: 'Reference',
 					autogenerate: { directory: 'reference' },
 				},

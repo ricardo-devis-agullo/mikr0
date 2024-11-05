@@ -1,0 +1,73 @@
+---
+title: Configuration Guide
+description: A guide to configure mikr0 components.
+---
+
+import {Aside} from '@astrojs/starlight/components'
+
+## Quick setup
+
+Quickly scaffold a component by running the command
+
+```bash
+npm create mikr0@latest -- -t component
+```
+
+## Manual setup
+
+You can take any vite project and convert it to a mikr0 component by following these steps:
+
+1. Install the mikr0 dependency
+
+```bash
+npm install @mikr0
+```
+
+2. Add an entry point called index.ts, or index.tsx, or index.js, or index.jsx to your component inside the `src` folder.
+
+```typescript
+import { createComponent } from '@mikr0/dev';
+
+export default createComponent({
+  // Minimum property needed to instruct how to mount the component
+  mount(element) {
+    element.innerHTML = '<div>Hello World</div>';
+  }
+  // ... more component configuration
+});
+```
+
+<Aside>
+The export has to look exactly like this or the build will not properly work.
+</Aside>
+
+3. Add the following scripts to your package.json
+
+```json
+{
+  "scripts": {
+    "dev": "mikr0 dev",
+    "build": "mikr0 build",
+    "publish-component": "mikr0 publish"
+  }
+}
+```
+
+4. Create a file in `src` folder called `mikr0-env.d.ts` and add the following content to get better type completion with some features
+
+```typescript
+/// <reference types="vite/client" />
+
+import type component from './index'
+declare module "mikr0/dev" {
+	interface Register {
+		component: typeof component;
+	}
+}
+```
+
+5. Run the dev server
+
+```bash
+npm run dev
+```
