@@ -84,7 +84,7 @@ export default function HomeComponent() {
 	return (
 		<div>
 			<Input
-				className="pl-10"
+				className="pl-10 mb-4"
 				type="text"
 				autoFocus
 				placeholder="Search ..."

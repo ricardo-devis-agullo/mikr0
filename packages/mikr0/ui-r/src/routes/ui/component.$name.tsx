@@ -11,7 +11,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { arduinoLight  } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export const Route = createFileRoute("/ui/component/$name")({
 	component: AboutComponent,
@@ -66,7 +66,7 @@ ${importMaps}`;
 						<SelectContent>
 							<SelectGroup>
 								{versions.map((v) => (
-									<SelectItem key={v} value={v} />
+									<SelectItem key={v} value={v}>{v}</SelectItem>
 								))}
 							</SelectGroup>
 						</SelectContent>
@@ -76,7 +76,7 @@ ${importMaps}`;
 				<div>
 					<h1 className="text-3xl my-8">Global setup</h1>
 					<div className="mb-4 text-sm border-solid border-2 p-6 rounded-2xl shadow-bigcen shadow-gray-200 dark:shadow-teal-900">
-						<SyntaxHighlighter language="html" style={docco}>
+						<SyntaxHighlighter language="html" style={arduinoLight}>
 							{globalCode}
 						</SyntaxHighlighter>
 					</div>
@@ -84,7 +84,7 @@ ${importMaps}`;
 				<div>
 					<h1 className="text-3xl mb-8">Installation</h1>
 					<div className="text-sm border-solid border-2 p-6 rounded-2xl shadow-bigcen shadow-gray-200 dark:shadow-teal-900">
-						<SyntaxHighlighter language="html" style={docco}>
+						<SyntaxHighlighter language="html" style={arduinoLight}>
 							{componentCode}
 						</SyntaxHighlighter>
 					</div>
