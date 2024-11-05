@@ -8,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -17,8 +17,21 @@ import {
 	tomorrowNight,
 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
+type Version = 'last' | `${number}.${number}.${number}`;
+interface ComponentSearch {
+  version: Version
+}
+
 export const Route = createFileRoute("/ui/component/$name")({
-	component: AboutComponent,
+	component: ComponentInfo,
+  validateSearch: (search: Record<string, unknown>): ComponentSearch => {
+    const queryVersion = String(search.version);
+    const versionRequested = queryVersion.match(/^(\d+|x)\.(\d+|x)\.(\d+|x)$/) ? queryVersion  as Version : 'last'
+
+    return {
+      version: versionRequested,
+    }
+  },
 });
 
 declare global {
@@ -29,8 +42,14 @@ declare global {
 	}
 }
 
-function AboutComponent() {
-	const params = useParams({ from: "/ui/component/$name" });
+const routeApi = getRouteApi('/ui/component/$name')
+
+
+function ComponentInfo() {
+	const params = routeApi.useParams();
+  const search = routeApi.useSearch();
+  const navigate = routeApi.useNavigate();
+
 	const { theme } = useTheme();
 	const resultingTheme = useMemo(() => {
 		if (theme === "system") {
