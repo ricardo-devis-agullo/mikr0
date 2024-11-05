@@ -1,4 +1,4 @@
-import { useTheme } from "@/ThemeProvider";
+import { getSystemTheme, useTheme } from "@/ThemeProvider";
 import { Badge } from "@/components/ui/badge";
 import {
 	Select,
@@ -9,7 +9,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import {
@@ -21,7 +21,6 @@ export const Route = createFileRoute("/ui/component/$name")({
 	component: AboutComponent,
 });
 
-// declare namespace jsx for mikro-component element
 declare global {
 	namespace JSX {
 		interface IntrinsicElements {
@@ -32,7 +31,13 @@ declare global {
 
 function AboutComponent() {
 	const params = useParams({ from: "/ui/component/$name" });
-	const { resultingTheme } = useTheme();
+	const { theme } = useTheme();
+	const resultingTheme = useMemo(() => {
+		if (theme === "system") {
+			return getSystemTheme();
+		}
+		return theme;
+	}, [theme]);
 	const style = resultingTheme === "dark" ? tomorrowNight : arduinoLight;
 
 	const componentVersions = window.mikr0Data.components[params.name];
