@@ -107,13 +107,13 @@ fastify.get("/", (request, reply) => {
 	responseHtml += '</body></html>';
 	reply.type("text/html").send(responseHtml);
 });
-const staticFIlesPort = 4000
-fastify.listen({ port: staticFIlesPort }, async (err) => {
+const staticFilesPort = 4000
+fastify.listen({ port: staticFilesPort }, async (err) => {
 	if (err) {
 		console.error(err);
 		process.exit(1);
 	}
-	const url = `http://localhost:${staticFIlesPort}`;
+	const url = `http://localhost:${staticFilesPort}`;
 	console.log(`Server listening at ${url}`);
 
 	console.log("Measuring performance...");
