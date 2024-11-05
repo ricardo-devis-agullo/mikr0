@@ -1,18 +1,18 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import path from 'node:path'
+import path from "node:path";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
+	resolve: {
+		alias: {
+			"@": path.resolve(__dirname, "./src"),
+		},
+	},
 	build: {
 		outDir: "../dist/ui-dist",
 	},
-  base: "/ui",
-  plugins: [TanStackRouterVite({}), react()],
-})
+	base: "/ui",
+	plugins: [TanStackRouterVite({}), react()],
+});

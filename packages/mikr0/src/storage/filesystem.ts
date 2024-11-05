@@ -19,11 +19,11 @@ export function FilesystemStorage(options: {
 			});
 		},
 		async saveFile(destination: string, contents: string) {
-      const mime = getMimeType(destination);
+			const mime = getMimeType(destination);
 			await fsp.writeFile(
 				path.join(options.folderPath, destination),
 				contents,
-				mime?.startsWith('image') ? 'binary' : 'utf-8',
+				mime?.startsWith("image") ? "binary" : "utf-8",
 			);
 		},
 		get(file: string) {

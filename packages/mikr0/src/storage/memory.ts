@@ -12,29 +12,29 @@ export function MemoryStorage(): StaticStorage {
 		async save(src: string, destination: string) {
 			for await (const file of fsp.glob(path.join(src, "/*"))) {
 				fs.mkdirSync(path.join("/", destination), { recursive: true });
-        const mime = getMimeType(file);
-        const encoding = mime?.startsWith('image') ? 'binary' : 'utf-8';
+				const mime = getMimeType(file);
+				const encoding = mime?.startsWith("image") ? "binary" : "utf-8";
 				const data = await fsp.readFile(file, encoding);
 				fs.writeFileSync(
 					path.join("/", destination, path.basename(file)),
 					data,
-          {
-            encoding
-          }
+					{
+						encoding,
+					},
 				);
 			}
 		},
 		async saveFile(destination: string, contents: string) {
-      const mime = getMimeType(destination);
-      const encoding = mime?.startsWith('image') ? 'binary' : 'utf-8';
+			const mime = getMimeType(destination);
+			const encoding = mime?.startsWith("image") ? "binary" : "utf-8";
 			await fs.writeFileSync(path.join("/", destination), contents, {
-				encoding
+				encoding,
 			});
 			storage.set(destination, contents);
 		},
 		async get(file: string) {
-      const mime = getMimeType(file);
-      const encoding = mime?.startsWith('image') ? 'binary' : 'utf-8';
+			const mime = getMimeType(file);
+			const encoding = mime?.startsWith("image") ? "binary" : "utf-8";
 
 			return fs.readFileSync(path.join("/", file), {
 				encoding,

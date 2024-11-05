@@ -10,85 +10,85 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as UiIndexImport } from './routes/ui/index'
-import { Route as UiAboutImport } from './routes/ui/about'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as UiComponentNameImport } from "./routes/ui/component.$name";
+import { Route as UiIndexImport } from "./routes/ui/index";
 
 // Create/Update Routes
 
 const UiIndexRoute = UiIndexImport.update({
-  id: '/ui/',
-  path: '/ui/',
-  getParentRoute: () => rootRoute,
-} as any)
+	id: "/ui/",
+	path: "/ui/",
+	getParentRoute: () => rootRoute,
+} as any);
 
-const UiAboutRoute = UiAboutImport.update({
-  id: '/ui/about',
-  path: '/ui/about',
-  getParentRoute: () => rootRoute,
-} as any)
+const UiComponentNameRoute = UiComponentNameImport.update({
+	id: "/ui/component/$name",
+	path: "/ui/component/$name",
+	getParentRoute: () => rootRoute,
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/ui/about': {
-      id: '/ui/about'
-      path: '/ui/about'
-      fullPath: '/ui/about'
-      preLoaderRoute: typeof UiAboutImport
-      parentRoute: typeof rootRoute
-    }
-    '/ui/': {
-      id: '/ui/'
-      path: '/ui'
-      fullPath: '/ui'
-      preLoaderRoute: typeof UiIndexImport
-      parentRoute: typeof rootRoute
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/ui/": {
+			id: "/ui/";
+			path: "/ui";
+			fullPath: "/ui";
+			preLoaderRoute: typeof UiIndexImport;
+			parentRoute: typeof rootRoute;
+		};
+		"/ui/component/$name": {
+			id: "/ui/component/$name";
+			path: "/ui/component/$name";
+			fullPath: "/ui/component/$name";
+			preLoaderRoute: typeof UiComponentNameImport;
+			parentRoute: typeof rootRoute;
+		};
+	}
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/ui/about': typeof UiAboutRoute
-  '/ui': typeof UiIndexRoute
+	"/ui": typeof UiIndexRoute;
+	"/ui/component/$name": typeof UiComponentNameRoute;
 }
 
 export interface FileRoutesByTo {
-  '/ui/about': typeof UiAboutRoute
-  '/ui': typeof UiIndexRoute
+	"/ui": typeof UiIndexRoute;
+	"/ui/component/$name": typeof UiComponentNameRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/ui/about': typeof UiAboutRoute
-  '/ui/': typeof UiIndexRoute
+	__root__: typeof rootRoute;
+	"/ui/": typeof UiIndexRoute;
+	"/ui/component/$name": typeof UiComponentNameRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/ui/about' | '/ui'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/ui/about' | '/ui'
-  id: '__root__' | '/ui/about' | '/ui/'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths: "/ui" | "/ui/component/$name";
+	fileRoutesByTo: FileRoutesByTo;
+	to: "/ui" | "/ui/component/$name";
+	id: "__root__" | "/ui/" | "/ui/component/$name";
+	fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  UiAboutRoute: typeof UiAboutRoute
-  UiIndexRoute: typeof UiIndexRoute
+	UiIndexRoute: typeof UiIndexRoute;
+	UiComponentNameRoute: typeof UiComponentNameRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  UiAboutRoute: UiAboutRoute,
-  UiIndexRoute: UiIndexRoute,
-}
+	UiIndexRoute: UiIndexRoute,
+	UiComponentNameRoute: UiComponentNameRoute,
+};
 
 export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {
@@ -96,15 +96,15 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/ui/about",
-        "/ui/"
+        "/ui/",
+        "/ui/component/$name"
       ]
-    },
-    "/ui/about": {
-      "filePath": "ui/about.tsx"
     },
     "/ui/": {
       "filePath": "ui/index.tsx"
+    },
+    "/ui/component/$name": {
+      "filePath": "ui/component.$name.tsx"
     }
   }
 }
