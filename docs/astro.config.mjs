@@ -31,6 +31,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Introduction', slug: 'guides/component-intro' },
 						{ label: 'Configuration', slug: 'guides/component-configure' },
+						{ label: 'Actions', slug: 'guides/actions' },
 					],
 				},
 				{
