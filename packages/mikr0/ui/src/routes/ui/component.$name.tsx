@@ -17,21 +17,23 @@ import {
 	tomorrowNight,
 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-type Version = 'last' | `${number}.${number}.${number}`;
+type Version = "last" | `${number}.${number}.${number}`;
 interface ComponentSearch {
-  version: Version
+	version: Version;
 }
 
 export const Route = createFileRoute("/ui/component/$name")({
 	component: ComponentInfo,
-  validateSearch: (search: Record<string, unknown>): ComponentSearch => {
-    const queryVersion = String(search.version);
-    const versionRequested = queryVersion.match(/^(\d+|x)\.(\d+|x)\.(\d+|x)$/) ? queryVersion  as Version : 'last'
+	validateSearch: (search: Record<string, unknown>): ComponentSearch => {
+		const queryVersion = String(search.version);
+		const versionRequested = queryVersion.match(/^(\d+|x)\.(\d+|x)\.(\d+|x)$/)
+			? (queryVersion as Version)
+			: "last";
 
-    return {
-      version: versionRequested,
-    }
-  },
+		return {
+			version: versionRequested,
+		};
+	},
 });
 
 declare global {
@@ -42,13 +44,12 @@ declare global {
 	}
 }
 
-const routeApi = getRouteApi('/ui/component/$name')
-
+const routeApi = getRouteApi("/ui/component/$name");
 
 function ComponentInfo() {
 	const params = routeApi.useParams();
-  const search = routeApi.useSearch();
-  const navigate = routeApi.useNavigate();
+	const search = routeApi.useSearch();
+	const navigate = routeApi.useNavigate();
 
 	const { theme } = useTheme();
 	const resultingTheme = useMemo(() => {

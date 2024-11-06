@@ -3,15 +3,16 @@ title: Configuration Guide
 description: A guide to configure mikr0 components.
 ---
 
-import {Aside} from '@astrojs/starlight/components'
+import {Aside, Code, Tabs, TabItem} from '@astrojs/starlight/components'
 
 ## Quick start
 
 Quickly scaffold a component by running the command
 
-```bash
-npm create mikr0@latest -- -t component
-```
+<Tabs>
+  <TabItem label="npm"><Code code='npm create mikr0@latest -- -t component' lang="bash" /></TabItem>
+  <TabItem label="pnpm"><Code code='pnpm create mikr0@latest -t component' lang="bash" /></TabItem>
+</Tabs>
 
 ## Manual setup
 

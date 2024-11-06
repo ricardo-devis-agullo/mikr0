@@ -117,34 +117,34 @@ export {
 `;
 
 const pkg = {
-    "name": "vanilla-component",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-      "dev": "mikr0 dev",
-      "build": "tsc -b && mikr0 build",
-      "publish-component": "tsc -b && mikr0 publish"
-    },
-    "devDependencies": {
-      "mikr0": "0.0.12",
-      "typescript": "~5.6.2",
-      "vite": "^5.4.9"
-    },
-    "description": "A sample component written in vanilla",
-    "mikr0": {
-      "parameters": {
-        "name": {
-          "type": "string",
-          "mandatory": true,
-          "example": "Mikr0",
-          "description": "Name of the component"
-        }
-      },
-      "serverSize": 1611,
-      "clientSize": 1992,
-      "serialized": false
-    }
-  }
+	name: "vanilla-component",
+	private: true,
+	version: "0.0.0",
+	type: "module",
+	scripts: {
+		dev: "mikr0 dev",
+		build: "tsc -b && mikr0 build",
+		"publish-component": "tsc -b && mikr0 publish",
+	},
+	devDependencies: {
+		mikr0: "0.0.12",
+		typescript: "~5.6.2",
+		vite: "^5.4.9",
+	},
+	description: "A sample component written in vanilla",
+	mikr0: {
+		parameters: {
+			name: {
+				type: "string",
+				mandatory: true,
+				example: "Mikr0",
+				description: "Name of the component",
+			},
+		},
+		serverSize: 1611,
+		clientSize: 1992,
+		serialized: false,
+	},
+};
 
-  export default { pkg, rawServer, rawTemplate };
+export default { pkg, rawServer, rawTemplate };
