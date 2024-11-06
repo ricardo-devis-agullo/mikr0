@@ -8,6 +8,7 @@
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": [
+			"./docs/.astro",
 			"dist",
 			"./apps/component",
 			"apps/registry",

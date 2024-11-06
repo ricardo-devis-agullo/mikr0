@@ -8,7 +8,7 @@
     "start": "node ../../packages/mikr0/dist/cli.js dev",
     "publish-component": "node ../../packages/mikr0/dist/cli.js publish",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "mikr0 build",
     "preview": "vite preview"
   },
   "dependencies": {
