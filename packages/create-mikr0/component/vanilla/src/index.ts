@@ -1,4 +1,5 @@
 import { createComponent } from "mikr0/dev";
+import javascriptLogo from './javascript.svg'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export default createComponent({
@@ -26,7 +27,7 @@ export default createComponent({
       "
     >
       <a href="https://react.dev" target="_blank" rel="noreferrer">
-         <img src="z" class="logo" alt="JS logo" />
+         <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
       </a>
       <button
         style="
