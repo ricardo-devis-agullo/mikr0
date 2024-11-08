@@ -35,6 +35,7 @@ export default createComponent({
 		});
 	},
 	mount(element, props) {
+    console.log("mounting", props);
 		render(() => <App {...props as any} />, element);
 	},
 });

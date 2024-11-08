@@ -1,4 +1,5 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { Readable } from "node:stream";
 import { promisify } from "node:util";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { type Static, Type } from "@sinclair/typebox";
@@ -43,6 +44,12 @@ function streamData(
 	meta: { src: string; version: string; component: string },
 	data: Record<string, unknown | Promise<unknown>>,
 ) {
+	const readableStream = new Readable();
+	readableStream._read = () => {};
+	reply.header("content-type", "text/x-defer");
+	reply.header("transfer-encoding", "chunked");
+	reply.send(readableStream);
+
 	// Separate immediate properties and promises
 	const immediateData: Record<string, unknown> = {};
 	const promiseKeys = new Set();
@@ -66,8 +73,7 @@ function streamData(
 	}
 
 	// Set the headers and send the initial data structure
-	reply.raw.writeHead(200, { "Content-Type": "text/x-defer" });
-	reply.raw.write(
+	readableStream.push(
 		`I:X: ${JSON.stringify({
 			...meta,
 			data: immediateData,
@@ -79,10 +85,10 @@ function streamData(
 	for (const promise of promises) {
 		promise
 			.then(({ key, value }) => {
-				reply.raw.write(`P:${key}: ${JSON.stringify(value)}\n`);
+				readableStream.push(`P:${key}: ${JSON.stringify(value)}\n`);
 				promiseKeys.delete(key);
 				if (promiseKeys.size === 0) {
-					reply.raw.end();
+					readableStream.push(null);
 				}
 			})
 			.catch(({ key, error }) => {
@@ -91,10 +97,10 @@ function streamData(
 				);
 				const indicator = error instanceof Error ? "E" : "U";
 
-				reply.raw.write(`${indicator}:${key}: ${serializedError}\n`);
+				readableStream.push(`${indicator}:${key}: ${serializedError}\n`);
 				promiseKeys.delete(key);
 				if (promiseKeys.size === 0) {
-					reply.raw.end();
+					readableStream.push(null);
 				}
 			});
 	}
