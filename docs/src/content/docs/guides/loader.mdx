@@ -1,0 +1,40 @@
+---
+title: Loader
+description: How to prepare data for your component
+---
+
+import { Code } from '@astrojs/starlight/components'
+
+In mikr0, a **loader** is a way to prepare data for your component before it is rendered. They allow you to fetch data from a database, an API, or any other source. The loaders is defined using the optional `loader` property in the `createComponent` function.
+
+<Code title='src/index.ts' code={`
+import { createComponent } from 'mikr0/dev';
+import { db } from './database';
+
+export default createComponent({
+  loader: async (params, context) => {
+    const userData = db.query('SELECT * FROM users WHERE id = $1', [params.userId]);
+    return { userData: await userData };
+  },
+  // ... rest of configuration
+});
+`} lang="ts" />
+
+## Defer
+
+If some part of your data fetching is slow, you can use the `defer` to wrap your data, and then the promises inside the `defer` will be resolved after the component is rendered, so you don't block the rendering process.
+
+<Code title='src/index.ts' del={[1,8]} ins={[2,9]} code={`
+import { createComponent } from 'mikr0/dev';
+import { createComponent, defer } from 'mikr0/dev';
+import { db } from './database';
+
+export default createComponent({
+  loader: async (params, context) => {
+    const userData = db.query('SELECT * FROM users WHERE id = $1', [params.userId]);
+    return { userData: await userData.rows[0] };
+    return defer({ userData: userData.rows[0] });
+  },
+  // ... rest of configuration
+});
+`} lang="ts" />
