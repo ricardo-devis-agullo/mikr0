@@ -4,8 +4,9 @@ import { LRUCache } from "lru-cache";
 import createRequireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
 
-type Loader = (...args: unknown[]) => Promise<void>;
-type Server = { loader: Loader; actions: Record<string, Loader> };
+type Loader = (...args: unknown[]) => Promise<{ deferred: boolean; data: any }>;
+type Action = (...args: unknown[]) => Promise<any>;
+type Server = { loader: Loader; actions: Record<string, Action> };
 
 // Polyfill to support Node 20
 if (typeof Promise.withResolvers === "undefined") {
@@ -27,7 +28,7 @@ export default function getServerData(opts: {
 }) {
 	const cache = new LRUCache<string, Server>({ max: 500 });
 
-	const getServer = async (name: string, version: string) => {
+	const getServer = async (name: string, version: string): Promise<Server> => {
 		const cached = cache.get(`${name}/${version}`);
 		if (cached) return cached;
 
@@ -68,7 +69,7 @@ export default function getServerData(opts: {
 		return serverFns;
 	};
 
-	return async ({
+	return async function getServerData({
 		action,
 		name,
 		version,
@@ -82,7 +83,7 @@ export default function getServerData(opts: {
 		parameters: unknown;
 		plugins: Record<string, (...params: any[]) => any>;
 		headers?: Record<string, string | string[] | undefined>;
-	}) => {
+	}): Promise<any> {
 		const domain = Domain.create();
 		const { loader, actions } = await getServer(name, version);
 
@@ -102,7 +103,7 @@ export default function getServerData(opts: {
 
 			try {
 				let data: unknown;
-				if (action) {
+				if (action && actions[action]) {
 					data = await actions[action](parameters, serverContext);
 				} else {
 					data = await loader(serverContext);

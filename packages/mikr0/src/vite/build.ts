@@ -1,4 +1,4 @@
-import { readdirSync, rmSync } from "node:fs";
+import { readdirSync, renameSync, rmSync } from "node:fs";
 import fsp from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -46,7 +46,6 @@ export async function build(options: { entry: string }) {
 			emptyOutDir: false,
 			lib: {
 				entry: options.entry,
-				name: "myLib",
 				formats: ["es"],
 				fileName: "template",
 			},
@@ -61,16 +60,20 @@ export async function build(options: { entry: string }) {
 		plugins: [ocServerPlugin({ entry: options.entry })],
 		build: {
 			emptyOutDir: false,
+			minify: true,
+			ssr: true,
 			rollupOptions: {
 				external: (id) => {
-					if (id.startsWith("node:")) return true;
+					if (id.startsWith("node:")) {
+						return true;
+					}
 					return false;
 				},
 			},
 			lib: {
 				entry: options.entry,
-				name: "myLib",
 				formats: ["cjs"],
+				// This is being ignored ATM for some reason
 				fileName: "server",
 			},
 			outDir: "dist",
@@ -82,6 +85,10 @@ export async function build(options: { entry: string }) {
 	const clientSize = client[0]?.output[0].code.length;
 	if (!clientSize) throw new Error("Could not determine client size");
 
+	renameSync(
+		path.join(process.cwd(), "dist/index.cjs"),
+		path.join(process.cwd(), "dist/server.cjs"),
+	);
 	const { parameters, serialized } = require(
 		path.join(process.cwd(), "dist/server.cjs"),
 	);

@@ -124,7 +124,7 @@ ${importMaps}`;
 				</div>
 				<div>
 					<h1 className="text-3xl my-8">Preview</h1>
-					<div className="w-[800px] h-96 border-dotted border-2 border-rose-300">
+					<div className="w-[800px] h-96 border-dotted border-2 border-rose-300 overflow-scroll">
 						<mikro-component
 							src={`${window.location.origin}/r/component/${params.name}/${version}`}
 						/>
