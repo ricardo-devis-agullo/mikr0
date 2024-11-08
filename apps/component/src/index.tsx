@@ -5,7 +5,7 @@ import "./index.css";
 import fs from "node:fs";
 import App from "./App";
 
-import { createComponent } from "mikr0/dev";
+import { createComponent , defer} from "mikr0/dev";
 
 export default createComponent({
 	parameters: {
@@ -22,16 +22,20 @@ export default createComponent({
 			return { no: 3 };
 		},
 	},
-	loader(ctx) {
+	async loader(ctx) {
 		const dirs = fs.readdirSync(".");
-		return Promise.resolve({
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+    const delayedValue = delay(2_000).then(() => 5);
+		return defer({
+      pro: delayedValue,
 			folder:
 				dirs[ctx.parameters.position ?? -1] ??
 				dirs[ctx.plugins.defaultPosition()],
+        // dat
 		});
 	},
 	mount(element, props) {
-		render(() => <App {...props} />, element);
+		render(() => <App {...props as any} />, element);
 	},
 });
 

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { Readable } from "node:stream";
 import FastifyExpress from "@fastify/express";
 import esbuild from "esbuild";
 import Fastify from "fastify";
@@ -16,7 +17,6 @@ import { ocClientPlugin } from "./plugins.js";
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
 let app: Fastify.FastifyInstance | undefined = undefined;
-
 async function getPkgInfo() {
 	const pkg = JSON.parse(
 		await fs.readFile(path.join(process.cwd(), "package.json"), "utf-8"),
@@ -70,35 +70,9 @@ async function getServerParts(entry: string) {
 		],
 	});
 	const {
-		default: { actions, loader, plugins, parameters },
+		default: { serialized, actions, loader, plugins, parameters },
 	} = await import(path.join(tmpServer, "server.js"));
-
-	return { actions, loader, plugins, parameters };
-}
-
-function getBaseTemplate(name: string, version: string, appBlock: string) {
-	const baseTemplate = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="robots" content="index, follow" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-    };
-    </style>
-  </head>
-  <body>
-    <script src="/registry/client.js"></script>
-    <mikro-component src="/registry/component/${name}/${version}?param"></mikro-component>
-  </body>
-</html>
-  `;
-	return baseTemplate;
+	return { actions, loader, plugins, parameters, serialized };
 }
 
 export async function runServer() {
@@ -111,11 +85,15 @@ export async function runServer() {
 	const { name, version } = await getPkgInfo();
 	const meta = { name, version, baseUrl: "/" };
 	const { code: client } = compileClient();
-
 	await fs.writeFile(
 		tmpEntryPoint,
 		`import component from './${entryName}';
-     component.mount(document.getElementById('app'), window.__MIKR0_DATA__, {name: "${name}", version: "${version}", baseUrl: window.location.origin});`,
+
+      component.mount(document.getElementById('app'), window.__MIKR0_DATA__.data, {
+        name: "${name}",
+        version: "${version}",
+        baseUrl: window.location.origin
+      });`,
 		"utf-8",
 	);
 	const vite = await createServer({
@@ -151,27 +129,29 @@ export async function runServer() {
     </head>
     <body>
       ${body}
-    </body>
-  </html>
     `;
-
 	app.get("/r/client.js", (request, reply) => {
 		reply.type("application/javascript").send(client);
 	});
-
 	app.post("/r/action/:name/:version", async (request, reply) => {
 		const body: any = request.body;
 		const action = actions[body.action];
-		const parameters = JSON.parse(body.parameters);
+		const parameters = body.parameters;
 		const data = await action(parameters);
-		return { data: superjson.stringify(data) };
+		return data;
 	});
-
 	app.get("*", async (request, reply) => {
+		const readableStream = new Readable();
+		readableStream._read = () => {};
+		reply.header("content-type", "text/html; charset=utf-8");
+		reply.header("transfer-encoding", "chunked");
+		reply.send(readableStream);
+
 		try {
 			const url = request.originalUrl.replace(base, "");
-			let data = {};
-			if (!url || url.startsWith("?")) {
+			let data: any = {};
+			const isHtmlRequest = !url || url.startsWith("?");
+			if (isHtmlRequest) {
 				const parameters = parseParameters(
 					parametersSchema,
 					(request.query as Record<string, unknown>) ?? {},
@@ -183,19 +163,64 @@ export async function runServer() {
 					plugins,
 				});
 			}
-
+			let promises: any;
+			const promiseKeys = new Set();
+			if (isHtmlRequest && data.deferred) {
+				promises = {};
+				for (const key in data.data) {
+					if (data.data[key]?.then) {
+						promises[key] = data.data[key];
+						promiseKeys.add(key);
+					}
+				}
+			}
+			const promisesScript = `
+            window.__MIKR0_DATA__.promises = ${JSON.stringify(promises)};
+            for (const key in window.__MIKR0_DATA__.promises) {
+              window.__MIKR0_DATA__.promises[key] = Promise.withResolvers();
+              window.__MIKR0_DATA__.data[key] = window.__MIKR0_DATA__.promises[key].promise;
+            }
+            `;
 			const template = await vite.transformIndexHtml(
 				url,
 				baseTemplate(`
         <div id="app"></div>
         <script>
-        window.__MIKR0_DATA__ = ${JSON.stringify(data)};
+        window.__MIKR0_DATA__ = {};
+        window.__MIKR0_DATA__.data = ${JSON.stringify(data.data)};
+        ${promises ? promisesScript : ""}
         </script>
-        <script type="module" src="/src/_entry.tsx"></script>
+        <script type="module" async src="/src/_entry.tsx"></script>
           `),
 			);
 
-			reply.code(200).type("text/html").send(template);
+			readableStream.push(template);
+
+			if (promises) {
+				for (const key in promises) {
+					promises[key]
+						.then((value: any) => {
+							readableStream.push(
+								`<script>window.__MIKR0_DATA__.promises['${key}'].resolve(${JSON.stringify(value)});</script>`,
+							);
+							promiseKeys.delete(key);
+							if (promiseKeys.size === 0) {
+								readableStream.push("</body></html>");
+								readableStream.push(null);
+							}
+						})
+						.catch((error: any) => {
+							readableStream.push(
+								`<script>window.__MIKR0_DATA__.promises['${key}'].reject(${JSON.stringify(error)};</script>`,
+							);
+							promiseKeys.delete(key);
+							if (promiseKeys.size === 0) {
+								readableStream.push("</body></html>");
+								readableStream.push(null);
+							}
+						});
+				}
+			}
 		} catch (e) {
 			if (!(e instanceof Error)) {
 				reply.code(500).send(String(e));
@@ -206,13 +231,36 @@ export async function runServer() {
 			reply.code(500).send(e.stack);
 		}
 	});
-
 	app.listen({ port }, () => {
 		console.log(`Server started at http://localhost:${port}`);
 	});
 }
-
 export async function runIdealServer() {
+	function getBaseTemplate(name: string, version: string, appBlock: string) {
+		const baseTemplate = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="robots" content="index, follow" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    };
+    </style>
+  </head>
+  <body>
+    <script src="/registry/client.js"></script>
+    <mikro-component src="/registry/component/${name}/${version}?param"></mikro-component>
+  </body>
+</html>
+  `;
+		return baseTemplate;
+	}
+
 	const { createServer } = await import("vite");
 	const vite = await createServer({
 		server: { middlewareMode: true },

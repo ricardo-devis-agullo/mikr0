@@ -1,5 +1,13 @@
 import type { ParametersSchema } from "../parameters.js";
 
+const deferredSymbol = Symbol("deferred");
+export function defer<T>(data: T) {
+	if (data) {
+		(data as any)[deferredSymbol] = true;
+	}
+	return data;
+}
+
 const info = {
 	baseUrl: "",
 	name: "",
@@ -154,7 +162,15 @@ export function createComponent<
 		actions: options.actions,
 		plugins: options.plugins,
 		parameters: options.parameters,
-		loader: options.loader,
+		loader: options.loader
+			? async (data: any) => {
+					const result: any = await options.loader!(data);
+					if (result?.[deferredSymbol]) {
+						return { deferred: true, data: result };
+					}
+					return { deferred: false, data: result };
+				}
+			: undefined,
 		mount: (
 			element: HTMLElement,
 			props: Data,

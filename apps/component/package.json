@@ -7,7 +7,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "start": "mikr0 dev",
     "publish-component": "mikr0 publish --username admin --password password --registry http://localhost:4910",
-    "dev": "vite",
+    "dev": "mikr0 dev",
     "build": "mikr0 build",
     "preview": "vite preview"
   },
