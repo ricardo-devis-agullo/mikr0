@@ -96,7 +96,13 @@ type GetParameters<TComponent extends AnyComponent> =
 	TComponent extends Component<infer Schema, any, any, any>
 		? TransformOcParameters<Schema>
 		: never;
+type GetLoaderData<TComponent extends AnyComponent> =
+	TComponent extends Component<any, any, any, infer Data>
+  // @ts-ignore
+		? Data['data']
+		: never;
 export type ComponentParameters = GetParameters<RegisteredComponent>;
+export type LoaderData = GetLoaderData<RegisteredComponent>;
 
 export function createComponent<
 	Schema extends ParametersSchema,
@@ -163,9 +169,9 @@ export function createComponent<
 		plugins: options.plugins,
 		parameters: options.parameters,
 		loader: options.loader
-			? async (data: any) => {
-					const result: any = await options.loader!(data);
-					if (result?.[deferredSymbol]) {
+			? async (context: any) => {
+					const result: Data = await options.loader!(context);
+					if ((result as any)?.[deferredSymbol]) {
 						return { deferred: true, data: result };
 					}
 					return { deferred: false, data: result };
