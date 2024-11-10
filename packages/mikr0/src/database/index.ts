@@ -51,7 +51,6 @@ export class Database {
 				t.integer("component_id").unsigned().notNullable();
 				t.foreign("component_id").references("components.id");
 				t.string("version", 255).notNullable();
-				t.boolean("serialized").notNullable();
 				t.integer("major").notNullable();
 				t.integer("minor").notNullable();
 				t.integer("patch").notNullable();
@@ -69,7 +68,6 @@ export class Database {
 		client_size: number;
 		server_size: number | null;
 		published_at: Date;
-		serialized: boolean;
 		description?: string;
 	}) {
 		this.#client.transaction(async (trx) => {
@@ -102,7 +100,6 @@ export class Database {
 				major,
 				minor,
 				patch,
-				serialized: data.serialized,
 				version: data.version,
 				client_size: data.client_size,
 				server_size: data.server_size,
@@ -132,7 +129,6 @@ export class Database {
 				"versions.server_size",
 				"versions.published_at",
 				"versions.description",
-				"versions.serialized",
 			)
 			.first()
 			.then(
@@ -141,10 +137,8 @@ export class Database {
 					server_size: number;
 					published_at: Date;
 					description?: string;
-					serialized: boolean;
 				}) => ({
 					...row,
-					serialized: !!row.serialized,
 					name,
 					version,
 				}),

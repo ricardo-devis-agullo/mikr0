@@ -23,7 +23,6 @@ test("it gets all versions of a component", async () => {
 		client_size: 0,
 		server_size: 0,
 		published_at: now,
-		serialized: false,
 	});
 	await database.insertComponent({
 		name: "name",
@@ -31,7 +30,6 @@ test("it gets all versions of a component", async () => {
 		client_size: 0,
 		server_size: 0,
 		published_at: now,
-		serialized: false,
 	});
 	await database.insertComponent({
 		name: "name",
@@ -39,7 +37,6 @@ test("it gets all versions of a component", async () => {
 		client_size: 0,
 		server_size: 0,
 		published_at: now,
-		serialized: false,
 	});
 	const versions = await database.getComponentVersions("name");
 	assert.deepStrictEqual(versions, ["1.0.0", "1.0.1", "1.0.2"]);
@@ -55,7 +52,6 @@ test("checks if a component exists", async () => {
 		client_size: 0,
 		server_size: 0,
 		published_at: now,
-		serialized: false,
 	});
 	let exists = await database.versionExists("name", "1.0.0");
 	assert.strictEqual(exists, true);
@@ -83,7 +79,6 @@ test("gets the component info", async () => {
 		server_size: 20,
 		published_at: now,
 		description: "Hi my description",
-		serialized: false,
 	});
 	await database.insertComponent({
 		name: "name",
@@ -92,22 +87,18 @@ test("gets the component info", async () => {
 		server_size: 20,
 		published_at: now,
 		description: "Hi my description",
-		serialized: true,
 	});
 
-	const normalComponent = await database.getComponent("name", "1.0.0");
-	const serializedComponent = await database.getComponent("name", "1.1.0");
+	const component = await database.getComponent("name", "1.0.0");
 
-	assert.deepStrictEqual(normalComponent, {
+	assert.deepStrictEqual(component, {
 		name: "name",
 		version: "1.0.0",
 		client_size: 10,
 		server_size: 20,
-		serialized: false,
 		published_at: now.getTime(),
 		description: "Hi my description",
 	});
-	assert.equal(serializedComponent.serialized, true);
 	await database.close();
 });
 
@@ -120,7 +111,6 @@ test("gets all component names", async () => {
 		client_size: 10,
 		server_size: 20,
 		published_at: now,
-		serialized: false,
 	});
 
 	const components = await database.getComponents();
@@ -138,7 +128,6 @@ test("gets all components details", async () => {
 		server_size: 20,
 		published_at: now,
 		description: "Aaa description",
-		serialized: false,
 	});
 
 	await database.insertComponent({
@@ -148,7 +137,6 @@ test("gets all components details", async () => {
 		server_size: 20,
 		published_at: now,
 		description: "First description",
-		serialized: false,
 	});
 	await database.insertComponent({
 		name: "name",
@@ -157,7 +145,6 @@ test("gets all components details", async () => {
 		server_size: 20,
 		published_at: now,
 		description: "Third description",
-		serialized: false,
 	});
 	await database.insertComponent({
 		name: "name",
@@ -166,7 +153,6 @@ test("gets all components details", async () => {
 		server_size: 20,
 		published_at: now,
 		description: "Second description",
-		serialized: false,
 	});
 
 	const components = await database.getComponentsDetails();

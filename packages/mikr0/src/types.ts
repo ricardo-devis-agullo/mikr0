@@ -10,7 +10,6 @@ export type BuiltPackageJson = PackageJson & {
 	name: string;
 	version: string;
 	mikr0: {
-		serialized: boolean;
 		clientSize: number;
 		serverSize?: number;
 		parameters?: ParametersSchema;

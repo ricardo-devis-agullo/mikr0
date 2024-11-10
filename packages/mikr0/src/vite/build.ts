@@ -89,13 +89,11 @@ export async function build(options: { entry: string }) {
 		path.join(process.cwd(), "dist/index.cjs"),
 		path.join(process.cwd(), "dist/server.cjs"),
 	);
-	const { parameters, serialized } = require(
-		path.join(process.cwd(), "dist/server.cjs"),
-	);
+	const { parameters } = require(path.join(process.cwd(), "dist/server.cjs"));
 	const pkg: BuiltPackageJson = JSON.parse(
 		await fsp.readFile(path.join(process.cwd(), "package.json"), "utf-8"),
 	);
-	pkg.mikr0 = { parameters, serverSize, clientSize, serialized };
+	pkg.mikr0 = { parameters, serverSize, clientSize };
 	await fsp.writeFile(
 		path.join(process.cwd(), "dist/package.json"),
 		JSON.stringify(pkg, null, 2),

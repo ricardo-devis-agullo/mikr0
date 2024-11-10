@@ -5,7 +5,6 @@ import { Readable } from "node:stream";
 import FastifyExpress from "@fastify/express";
 import esbuild from "esbuild";
 import Fastify from "fastify";
-import superjson from "superjson";
 import { createServer } from "vite";
 import { createRegistry } from "../Registry.js";
 import { compileClient } from "../client/compile-client.js";
@@ -70,9 +69,9 @@ async function getServerParts(entry: string) {
 		],
 	});
 	const {
-		default: { serialized, actions, loader, plugins, parameters },
+		default: { actions, loader, plugins, parameters },
 	} = await import(path.join(tmpServer, "server.js"));
-	return { actions, loader, plugins, parameters, serialized };
+	return { actions, loader, plugins, parameters };
 }
 
 export async function runServer() {
@@ -163,24 +162,6 @@ export async function runServer() {
 					plugins,
 				});
 			}
-			let promises: any;
-			const promiseKeys = new Set();
-			if (isHtmlRequest && data.deferred) {
-				promises = {};
-				for (const key in data.data) {
-					if (data.data[key]?.then) {
-						promises[key] = data.data[key];
-						promiseKeys.add(key);
-					}
-				}
-			}
-			const promisesScript = `
-            window.__MIKR0_DATA__.promises = ${JSON.stringify(promises)};
-            for (const key in window.__MIKR0_DATA__.promises) {
-              window.__MIKR0_DATA__.promises[key] = Promise.withResolvers();
-              window.__MIKR0_DATA__.data[key] = window.__MIKR0_DATA__.promises[key].promise;
-            }
-            `;
 			const template = await vite.transformIndexHtml(
 				url,
 				baseTemplate(`
@@ -188,7 +169,6 @@ export async function runServer() {
         <script>
         window.__MIKR0_DATA__ = {};
         window.__MIKR0_DATA__.data = ${JSON.stringify(data.data)};
-        ${promises ? promisesScript : ""}
         </script>
         <script type="module" async src="/src/_entry.tsx"></script>
           `),
@@ -196,31 +176,6 @@ export async function runServer() {
 
 			readableStream.push(template);
 
-			if (promises) {
-				for (const key in promises) {
-					promises[key]
-						.then((value: any) => {
-							readableStream.push(
-								`<script>window.__MIKR0_DATA__.promises['${key}'].resolve(${JSON.stringify(value)});</script>`,
-							);
-							promiseKeys.delete(key);
-							if (promiseKeys.size === 0) {
-								readableStream.push("</body></html>");
-								readableStream.push(null);
-							}
-						})
-						.catch((error: any) => {
-							readableStream.push(
-								`<script>window.__MIKR0_DATA__.promises['${key}'].reject(${JSON.stringify(error)};</script>`,
-							);
-							promiseKeys.delete(key);
-							if (promiseKeys.size === 0) {
-								readableStream.push("</body></html>");
-								readableStream.push(null);
-							}
-						});
-				}
-			}
 		} catch (e) {
 			if (!(e instanceof Error)) {
 				reply.code(500).send(String(e));

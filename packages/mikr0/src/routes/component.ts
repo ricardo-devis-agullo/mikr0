@@ -1,11 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { Readable } from "node:stream";
 import { promisify } from "node:util";
 import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { type Static, Type } from "@sinclair/typebox";
 import AdmZip from "adm-zip";
-import type { FastifyInstance, FastifyReply } from "fastify";
-import superjson from "superjson";
+import type { FastifyInstance } from "fastify";
+import { encode } from "turbo-stream";
 import { parseParameters } from "../parameters.js";
 import makeServerData from "../server.js";
 import { getMimeType } from "../storage/utils.js";
@@ -25,88 +24,6 @@ const ComponentRequest = Type.Object({
 	),
 });
 type ComponentRequest = Static<typeof ComponentRequest>;
-
-function serializeError(error: Error) {
-	return {
-		...error, // includes any custom properties on the error
-		name: error.name,
-		message: error.message,
-		stack: error.stack,
-	};
-}
-
-function isPromise(x: unknown): x is Promise<unknown> {
-	return typeof (x as Promise<unknown>).then === "function";
-}
-
-function streamData(
-	reply: FastifyReply,
-	meta: { src: string; version: string; component: string },
-	data: Record<string, unknown | Promise<unknown>>,
-) {
-	const readableStream = new Readable();
-	readableStream._read = () => {};
-	reply.header("content-type", "text/x-defer");
-	reply.header("transfer-encoding", "chunked");
-	reply.send(readableStream);
-
-	// Separate immediate properties and promises
-	const immediateData: Record<string, unknown> = {};
-	const promiseKeys = new Set();
-	const promises: Array<Promise<{ key: string; value: unknown }>> = [];
-
-	for (const [key, value] of Object.entries(data)) {
-		if (isPromise(value)) {
-			promiseKeys.add(key);
-			promises.push(
-				value
-					.then((resolvedValue) => {
-						return { key, value: resolvedValue };
-					})
-					.catch((error) => {
-						throw { key, value: error };
-					}),
-			);
-		} else {
-			immediateData[key] = value;
-		}
-	}
-
-	// Set the headers and send the initial data structure
-	readableStream.push(
-		`I:X: ${JSON.stringify({
-			...meta,
-			data: immediateData,
-			promises: [...promiseKeys],
-		})}\n`,
-	);
-
-	// Stream each promise as it resolves
-	for (const promise of promises) {
-		promise
-			.then(({ key, value }) => {
-				readableStream.push(`P:${key}: ${JSON.stringify(value)}\n`);
-				promiseKeys.delete(key);
-				if (promiseKeys.size === 0) {
-					readableStream.push(null);
-				}
-			})
-			.catch(({ key, error }) => {
-				const serializedError = JSON.stringify(
-					error instanceof Error ? serializeError(error) : error,
-				);
-				const indicator = error instanceof Error ? "E" : "U";
-
-				readableStream.push(`${indicator}:${key}: ${serializedError}\n`);
-				promiseKeys.delete(key);
-				if (promiseKeys.size === 0) {
-					readableStream.push(null);
-				}
-			});
-	}
-
-	return reply;
-}
 
 export default async function routes(fastify: FastifyInstance) {
 	const getServerData = makeServerData({
@@ -187,7 +104,6 @@ export default async function routes(fastify: FastifyInstance) {
 						client_size: pkgJson.mikr0.clientSize ?? null,
 						server_size: pkgJson.mikr0.serverSize ?? null,
 						published_at: new Date(),
-						serialized: pkgJson.mikr0.serialized,
 					});
 					reply.code(200).send("OK");
 				} finally {
@@ -203,15 +119,6 @@ export default async function routes(fastify: FastifyInstance) {
 			schema: {
 				params: ComponentRequest,
 				querystring: Type.Record(Type.String(), Type.Unknown()),
-				response: {
-					200: Type.Object({
-						src: Type.String(),
-						data: Type.Any(),
-						component: Type.String(),
-						version: Type.String(),
-					}),
-					400: Type.String(),
-				},
 			},
 		},
 		async function getComponent(request, reply) {
@@ -232,9 +139,7 @@ export default async function routes(fastify: FastifyInstance) {
 			const parsedParameters = pkg.mikr0.parameters
 				? parseParameters(pkg.mikr0.parameters, request.query)
 				: {};
-			let data:
-				| { deferred: boolean; data: Record<string, unknown> }
-				| undefined = undefined;
+			let data: any = undefined;
 			const plugins = Object.fromEntries(
 				Object.entries(fastify.conf.plugins).map(([name, plugin]) => [
 					name,
@@ -262,15 +167,17 @@ export default async function routes(fastify: FastifyInstance) {
 				version,
 			};
 
-			if (data?.deferred) {
-				streamData(reply, meta, data.data);
-				return;
-			}
-
-			return {
-				...meta,
-				data: pkg.mikr0.serialized ? superjson.stringify(data) : data,
-			};
+			return new Response(
+				encode({
+					...meta,
+					data: data.data,
+				}),
+				{
+					headers: {
+						"Content-Type": "text/vnd.turbo-stream",
+					},
+				},
+			);
 		},
 	);
 
@@ -304,9 +211,7 @@ export default async function routes(fastify: FastifyInstance) {
 				return;
 			}
 			const component = await fastify.database.getComponent(name, version);
-			const parameters = component.serialized
-				? superjson.parse(request.body.parameters)
-				: request.body.parameters;
+			const parameters = request.body.parameters;
 
 			let data: unknown = undefined;
 			const plugins = Object.fromEntries(
@@ -325,7 +230,7 @@ export default async function routes(fastify: FastifyInstance) {
 			});
 
 			return {
-				data: component.serialized ? superjson.stringify(data) : data,
+				data,
 			};
 		},
 	);

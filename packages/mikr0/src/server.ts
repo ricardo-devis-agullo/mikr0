@@ -51,6 +51,7 @@ export default function getServerData(opts: {
 			console,
 			setTimeout,
 			Buffer,
+      Promise,
 			AbortController,
 			AbortSignal,
 			eval: undefined,
