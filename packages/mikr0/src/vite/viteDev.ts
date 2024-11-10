@@ -12,6 +12,7 @@ import { parseParameters } from "../parameters.js";
 import { MemoryStorage } from "../storage/memory.js";
 import { getEntryPoint } from "./build.js";
 import { ocClientPlugin } from "./plugins.js";
+import { encode } from "turbo-stream";
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
@@ -87,8 +88,12 @@ export async function runServer() {
 	await fs.writeFile(
 		tmpEntryPoint,
 		`import component from './${entryName}';
+     import { decode } from 'turbo-stream';
 
-      component.mount(document.getElementById('app'), window.__MIKR0_DATA__.data, {
+     const queryParams = new URLSearchParams(window.location.search);
+     const data = await decode(await fetch('/r/loader?' + queryParams.toString()).then(x => x.body));
+
+      component.mount(document.getElementById('app'), data, {
         name: "${name}",
         version: "${version}",
         baseUrl: window.location.origin
@@ -128,9 +133,33 @@ export async function runServer() {
     </head>
     <body>
       ${body}
+    </body>
+  </html>
     `;
 	app.get("/r/client.js", (request, reply) => {
 		reply.type("application/javascript").send(client);
+	});
+	app.get("/r/loader", async (request, reply) => {
+    const parameters = parseParameters(
+      parametersSchema,
+      (request.query as Record<string, unknown>) ?? {},
+      true,
+    );
+    const data = await loader({
+      headers: request.headers ?? {},
+      parameters,
+      plugins,
+    });
+    return new Response(
+      encode(data.data),
+      {
+        status: data.status ?? 200,
+        headers: {
+          "Content-Type": "text/vnd.turbo-stream",
+          ...data.headers ?? {}
+        },
+      },
+    );
 	});
 	app.post("/r/action/:name/:version", async (request, reply) => {
 		const body: any = request.body;
@@ -140,42 +169,16 @@ export async function runServer() {
 		return data;
 	});
 	app.get("*", async (request, reply) => {
-		const readableStream = new Readable();
-		readableStream._read = () => {};
-		reply.header("content-type", "text/html; charset=utf-8");
-		reply.header("transfer-encoding", "chunked");
-		reply.send(readableStream);
-
 		try {
 			const url = request.originalUrl.replace(base, "");
-			let data: any = {};
-			const isHtmlRequest = !url || url.startsWith("?");
-			if (isHtmlRequest) {
-				const parameters = parseParameters(
-					parametersSchema,
-					(request.query as Record<string, unknown>) ?? {},
-					true,
-				);
-				data = await loader({
-					headers: request.headers ?? {},
-					parameters,
-					plugins,
-				});
-			}
 			const template = await vite.transformIndexHtml(
 				url,
 				baseTemplate(`
         <div id="app"></div>
-        <script>
-        window.__MIKR0_DATA__ = {};
-        window.__MIKR0_DATA__.data = ${JSON.stringify(data.data)};
-        </script>
         <script type="module" async src="/src/_entry.tsx"></script>
           `),
 			);
-
-			readableStream.push(template);
-
+      reply.code(200).type("text/html").send(template);
 		} catch (e) {
 			if (!(e instanceof Error)) {
 				reply.code(500).send(String(e));
@@ -190,6 +193,7 @@ export async function runServer() {
 		console.log(`Server started at http://localhost:${port}`);
 	});
 }
+
 export async function runIdealServer() {
 	function getBaseTemplate(name: string, version: string, appBlock: string) {
 		const baseTemplate = `

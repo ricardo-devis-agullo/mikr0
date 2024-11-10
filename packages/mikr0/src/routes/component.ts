@@ -173,8 +173,10 @@ export default async function routes(fastify: FastifyInstance) {
 					data: data.data,
 				}),
 				{
+          status: data.status ?? 200,
 					headers: {
 						"Content-Type": "text/vnd.turbo-stream",
+            ...data.headers ?? {}
 					},
 				},
 			);

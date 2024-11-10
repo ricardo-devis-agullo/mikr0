@@ -28,11 +28,7 @@
 	},
 	"keywords": [],
 	"author": "",
-	"files": [
-		"README.md",
-		"dist",
-		"src"
-	],
+	"files": ["README.md", "dist", "src"],
 	"license": "MIT",
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.676.0",

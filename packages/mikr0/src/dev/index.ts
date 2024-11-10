@@ -1,11 +1,25 @@
 import type { ParametersSchema } from "../parameters.js";
 
-const deferredSymbol = Symbol("deferred");
-export function defer<T>(data: T) {
-	if (data) {
-		(data as any)[deferredSymbol] = true;
-	}
-	return data;
+const configuredSymbol = Symbol("configuredComponent");
+type ConfiguredData<T> = {
+	[configuredSymbol]: true;
+	data: T;
+	status?: number;
+	headers?: Record<string, string>;
+};
+export function data<T>(
+	data: T | ConfiguredData<T>,
+	meta: { status?: number; headers?: Record<string, string> } = {},
+): ConfiguredData<T> {
+	if ((data as ConfiguredData<T>)[configuredSymbol])
+		return data as ConfiguredData<T>;
+
+	return {
+		[configuredSymbol]: true,
+		data: data as T,
+		status: meta.status,
+		headers: meta.headers,
+	};
 }
 
 const info = {
@@ -161,11 +175,8 @@ export function createComponent<
 		parameters: options.parameters,
 		loader: options.loader
 			? async (context: any) => {
-					const result: Data = await options.loader!(context);
-					if ((result as any)?.[deferredSymbol]) {
-						return { deferred: true, data: result };
-					}
-					return { deferred: false, data: result };
+					const result = await options.loader!(context);
+					return data(result);
 				}
 			: undefined,
 		mount: (

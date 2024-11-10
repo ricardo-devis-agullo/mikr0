@@ -4,7 +4,9 @@ import { LRUCache } from "lru-cache";
 import createRequireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
 
-type Loader = (...args: unknown[]) => Promise<{ deferred: boolean; data: any }>;
+type Loader = (
+	...args: unknown[]
+) => Promise<{ status?: number; headers?: Record<string, string>; data: any }>;
 type Action = (...args: unknown[]) => Promise<any>;
 type Server = { loader: Loader; actions: Record<string, Action> };
 
@@ -51,7 +53,7 @@ export default function getServerData(opts: {
 			console,
 			setTimeout,
 			Buffer,
-      Promise,
+			Promise,
 			AbortController,
 			AbortSignal,
 			eval: undefined,
