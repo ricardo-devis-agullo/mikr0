@@ -13,6 +13,7 @@
 			"./apps/component",
 			"apps/registry",
 			"packages/create-mikr0/component",
+			"routeTree.gen.ts",
 			".vscode"
 		]
 	},
