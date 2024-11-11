@@ -26,11 +26,6 @@ export async function createServer({
 
 	await server.register(cors, config.cors);
 
-	const html = readFileSync(
-		path.join(import.meta.dirname, "/ui-dist/index.html"),
-		"utf-8",
-	);
-
 	server.register(fastifyMultipart);
 	server.register(fastifyBasicAuth, {
 		validate(username, password, _req, _reply, done) {
