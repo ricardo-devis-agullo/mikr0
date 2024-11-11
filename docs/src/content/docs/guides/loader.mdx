@@ -16,24 +16,50 @@ export default createComponent({
     const userData = db.query('SELECT * FROM users WHERE id = $1', [params.userId]);
     return { userData: await userData };
   },
+  mount: (element, props) => {
+    console.log(props.userData); // Userdata
+  },
   // ... rest of configuration
 });
 `} lang="ts" />
 
-## Defer
+## Serialization
 
-If some part of your data fetching is slow, you can use the `defer` to wrap your data, and then the promises inside the `defer` will be resolved after the component is rendered, so you don't block the rendering process.
+The loader function will serialize your data, and that goes from things like a Date, to a Promise.
 
-<Code title='src/index.ts' del={[1,8]} ins={[2,9]} code={`
+<Code title='src/index.ts' del={[7]} ins={[8]} code={`
 import { createComponent } from 'mikr0/dev';
-import { createComponent, defer } from 'mikr0/dev';
 import { db } from './database';
 
 export default createComponent({
   loader: async (params, context) => {
     const userData = db.query('SELECT * FROM users WHERE id = $1', [params.userId]);
-    return { userData: await userData.rows[0] };
-    return defer({ userData: userData.rows[0] });
+    return { userData: await userData };
+    return { userData: userData };
+  },
+  mount: (element, props) => {
+    console.log(props.userData); // Promise<Userdata>
+  },
+  // ... rest of configuration
+});
+`} lang="ts" />
+
+## Modifying the response
+
+While you can just directly return an object from the loader, you can also modify the response before it is passed to the component by using the `data` function.
+This allows you to set the status code, headers, and body of the response.
+
+<Code title='src/index.ts' code={`
+import { createComponent, data } from 'mikr0/dev';
+import { db } from './database';
+
+export default createComponent({
+  loader: async (params, context) => {
+    const userData = db.query('SELECT * FROM users WHERE id = $1', [params.userId]);
+    return data(
+      { userData },
+      { status: 200, headers: { "cache-control": "max-age=60" } }
+    );
   },
   // ... rest of configuration
 });
