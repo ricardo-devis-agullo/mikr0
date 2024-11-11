@@ -50,6 +50,7 @@ export async function build(options: { entry: string }) {
 				fileName: "template",
 			},
 			rollupOptions: {
+        // TODO: externalize all assets
 				external: ["/vite.svg"],
 			},
 			outDir: "dist",
