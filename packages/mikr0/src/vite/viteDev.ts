@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { Readable } from "node:stream";
 import FastifyExpress from "@fastify/express";
 import esbuild from "esbuild";
 import Fastify from "fastify";
+import { encode } from "turbo-stream";
 import { createServer } from "vite";
 import { createRegistry } from "../Registry.js";
 import { compileClient } from "../client/compile-client.js";
@@ -12,7 +12,6 @@ import { parseParameters } from "../parameters.js";
 import { MemoryStorage } from "../storage/memory.js";
 import { getEntryPoint } from "./build.js";
 import { ocClientPlugin } from "./plugins.js";
-import { encode } from "turbo-stream";
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
@@ -140,26 +139,23 @@ export async function runServer() {
 		reply.type("application/javascript").send(client);
 	});
 	app.get("/r/loader", async (request, reply) => {
-    const parameters = parseParameters(
-      parametersSchema,
-      (request.query as Record<string, unknown>) ?? {},
-      true,
-    );
-    const data = await loader({
-      headers: request.headers ?? {},
-      parameters,
-      plugins,
-    });
-    return new Response(
-      encode(data.data),
-      {
-        status: data.status ?? 200,
-        headers: {
-          "Content-Type": "text/vnd.turbo-stream",
-          ...data.headers ?? {}
-        },
-      },
-    );
+		const parameters = parseParameters(
+			parametersSchema,
+			(request.query as Record<string, unknown>) ?? {},
+			true,
+		);
+		const data = await loader({
+			headers: request.headers ?? {},
+			parameters,
+			plugins,
+		});
+		return new Response(encode(data.data), {
+			status: data.status ?? 200,
+			headers: {
+				"Content-Type": "text/vnd.turbo-stream",
+				...(data.headers ?? {}),
+			},
+		});
 	});
 	app.post("/r/action/:name/:version", async (request, reply) => {
 		const body: any = request.body;
@@ -178,7 +174,7 @@ export async function runServer() {
         <script type="module" async src="/src/_entry.tsx"></script>
           `),
 			);
-      reply.code(200).type("text/html").send(template);
+			reply.code(200).type("text/html").send(template);
 		} catch (e) {
 			if (!(e instanceof Error)) {
 				reply.code(500).send(String(e));
