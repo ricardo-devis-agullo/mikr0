@@ -139,7 +139,7 @@ export default async function routes(fastify: FastifyInstance) {
 			const parsedParameters = pkg.mikr0.parameters
 				? parseParameters(pkg.mikr0.parameters, request.query)
 				: {};
-			let data: any = undefined;
+			let data: Record<string, any> | undefined = undefined;
 			const plugins = Object.fromEntries(
 				Object.entries(fastify.conf.plugins).map(([name, plugin]) => [
 					name,
@@ -170,13 +170,13 @@ export default async function routes(fastify: FastifyInstance) {
 			return new Response(
 				encode({
 					...meta,
-					data: data.data,
+					data: data?.data,
 				}),
 				{
-          status: data.status ?? 200,
+					status: data?.status ?? 200,
 					headers: {
 						"Content-Type": "text/vnd.turbo-stream",
-            ...data.headers ?? {}
+						...(data?.headers ?? {}),
 					},
 				},
 			);

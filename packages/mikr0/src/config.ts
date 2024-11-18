@@ -20,32 +20,39 @@ export function parseConfig(options: Options, pkg: PackageJson) {
 		},
 	};
 
-	const availableDependencies: string[] = [];
+	let availableDependencies: string[] | true = [];
 	const coreModules = builtinModules.flatMap((module) => [
 		module,
 		`node:${module}`,
 	]);
 
-	for (const dependency of options.dependencies ?? []) {
-		if (coreModules.includes(dependency)) {
-			availableDependencies.push(
-				dependency.startsWith("node:") ? dependency : `node:${dependency}`,
-			);
-		} else {
-			if (
-				!pkg.dependencies?.[dependency] &&
-				!pkg.devDependencies?.[dependency]
-			) {
-				throw new Error(
-					`Dependency "${dependency}" not found in package.json dependencies or devDependencies`,
+	if (options.dependencies === true) {
+		availableDependencies = true;
+	} else {
+		for (const dependency of options.dependencies ?? []) {
+			if (coreModules.includes(dependency)) {
+				availableDependencies.push(
+					dependency.startsWith("node:") ? dependency : `node:${dependency}`,
 				);
+			} else {
+				if (
+					!pkg.dependencies?.[dependency] &&
+					!pkg.devDependencies?.[dependency]
+				) {
+					throw new Error(
+						`Dependency "${dependency}" not found in package.json dependencies or devDependencies`,
+					);
+				}
+				availableDependencies.push(dependency);
 			}
-			availableDependencies.push(dependency);
 		}
 	}
 
 	return {
-		availableDependencies: [...new Set(availableDependencies)],
+		availableDependencies:
+			availableDependencies === true
+				? (true as const)
+				: [...new Set(availableDependencies)],
 		port: options.port ?? 4910,
 		executionTimeout: options.executionTimeout ?? 5_000,
 		auth: options.auth,

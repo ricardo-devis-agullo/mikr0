@@ -215,8 +215,9 @@ export interface Options {
 	};
 	/**
 	 * A list of server dependencies that can be used in the component's loaders
+	 * Use `true` to include all libraries (not recommended)
 	 */
-	dependencies?: Array<CoreLibraries | (string & {})>;
+	dependencies?: Array<CoreLibraries | (string & {})> | true;
 	/**
 	 * A set of shared functions that can be called from the components
 	 */

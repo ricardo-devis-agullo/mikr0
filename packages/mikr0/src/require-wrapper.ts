@@ -47,10 +47,15 @@ const throwError = (requirePath: string) => {
 	throw new Error(`Dependency "${requirePath}" is not allowed`);
 };
 
-export default function createRequireWrapper(injectedDependencies: string[]) {
+export default function createRequireWrapper(
+	injectedDependencies: string[] | true,
+) {
 	return function requireWrapper<T = unknown>(requirePath: string): T {
 		const moduleName = requirePackageName(requirePath);
-		const isAllowed = !!moduleName && injectedDependencies.includes(moduleName);
+		const isAllowed =
+			injectedDependencies === true
+				? true
+				: !!moduleName && injectedDependencies.includes(moduleName);
 
 		if (!isAllowed) {
 			return throwError(requirePath);

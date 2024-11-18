@@ -26,7 +26,7 @@ if (typeof Promise.withResolvers === "undefined") {
 export default function getServerData(opts: {
 	timeout: number;
 	repository: Repository;
-	dependencies: string[];
+	dependencies: string[] | true;
 }) {
 	const cache = new LRUCache<string, Server>({ max: 500 });
 
@@ -61,9 +61,14 @@ export default function getServerData(opts: {
 		};
 		vm.runInNewContext(server, vmContext, options);
 
-		const loader = vmContext.module.exports.loader || vmContext.exports.loader;
+		const loader =
+			vmContext.module.exports.loader ||
+			vmContext.exports.loader ||
+			vmContext.module.exports.default?.loader;
 		const actions =
-			vmContext.module.exports.actions || vmContext.exports.actions;
+			vmContext.module.exports.actions ||
+			vmContext.exports.actions ||
+			vmContext.module.exports.default?.actions;
 		if (!loader) throw new Error("Missing loader");
 
 		const serverFns = { loader, actions };

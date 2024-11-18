@@ -65,6 +65,7 @@ class Mikr0 extends HTMLElement {
 			} else {
 				newScript.textContent = script.textContent;
 			}
+      newScript.type = script.type;
 			script.parentNode?.replaceChild(newScript, script);
 		}
 	}

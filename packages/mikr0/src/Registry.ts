@@ -41,12 +41,11 @@ export async function createServer({
 		authenticate: { realm: "Mikr0" },
 	});
 
+	const storage = StaticStorage(config.storage);
 	server.decorate("conf", config);
 	server.decorate("database", database);
-	server.decorate(
-		"repository",
-		Repository({ storage: StaticStorage(config.storage) }),
-	);
+	server.decorate("storage", storage);
+	server.decorate("repository", Repository({ storage }));
 
 	server.register(routes.component, { prefix: "/r" });
 	server.register(routes.static, { prefix: "/r" });

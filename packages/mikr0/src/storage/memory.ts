@@ -27,6 +27,9 @@ export function MemoryStorage(): StaticStorage {
 		async saveFile(destination: string, contents: string) {
 			const mime = getMimeType(destination);
 			const encoding = mime?.startsWith("image") ? "binary" : "utf-8";
+			fs.mkdirSync(path.join("/", path.dirname(destination)), {
+				recursive: true,
+			});
 			await fs.writeFileSync(path.join("/", destination), contents, {
 				encoding,
 			});
