@@ -89,7 +89,7 @@ export async function runServer() {
   </head>
   <body>
     <script src="/r/client.js"></script>
-    <mikro-component src="http://localhost:${port}/r/component/${name}/${version}?param"></mikro-component>
+    <mikro-component src="http://localhost:${port}/r/component/${name}/${version}?${new URLSearchParams(parameters).toString()}"></mikro-component>
   </body>
 </html>`;
 		return baseTemplate;
