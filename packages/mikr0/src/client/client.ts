@@ -1,5 +1,6 @@
 import { decode } from "turbo-stream";
 import type { BrowserComponent } from "../dev/index.js";
+import { acceptCompressedHeader, compressedDataKey } from "../shared.js";
 
 class Mikr0 extends HTMLElement {
 	static observedAttributes = ["src", "data"];
@@ -34,9 +35,35 @@ class Mikr0 extends HTMLElement {
 		this.#unmount?.(this);
 	}
 
+	async #compress(input: string) {
+		const encoder = new TextEncoder();
+		const inputData = encoder.encode(input);
+
+		const cs = new CompressionStream("deflate-raw");
+		const compressedStream = new Blob([inputData]).stream().pipeThrough(cs);
+
+		const compressedBlob = await new Response(compressedStream).blob();
+		const compressedArray = new Uint8Array(await compressedBlob.arrayBuffer());
+		return btoa(String.fromCharCode(...compressedArray));
+	}
+
 	async #render(src: string) {
 		Mikr0.log(`Fetching component:, ${src}`);
-		const response = await fetch(src);
+		let finalUrl = src;
+		const headers: Record<string, string> = {};
+		const compress = this.getAttribute("compress");
+		if (typeof compress === "string") {
+			const minimumLength = Number(compress) || 1000;
+
+			const url = new URL(src);
+			const search = url.search.replace(/^\?/, "");
+			if (search.length > minimumLength) {
+				const compressedSearch = await this.#compress(search);
+				finalUrl = `${url.origin}${url.pathname}?${compressedDataKey}=${encodeURIComponent(compressedSearch)}`;
+				headers.Accept = acceptCompressedHeader;
+			}
+		}
+		const response = await fetch(finalUrl, { headers });
 		const decoded = await decode(response.body!);
 		const { src: templateSrc, data, component, version } = decoded.value as any;
 		const { origin } = new URL(src);
@@ -60,12 +87,10 @@ class Mikr0 extends HTMLElement {
 	#reanimateScripts() {
 		for (const script of Array.from(this.querySelectorAll("script"))) {
 			const newScript = document.createElement("script");
-			if (script.src) {
-				newScript.src = script.src;
-			} else {
-				newScript.textContent = script.textContent;
+			newScript.textContent = script.textContent;
+			for (const attribute of Array.from(script.attributes)) {
+				newScript.setAttribute(attribute.name, attribute.value);
 			}
-      newScript.type = script.type;
 			script.parentNode?.replaceChild(newScript, script);
 		}
 	}
