@@ -31,6 +31,7 @@ export default defineConfig({
 						{ label: "Configuration", slug: "guides/component-configure" },
 						{ label: "Loader", slug: "guides/loader" },
 						{ label: "Actions", slug: "guides/actions" },
+						{ label: "Events", slug: "guides/component-event" },
 					],
 				},
 				{
