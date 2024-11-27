@@ -1,0 +1,106 @@
+---
+title: Component events
+description: How to communicate with other parts
+---
+
+## Communication
+
+In environments where multiple components from different sources are rendered at various times, robust communication is essential. The mikr0 client offers an event system that enables seamless interaction between the application and its components.
+
+### Listening to Events
+
+To listen for events emitted by other components or the application, use the on method:
+
+```js
+// In your component or application code
+window.mikr0.events.on('my-event', (data) => {
+  console.log('Received data:', data);
+});
+```
+
+### Emitting Events
+
+To emit events that other components or the application can listen to, use the `fire` method:
+
+```js
+// In your component code
+window.mikr0.events.fire('my-event', { key: 'value' });
+```
+
+### Removing Event Listeners
+
+To remove a specific event listener, use the `off` method with the handler function:
+
+```js
+const handler = (data) => {
+  // Handle the event
+};
+
+window.mikr0.events.on('my-event', handler);
+
+// Later, to remove the listener
+window.mikr0.events.off('my-event', handler);
+```
+
+To remove all listeners for a specific event, omit the handler:
+
+```js
+window.mikr0.events.off('my-event');
+```
+
+### Resetting All Events
+
+The `reset` method removes all event listeners for all events:
+
+```js
+window.mikr0.events.reset();
+```
+
+**Note**: Use `reset` with caution. It will clear all event listeners across the entire application, which can lead to unexpected behavior if other components rely on those events. Avoid using reset unless you are certain that this is the desired action.
+
+### Component-to-Component Communication
+
+Components can communicate with each other by emitting and listening to shared events.
+
+**Example**:
+Component A emits an event when data changes:
+
+```js
+// Component A
+window.mikr0.events.fire('data-changed', { newData: '...' });
+```
+
+Component B listens for the event and updates accordingly:
+
+```js
+// Component B
+window.mikr0.events.on('data-changed', ({ newData }) => {
+  // Update component state with newData
+});
+```
+
+### Best Practices
+
+- **Use Descriptive and Namespaced Event Names**: Utilize clear and descriptive event names to avoid conflicts and improve readability. Consider namespacing your events to group related functionalities.
+
+  ```js
+  window.mikr0.events.fire('cart:item-added', { itemId: 456 });
+  ```
+
+- **Manage Event Listeners**: Always remove event listeners when they are no longer needed to prevent memory leaks and unintended behavior.
+
+  ```js
+  // Add listener
+  window.mikr0.events.on('cart:item-added', onItemAdded);
+
+  // Remove listener when done
+  window.mikr0.events.off('cart:item-added', onItemAdded);
+  ```
+
+- **Avoid Unnecessary Use of `reset()`**: The `reset` method clears all event listeners in the application, which can disrupt functionality. Use it only if you intend to remove all listeners globally.
+
+- **Handle Event Data Carefully**: Ensure that the data passed with events is properly formatted and validated to prevent errors.
+
+  ```js
+  window.mikr0.events.fire('user:login', { userId: 123 });
+  ```

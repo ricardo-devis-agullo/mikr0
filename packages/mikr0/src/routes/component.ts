@@ -7,6 +7,7 @@ import type { FastifyInstance } from "fastify";
 import { encode } from "turbo-stream";
 import { parseParameters } from "../parameters.js";
 import makeServerData from "../server.js";
+import { acceptCompressedHeader, compressedDataKey } from "../shared.js";
 import { getMimeType } from "../storage/utils.js";
 import type { PublishedPackageJson } from "../types.js";
 import { getAvailableVersion } from "./versions.js";
@@ -24,6 +25,32 @@ const ComponentRequest = Type.Object({
 	),
 });
 type ComponentRequest = Static<typeof ComponentRequest>;
+
+async function decompress(base64: string) {
+	const compressedData = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+	const ds = new DecompressionStream("deflate-raw");
+	const decompressedStream = new Blob([compressedData])
+		.stream()
+		.pipeThrough(ds);
+
+	const decompressedBlob = await new Response(decompressedStream).blob();
+	const decompressedArray = new Uint8Array(
+		await decompressedBlob.arrayBuffer(),
+	);
+
+	const decoder = new TextDecoder();
+	return decoder.decode(decompressedArray);
+}
+
+async function getCompressedParameters(query: Record<string, unknown>) {
+	const compressedData = query[compressedDataKey];
+	if (!compressedData) return {};
+	const decompressed = await decompress(compressedData as string);
+	const params = new URLSearchParams(decompressed);
+
+	return Object.fromEntries(params.entries());
+}
 
 export default async function routes(fastify: FastifyInstance) {
 	const getServerData = makeServerData({
@@ -134,10 +161,15 @@ export default async function routes(fastify: FastifyInstance) {
 				return;
 			}
 
+			const parameters =
+				request.headers.accept === acceptCompressedHeader
+					? await getCompressedParameters(request.query)
+					: request.query;
+
 			const pkg = await fastify.repository.getPackageJson(name, version);
 			// TODO: Add support for parameters in the database
 			const parsedParameters = pkg.mikr0.parameters
-				? parseParameters(pkg.mikr0.parameters, request.query)
+				? parseParameters(pkg.mikr0.parameters, parameters)
 				: {};
 			let data: Record<string, any> | undefined = undefined;
 			const plugins = Object.fromEntries(

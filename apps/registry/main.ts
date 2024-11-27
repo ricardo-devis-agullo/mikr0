@@ -7,6 +7,11 @@ createRegistry({
       filename: './mydb.sqlite'
     }
   },
+  plugins: {
+    defaultPosition: {
+      handler: () => 5
+    }
+  },
   importmap: {
     imports: {
       preact: "https://esm.sh/preact@10.23.1",
