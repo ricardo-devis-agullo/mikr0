@@ -152,7 +152,7 @@ export async function runServer() {
           export default {
             mount: (element, data) => {
               window._mikroElement = element;
-              window._mikroData = element;
+              window._mikroData = data;
               element.innerHTML = \`
                 ${template}
               \`
