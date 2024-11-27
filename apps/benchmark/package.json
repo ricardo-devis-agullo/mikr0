@@ -1,24 +1,25 @@
 {
-	"name": "benchmark",
-	"version": "1.0.0",
-	"type": "module",
-	"main": "index.js",
-	"scripts": {
-		"benchmark": "node --experimental-strip-types benchmark.ts"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"description": "",
-	"dependencies": {
-		"@types/cli-progress": "~3.11.6",
-		"adm-zip": "~0.5.16",
-		"chrome-launcher": "~1.1.2",
-		"cli-progress": "~3.12.0",
-		"fastify": "~5.1.0",
-		"lighthouse": "~12.2.1",
-		"mikr0": "*",
-		"puppeteer": "~23.7.0",
-		"undici": "~6.20.1"
-	}
+  "name": "benchmark",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "benchmark": "node --experimental-strip-types benchmark.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/cli-progress": "~3.11.6",
+    "adm-zip": "~0.5.16",
+    "chrome-launcher": "~1.1.2",
+    "cli-progress": "~3.12.0",
+    "fastify": "~5.1.0",
+    "lighthouse": "~12.2.1",
+    "mikr0": "*",
+    "puppeteer": "~23.7.0",
+    "undici": "~6.20.1"
+  }
 }

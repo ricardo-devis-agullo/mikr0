@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "guestline": "node --experimental-strip-types --env-file=.env guestline.ts",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

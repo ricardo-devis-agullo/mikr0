@@ -1,6 +1,6 @@
 {
-	"include": ["src/"],
-	"exclude": ["ui/"],
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"],
 	"compilerOptions": {
 		"esModuleInterop": true,
 		"skipLibCheck": true,
@@ -19,6 +19,7 @@
 		"declaration": true,
 		"declarationMap": true,
 		"composite": true,
-		"outDir": "dist"
+		"outDir": "./dist",
+		"moduleResolution": "nodenext"
 	}
 }
