@@ -112,7 +112,7 @@ export async function runServer() {
 					filename: ":memory:",
 				},
 			},
-      plugins: Object.fromEntries(Object.entries(plugins).map(([k, handler]) => [k, { handler: handler as any }])),
+      plugins: Object.fromEntries(Object.entries(plugins ?? {}).map(([k, handler]) => [k, { handler: handler as any }])),
 			dependencies: true,
 			storage: {
 				type: "memory",
