@@ -6,6 +6,7 @@ import AdmZip from "adm-zip";
 import * as vite from "vite";
 import type { BuiltPackageJson } from "../types.js";
 import { ocClientPlugin, ocServerPlugin } from "./plugins.js";
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 const config = await vite.loadConfigFromFile(
 	{ command: "build", mode: "production" },
@@ -40,6 +41,7 @@ export async function build(options: { entry: string }) {
 	const client = await vite.build({
 		appType: "custom",
 		plugins: config?.config.plugins?.concat(
+      cssInjectedByJsPlugin(),
 			ocClientPlugin({ entry: options.entry }),
 		),
 		build: {
