@@ -115,7 +115,7 @@ async function createRegistry() {
 		config.database = {
 			client: "sqlite3",
 			connection: {
-				filename: ".mikro/db.sqlite",
+				filename: "db.sqlite",
 			},
 		};
 	} else if (database === "mssql") {
@@ -154,7 +154,7 @@ async function createRegistry() {
 		config.storage = {
 			type: "filesystem",
 			options: {
-				folder: ".mikro/components",
+				folder: "components",
 			},
 		};
 	} else if (storage === "s3") {

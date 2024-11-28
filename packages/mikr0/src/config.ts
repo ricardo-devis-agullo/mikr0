@@ -10,17 +10,17 @@ export function parseConfig(options: Options, pkg: PackageJson) {
 	const databaseConfig: DatabaseOptions = options.database ?? {
 		client: "sqlite3",
 		connection: {
-			filename: ".mikr0/db.sqlite",
+			filename: "db.sqlite",
 		},
 	};
 	const storageConfig: StaticStorageOptions = options.storage ?? {
 		type: "filesystem",
 		options: {
-			folder: ".mikr0/components",
+			folder: "components",
 		},
 	};
 
-	let availableDependencies: string[] | true = [];
+	let availableDependencies: string[] | true = ['mikr0'];
 	const coreModules = builtinModules.flatMap((module) => [
 		module,
 		`node:${module}`,

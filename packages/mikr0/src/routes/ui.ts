@@ -11,36 +11,14 @@ export const Component = Type.Object({
 export type Component = Static<typeof Component>;
 
 const html = readFileSync(
-	path.join(import.meta.dirname, "../ui-dist/index.html"),
-	"utf-8",
+  path.join(import.meta.dirname, "../ui-dist/index.html"),
+  "utf-8",
 );
 
 export default async function routes(fastify: FastifyInstance) {
 	fastify.register(fastifyStatic, {
 		root: path.join(import.meta.dirname, "../ui-dist/assets"),
 		prefix: "/assets/",
-	});
-	// TODO: Find a better way where we don't have to serve
-	// individual files from public folder
-	fastify.get("/prism-tomorrow.css", async (request, reply) => {
-		reply
-			.type("text/css")
-			.send(
-				readFileSync(
-					path.join(import.meta.dirname, "../ui-dist/prism-tomorrow.css"),
-					"utf-8",
-				),
-			);
-	});
-	fastify.get("/prism-solarizedlight.css", async (request, reply) => {
-		reply
-			.type("text/css")
-			.send(
-				readFileSync(
-					path.join(import.meta.dirname, "../ui-dist/prism-solarizedlight.css"),
-					"utf-8",
-				),
-			);
 	});
 	fastify.get("/logo.png", async (request, reply) => {
 		reply
