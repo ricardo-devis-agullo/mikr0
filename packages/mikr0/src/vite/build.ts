@@ -41,7 +41,7 @@ export async function build(options: { entry: string }) {
 	const client = await vite.build({
 		appType: "custom",
 		plugins: (config?.config.plugins ?? []).concat(
-      cssInjectedByJsPlugin(),
+      cssInjectedByJsPlugin() as any,
 			ocClientPlugin({ entry: options.entry }),
 		),
 		build: {

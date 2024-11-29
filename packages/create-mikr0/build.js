@@ -14,9 +14,11 @@ let cliFile = readText(path.join(import.meta.dirname, "index.js"));
 const typeScriptVersion = readJson(
 	path.join(import.meta.dirname, "../../package.json"),
 ).devDependencies.typescript;
-const mikr0Version = readJson(
+const mikr0Pkg = readJson(
 	path.join(import.meta.dirname, "../mikr0/package.json"),
-).version;
+);
+const mikr0Version = mikr0Pkg.version;
+const viteVersion = mikr0Pkg.dependencies.vite;
 
 cliFile = cliFile.replace(
 	/typescript: "(\^?[\d.]+)"/,
@@ -33,6 +35,8 @@ for (const component of components) {
 		path.join(import.meta.dirname, "component", component, "package.json"),
 	);
 	componentPkg.devDependencies.mikr0 = mikr0Version;
+	componentPkg.devDependencies.vite = viteVersion;
+	componentPkg.devDependencies.typescript = typeScriptVersion;
 	writeJson(
 		path.join(import.meta.dirname, "component", component, "package.json"),
 		componentPkg,

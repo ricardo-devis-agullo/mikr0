@@ -1,7 +1,7 @@
 {
   "name": "mikr0",
   "type": "module",
-  "version": "0.0.23",
+  "version": "0.1.0",
   "description": "Micro-frontend framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,7 +46,7 @@
     "@fastify/express": "^4.0.1",
     "@fastify/multipart": "^9.0.0",
     "@fastify/static": "^8.0.3",
-    "@fastify/type-provider-typebox": "^5.0.1",
+    "@fastify/type-provider-typebox": "5.0.0",
     "@sinclair/typebox": "^0.34.9",
     "adm-zip": "^0.5.16",
     "esbuild": "^0.24.0",
