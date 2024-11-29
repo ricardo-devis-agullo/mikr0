@@ -1,4 +1,4 @@
-import { readdirSync, rmSync } from "node:fs";
+import { readdirSync, renameSync, rmSync } from "node:fs";
 import fsp from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -62,9 +62,10 @@ export async function build(options: { entry: string }) {
 		appType: "custom",
 		plugins: [ocServerPlugin({ entry: options.entry })],
     ssr: {
-      external: ['mikr0/dev']
+      noExternal: ['mikr0']
     },
 		build: {
+      ssr: true,
 			emptyOutDir: false,
 			minify: true,
 			rollupOptions: {
@@ -89,6 +90,10 @@ export async function build(options: { entry: string }) {
 	const serverSize = server[0]?.output[0].code.length;
 	const clientSize = client[0]?.output[0].code.length;
 	if (!clientSize) throw new Error("Could not determine client size");
+	renameSync(
+		path.join(process.cwd(), "dist/index.cjs"),
+		path.join(process.cwd(), "dist/server.cjs"),
+	);
 	const { parameters } = require(path.join(process.cwd(), "dist/server.cjs"));
 	const pkg: BuiltPackageJson = JSON.parse(
 		await fsp.readFile(path.join(process.cwd(), "package.json"), "utf-8"),
