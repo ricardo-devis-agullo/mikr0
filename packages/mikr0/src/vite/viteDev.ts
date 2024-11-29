@@ -1,13 +1,13 @@
 import fs from "node:fs/promises";
+import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import FastifyExpress from "@fastify/express";
 import esbuild from "esbuild";
-import Fastify from "fastify";
+import type Fastify from "fastify";
 import { createServer } from "vite";
 import { createRegistry } from "../Registry.js";
 import { getEntryPoint } from "./build.js";
-import { createRequire } from "node:module";
 
 const require = createRequire(process.cwd());
 
@@ -32,7 +32,7 @@ async function cleanup() {
 	if (tmpServer) {
 		await fs.rm(tmpServer, { recursive: true }).catch(() => {});
 	}
-  process.exit();
+	process.exit();
 }
 
 async function getServer(entry: string) {
@@ -66,14 +66,18 @@ async function getServer(entry: string) {
 		],
 	});
 	const server = await fs.readFile(path.join(tmpServer, "server.cjs"), "utf-8");
-  const {
+	const {
 		default: { actions, loader, plugins, parameters },
 	} = require(path.join(tmpServer, "server.cjs"));
 	return { server, actions, loader, plugins, parameters };
 }
 
 export async function runServer() {
-	function getBaseTemplate(name: string, version: string, parameters: Record<string, any>) {
+	function getBaseTemplate(
+		name: string,
+		version: string,
+		parameters: Record<string, any>,
+	) {
 		const baseTemplate = `<!DOCTYPE html>
 <html>
   <head>
@@ -96,7 +100,11 @@ export async function runServer() {
 		return baseTemplate;
 	}
 
-	const {server, plugins, parameters: parametersSchema} = await getServer(entryPoint);
+	const {
+		server,
+		plugins,
+		parameters: parametersSchema,
+	} = await getServer(entryPoint);
 	const vite = await createServer({
 		server: { middlewareMode: true },
 		appType: "custom",
@@ -113,7 +121,12 @@ export async function runServer() {
 					filename: ":memory:",
 				},
 			},
-      plugins: Object.fromEntries(Object.entries(plugins ?? {}).map(([k, handler]) => [k, { handler: handler as any }])),
+			plugins: Object.fromEntries(
+				Object.entries(plugins ?? {}).map(([k, handler]) => [
+					k,
+					{ handler: handler as any },
+				]),
+			),
 			dependencies: true,
 			storage: {
 				type: "memory",
@@ -125,7 +138,7 @@ export async function runServer() {
 			},
 		},
 		async (app) => {
-      appInstance = app;
+			appInstance = app;
 			await app.register(FastifyExpress);
 			app.use(vite.middlewares);
 
@@ -133,7 +146,6 @@ export async function runServer() {
 				try {
 					let url = request.originalUrl.replace(base, "");
 					if (!url) url = "/";
-        
 
 					let template = await vite.transformIndexHtml(
 						url,
@@ -184,7 +196,13 @@ export async function runServer() {
 					reply
 						.code(200)
 						.type("text/html")
-						.send(getBaseTemplate(name, version, 	(request.query as Record<string, unknown>) ?? {}));
+						.send(
+							getBaseTemplate(
+								name,
+								version,
+								(request.query as Record<string, unknown>) ?? {},
+							),
+						);
 				} catch (e) {
 					if (!(e instanceof Error)) {
 						reply.code(500).send(String(e));

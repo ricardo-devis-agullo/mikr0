@@ -11,36 +11,11 @@ import type { Agent as httpAgent } from "node:http";
 import type { Agent as httpsAgent } from "node:https";
 import type { StaticStorage } from "./storage.js";
 import { getFileInfo, isFilePrivate } from "./utils.js";
+import type { S3StorageOptions } from "../types.js";
 
 const getPaths: (path: string) => Promise<PathsResult> = promisify(
 	nodeDir.paths,
 );
-
-type RequireAllOrNone<ObjectType, KeysType extends keyof ObjectType = never> = (
-	| Required<Pick<ObjectType, KeysType>> // Require all of the given keys.
-	| Partial<Record<KeysType, never>> // Require none of the given keys.
-) &
-	Omit<ObjectType, KeysType>; // The rest of the keys.
-
-export type S3Config = RequireAllOrNone<
-	{
-		componentsDir: string;
-		path: string;
-		verbosity?: boolean;
-		refreshInterval?: number;
-		bucket: string;
-		region: string;
-		key?: string;
-		secret?: string;
-		sslEnabled?: boolean;
-		s3ForcePathStyle?: boolean;
-		timeout?: number;
-		agentProxy?: httpAgent | httpsAgent;
-		endpoint?: string;
-		debug?: boolean;
-	},
-	"key" | "secret"
->;
 
 const streamToString = (stream: NodeJS.ReadableStream) =>
 	new Promise<string>((resolve, reject) => {
@@ -50,7 +25,7 @@ const streamToString = (stream: NodeJS.ReadableStream) =>
 		stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
 	});
 
-export function S3Storage(conf: S3Config): StaticStorage {
+export function S3Storage(conf: S3StorageOptions): StaticStorage {
 	const accessKeyId = conf.key;
 	const secretAccessKey = conf.secret;
 	const region = conf.region;
@@ -148,6 +123,13 @@ export function S3Storage(conf: S3Config): StaticStorage {
 		save,
 		saveFile,
 		getUrl(file: string) {
+      if (conf.publicPath) {
+        return new URL(
+          file,
+          conf.publicPath
+        );
+      }
+
 			return new URL(file, `https://${bucket}.s3.${region}.amazonaws.com`);
 		},
 	};

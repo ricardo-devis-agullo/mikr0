@@ -1,10 +1,13 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { LRUCache } from "lru-cache";
+import type { Config } from "../config.js";
 import type { BuiltPackageJson, PublishedPackageJson } from "../types.js";
 import type { StaticStorage } from "./storage.js";
 
-export const Repository = (options: { storage: StaticStorage }) => {
+export const Repository = (options: {
+	storage: StaticStorage;
+}) => {
 	const pkgCache = new LRUCache<string, PublishedPackageJson>({ max: 500 });
 
 	return {
@@ -24,7 +27,7 @@ export const Repository = (options: { storage: StaticStorage }) => {
 			return options.storage.get(`${name}/${version}/${file}`);
 		},
 		getTemplateUrl(name: string, version: string) {
-			return options.storage.getUrl(`${name}/${version}/template.js`);
+				return options.storage.getUrl(`${name}/${version}/template.js`);
 		},
 		getServer(name: string, version: string) {
 			return options.storage.get(`${name}/${version}/server.cjs`);

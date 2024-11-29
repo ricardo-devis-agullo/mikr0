@@ -11,8 +11,8 @@ export const Component = Type.Object({
 export type Component = Static<typeof Component>;
 
 const html = readFileSync(
-  path.join(import.meta.dirname, "../ui-dist/index.html"),
-  "utf-8",
+	path.join(import.meta.dirname, "../ui-dist/index.html"),
+	"utf-8",
 );
 
 export default async function routes(fastify: FastifyInstance) {

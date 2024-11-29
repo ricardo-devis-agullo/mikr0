@@ -3,6 +3,7 @@ import type { Agent as httpsAgent } from "node:https";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { PackageJson } from "type-fest";
 import type { ParametersSchema } from "./parameters.js";
+import { AzureStorage } from "./storage/azure.js";
 
 export type { PackageJson } from "type-fest";
 
@@ -124,14 +125,36 @@ interface FilesystemStorage {
 	};
 }
 interface AzureStorage {
+	/**
+	 * This uses Azure Blob Storage to store the components files and statics
+	 * @see https://docs.microsoft.com/en-us/azure/storage/blobs/
+	 */
 	type: "azure";
 	options: {
+		/**
+		 * If you want to front the assets with a CDN, you can specify the public path here
+		 */
+		publicPath?: string;
+		/**
+		 * The name of the container where the client assets will be stored
+		 */
 		publicContainerName: string;
+		/**
+		 * The name of the container where the server assets will be stored
+		 */
 		privateContainerName: string;
+		/**
+		 * The name of the storage account
+		 */
 		accountName: string;
+		/**
+		 * The access key of the storage account. If not defined it will use Azure Default Credential
+		 * @see https://learn.microsoft.com/en-gb/azure/developer/javascript/sdk/credential-chains#use-defaultazurecredential-for-flexibility
+		 */
 		accountKey?: string;
 	};
 }
+export type AzureStorageOptions = AzureStorage["options"];
 
 type RequireAllOrNone<ObjectType, KeysType extends keyof ObjectType = never> = (
 	| Required<Pick<ObjectType, KeysType>> // Require all of the given keys.
@@ -140,14 +163,28 @@ type RequireAllOrNone<ObjectType, KeysType extends keyof ObjectType = never> = (
 	Omit<ObjectType, KeysType>; // The rest of the keys.
 
 export type S3Storage = {
+	/**
+	 * This uses Amazon S3 to store the components files and statics
+	 * @see https://aws.amazon.com/s3/
+	 */
 	type: "s3";
 	options: RequireAllOrNone<
 		{
+			/**
+			 * If you want to front the assets with a CDN, you can specify the public path here
+			 */
+			publicPath?: string;
 			componentsDir: string;
 			path: string;
 			verbosity?: boolean;
 			refreshInterval?: number;
+			/**
+			 * The name of the bucket where the assets will be stored
+			 */
 			bucket: string;
+			/**
+			 * The region of the bucket
+			 */
 			region: string;
 			key?: string;
 			secret?: string;
@@ -161,6 +198,7 @@ export type S3Storage = {
 		"key" | "secret"
 	>;
 };
+export type S3StorageOptions = S3Storage["options"];
 
 export type StaticStorageOptions =
 	| FilesystemStorage

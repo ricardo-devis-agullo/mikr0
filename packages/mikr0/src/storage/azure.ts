@@ -12,6 +12,7 @@ import type {
 import nodeDir, { type PathsResult } from "node-dir";
 import type { StaticStorage } from "./storage.js";
 import { getFileInfo, isFilePrivate } from "./utils.js";
+import type { AzureStorageOptions } from "../types.js";
 
 const getPaths: (path: string) => Promise<PathsResult> = promisify(
 	nodeDir.paths,
@@ -32,12 +33,7 @@ async function streamToBuffer(readableStream: NodeJS.ReadableStream) {
 	});
 }
 
-export function AzureStorage(options: {
-	publicContainerName: string;
-	privateContainerName: string;
-	accountName: string;
-	accountKey?: string;
-}): StaticStorage {
+export function AzureStorage(options: AzureStorageOptions): StaticStorage {
 	let privateClient: ContainerClient | undefined = undefined;
 	let publicClient: ContainerClient | undefined = undefined;
 
@@ -136,6 +132,13 @@ export function AzureStorage(options: {
 		saveFile,
 		getUrl(file: string) {
 			const { publicClient } = getClient();
+      if (options.publicPath) {
+        return new URL(
+          file,
+          options.publicPath
+        );
+      }
+
 			return new URL(
 				`${options.publicContainerName}/${file}`,
 				publicClient.url,

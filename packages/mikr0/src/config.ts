@@ -20,7 +20,7 @@ export function parseConfig(options: Options, pkg: PackageJson) {
 		},
 	};
 
-	let availableDependencies: string[] | true = ['mikr0'];
+	let availableDependencies: string[] | true = ["mikr0"];
 	const coreModules = builtinModules.flatMap((module) => [
 		module,
 		`node:${module}`,

@@ -4,9 +4,9 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import AdmZip from "adm-zip";
 import * as vite from "vite";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 import type { BuiltPackageJson } from "../types.js";
 import { ocClientPlugin, ocServerPlugin } from "./plugins.js";
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 const config = await vite.loadConfigFromFile(
 	{ command: "build", mode: "production" },
@@ -41,7 +41,7 @@ export async function build(options: { entry: string }) {
 	const client = await vite.build({
 		appType: "custom",
 		plugins: (config?.config.plugins ?? []).concat(
-      cssInjectedByJsPlugin() as any,
+			cssInjectedByJsPlugin() as any,
 			ocClientPlugin({ entry: options.entry }),
 		),
 		build: {
@@ -61,11 +61,11 @@ export async function build(options: { entry: string }) {
 	const server = await vite.build({
 		appType: "custom",
 		plugins: [ocServerPlugin({ entry: options.entry })],
-    ssr: {
-      noExternal: ['mikr0']
-    },
+		ssr: {
+			noExternal: ["mikr0"],
+		},
 		build: {
-      ssr: true,
+			ssr: true,
 			emptyOutDir: false,
 			minify: true,
 			rollupOptions: {
