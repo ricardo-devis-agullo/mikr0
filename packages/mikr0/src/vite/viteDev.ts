@@ -13,7 +13,7 @@ const require = createRequire(process.cwd());
 
 const port = Number(process.env.PORT) || 5173;
 const base = process.env.BASE || "/";
-let app: Fastify.FastifyInstance | undefined = undefined;
+let appInstance: Fastify.FastifyInstance | undefined = undefined;
 async function getPkgInfo() {
 	const pkg = JSON.parse(
 		await fs.readFile(path.join(process.cwd(), "package.json"), "utf-8"),
@@ -26,12 +26,13 @@ let tmpServer = "";
 const { relative: entryPoint, filename: entryName } = getEntryPoint();
 
 async function cleanup() {
-	if (app) {
-		await app.close().catch(() => {});
+	if (appInstance) {
+		await appInstance.close().catch(() => {});
 	}
 	if (tmpServer) {
 		await fs.rm(tmpServer, { recursive: true }).catch(() => {});
 	}
+  process.exit();
 }
 
 async function getServer(entry: string) {
@@ -124,6 +125,7 @@ export async function runServer() {
 			},
 		},
 		async (app) => {
+      appInstance = app;
 			await app.register(FastifyExpress);
 			app.use(vite.middlewares);
 
@@ -196,10 +198,6 @@ export async function runServer() {
 
 			app.get("/", onHandler);
 			app.get("*", onHandler);
-
-			app.listen({ port }, () => {
-				console.log(`Server started at http://localhost:${port}`);
-			});
 		},
 	);
 }
