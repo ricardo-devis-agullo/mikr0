@@ -1,7 +1,7 @@
 {
 	"name": "mikr0",
 	"type": "module",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Micro-frontend framework",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -57,7 +57,7 @@
 		"semver": "^7.6.3",
 		"turbo-stream": "^2.4.1",
 		"undici": "^7.0.0",
-		"vite": "^6.0.1",
+		"vite": "^6.0.2",
 		"vite-plugin-css-injected-by-js": "^3.5.2"
 	},
 	"devDependencies": {

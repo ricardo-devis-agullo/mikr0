@@ -6,7 +6,7 @@ import App from "./App.tsx";
 let root: Root | undefined;
 
 // eslint-disable-next-line react-refresh/only-export-components
-const component = createComponent({
+export default createComponent({
 	parameters: {
 		name: {
 			type: "string",
@@ -32,4 +32,3 @@ const component = createComponent({
 	},
 });
 
-export default component;
