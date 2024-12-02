@@ -27,7 +27,7 @@ export const Repository = (options: {
 			return options.storage.get(`${name}/${version}/${file}`);
 		},
 		getTemplateUrl(name: string, version: string) {
-				return options.storage.getUrl(`${name}/${version}/template.js`);
+			return options.storage.getUrl(`${name}/${version}/template.js`);
 		},
 		getServer(name: string, version: string) {
 			return options.storage.get(`${name}/${version}/server.cjs`);

@@ -10,9 +10,9 @@ import type {
 	ContainerClient,
 } from "@azure/storage-blob";
 import nodeDir, { type PathsResult } from "node-dir";
+import type { AzureStorageOptions } from "../types.js";
 import type { StaticStorage } from "./storage.js";
 import { getFileInfo, isFilePrivate } from "./utils.js";
-import type { AzureStorageOptions } from "../types.js";
 
 const getPaths: (path: string) => Promise<PathsResult> = promisify(
 	nodeDir.paths,
@@ -132,12 +132,9 @@ export function AzureStorage(options: AzureStorageOptions): StaticStorage {
 		saveFile,
 		getUrl(file: string) {
 			const { publicClient } = getClient();
-      if (options.publicPath) {
-        return new URL(
-          file,
-          options.publicPath
-        );
-      }
+			if (options.publicPath) {
+				return new URL(file, options.publicPath);
+			}
 
 			return new URL(
 				`${options.publicContainerName}/${file}`,

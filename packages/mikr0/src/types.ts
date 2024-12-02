@@ -3,8 +3,6 @@ import type { Agent as httpsAgent } from "node:https";
 import type { FastifyCorsOptions } from "@fastify/cors";
 import type { PackageJson } from "type-fest";
 import type { ParametersSchema } from "./parameters.js";
-import { AzureStorage } from "./storage/azure.js";
-
 export type { PackageJson } from "type-fest";
 
 export type BuiltPackageJson = PackageJson & {

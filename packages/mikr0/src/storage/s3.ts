@@ -9,9 +9,9 @@ import nodeDir, { type PathsResult } from "node-dir";
 
 import type { Agent as httpAgent } from "node:http";
 import type { Agent as httpsAgent } from "node:https";
+import type { S3StorageOptions } from "../types.js";
 import type { StaticStorage } from "./storage.js";
 import { getFileInfo, isFilePrivate } from "./utils.js";
-import type { S3StorageOptions } from "../types.js";
 
 const getPaths: (path: string) => Promise<PathsResult> = promisify(
 	nodeDir.paths,
@@ -123,12 +123,9 @@ export function S3Storage(conf: S3StorageOptions): StaticStorage {
 		save,
 		saveFile,
 		getUrl(file: string) {
-      if (conf.publicPath) {
-        return new URL(
-          file,
-          conf.publicPath
-        );
-      }
+			if (conf.publicPath) {
+				return new URL(file, conf.publicPath);
+			}
 
 			return new URL(file, `https://${bucket}.s3.${region}.amazonaws.com`);
 		},
