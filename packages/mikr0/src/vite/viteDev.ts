@@ -25,14 +25,14 @@ async function getPkgInfo() {
 let tmpServer = "";
 const { relative: entryPoint, filename: entryName } = getEntryPoint();
 
-async function cleanup() {
+async function cleanup(code = 0) {
 	if (appInstance) {
 		await appInstance.close().catch(() => {});
 	}
 	if (tmpServer) {
 		await fs.rm(tmpServer, { recursive: true }).catch(() => {});
 	}
-	process.exit();
+	process.exit(code);
 }
 
 async function getServer(entry: string) {
@@ -223,7 +223,6 @@ export async function runServer() {
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
 process.on("uncaughtException", async (error) => {
-	await cleanup();
 	console.error(error);
-	process.exit(1);
+	await cleanup(1);
 });
