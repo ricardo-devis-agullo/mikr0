@@ -1,7 +1,7 @@
 {
 	"name": "mikr0",
 	"type": "module",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "Micro-frontend framework",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
