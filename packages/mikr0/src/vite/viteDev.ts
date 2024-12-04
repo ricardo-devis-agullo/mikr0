@@ -220,8 +220,8 @@ export async function runServer() {
 	);
 }
 
-process.on("SIGINT", cleanup);
-process.on("SIGTERM", cleanup);
+process.on("SIGINT", () => cleanup());
+process.on("SIGTERM", () => cleanup());
 process.on("uncaughtException", async (error) => {
 	console.error(error);
 	await cleanup(1);
