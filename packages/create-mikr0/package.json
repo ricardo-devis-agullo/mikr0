@@ -1,6 +1,6 @@
 {
 	"name": "create-mikr0",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"type": "module",
 	"main": "index.js",
 	"bin": {
@@ -16,7 +16,11 @@
 	"author": "",
 	"license": "ISC",
 	"description": "",
-	"files": ["index.js", "component", "registry"],
+	"files": [
+		"index.js",
+		"component",
+		"registry"
+	],
 	"dependencies": {
 		"prompts": "^2.4.2"
 	},

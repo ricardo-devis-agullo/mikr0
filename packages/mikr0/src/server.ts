@@ -3,6 +3,7 @@ import vm from "node:vm";
 import { LRUCache } from "lru-cache";
 import createRequireWrapper from "./require-wrapper.js";
 import type { Repository } from "./storage/repository.js";
+import { nextTick } from "node:process";
 
 type Loader = (
 	...args: unknown[]
@@ -54,6 +55,9 @@ export default function getServerData(opts: {
 			setTimeout,
 			Buffer,
 			Promise,
+			process: {
+				nextTick: process.nextTick,
+			},
 			AbortController,
 			AbortSignal,
 			eval: undefined,

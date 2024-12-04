@@ -9,7 +9,7 @@
     "publish-component": "tsc -b && mikr0 publish"
   },
   "devDependencies": {
-    "mikr0": "0.1.2",
+    "mikr0": "0.1.8",
     "solid-js": "^1.9.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.2",

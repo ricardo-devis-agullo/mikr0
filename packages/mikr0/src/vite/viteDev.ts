@@ -3,11 +3,11 @@ import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import FastifyExpress from "@fastify/express";
-import esbuild from "esbuild";
 import type Fastify from "fastify";
-import { createServer } from "vite";
+import { createServer, build, resolveConfig, mergeConfig } from "vite";
 import { createRegistry } from "../Registry.js";
 import { getEntryPoint } from "./build.js";
+import { ocServerPlugin } from "./plugins.js";
 
 const require = createRequire(process.cwd());
 
@@ -39,36 +39,69 @@ async function getServer(entry: string) {
 	tmpServer = await fs.mkdtemp(
 		path.join(await fs.realpath(os.tmpdir()), "mikr0-"),
 	);
-	await esbuild.build({
-		bundle: true,
-		minify: false,
-		platform: "node",
-		entryPoints: [entry],
-		outfile: path.join(tmpServer, "server.cjs"),
-		format: "cjs",
-		plugins: [
-			{
-				name: "ignore-media",
-				setup(build) {
-					build.onResolve(
-						{ filter: /.*\.(svg|css|jpg|png|gif|vue|svelte|jpeg)$/ },
-						(args) => ({
-							path: args.path,
-							namespace: "media-filtered",
-						}),
-					);
-
-					build.onLoad({ filter: /.*/, namespace: "media-filtered" }, () => ({
-						contents: "",
-					}));
+	const coreLibs = [
+		"assert",
+		"buffer",
+		"child_process",
+		"cluster",
+		"console",
+		"constants",
+		"crypto",
+		"dgram",
+		"dns",
+		"domain",
+		"events",
+		"fs",
+		"http",
+		"https",
+		"module",
+		"net",
+		"os",
+		"path",
+		"punycode",
+		"querystring",
+		"readline",
+		"repl",
+		"stream",
+		"string_decoder",
+		"sys",
+		"timers",
+		"tls",
+		"tty",
+		"url",
+		"util",
+		"vm",
+		"zlib",
+	];
+	await build({
+		logLevel: "silent",
+		appType: "custom",
+		plugins: [ocServerPlugin({ entry: path.join(process.cwd(), entry) })],
+		build: {
+			emptyOutDir: false,
+			minify: false,
+			rollupOptions: {
+				external: (id) => {
+					if (id.startsWith("node:") || coreLibs.includes(id)) {
+						return true;
+					}
+					return false;
 				},
 			},
-		],
+			lib: {
+				entry,
+				formats: ["cjs"],
+				// This is being ignored ATM for some reason
+				fileName: "server",
+			},
+			outDir: tmpServer,
+		},
 	});
+
 	const server = await fs.readFile(path.join(tmpServer, "server.cjs"), "utf-8");
-	const {
-		default: { actions, loader, plugins, parameters },
-	} = require(path.join(tmpServer, "server.cjs"));
+	const { actions, loader, plugins, parameters } = require(
+		path.join(tmpServer, "server.cjs"),
+	);
 	return { server, actions, loader, plugins, parameters };
 }
 
@@ -105,11 +138,15 @@ export async function runServer() {
 		plugins,
 		parameters: parametersSchema,
 	} = await getServer(entryPoint);
-	const vite = await createServer({
+	const config = await resolveConfig({}, "build");
+	const merged = mergeConfig(config, {
+		configFile: false,
 		server: { middlewareMode: true },
 		appType: "custom",
 		base,
 	});
+	merged.assetsInclude = [];
+	const vite = await createServer(merged);
 	const { name, version } = await getPkgInfo();
 
 	createRegistry(
