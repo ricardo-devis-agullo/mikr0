@@ -59,6 +59,7 @@
 		"node-dir": "^0.1.17",
 		"prompts": "^2.4.2",
 		"semver": "^7.6.3",
+		"sqlite3": "^5.1.7",
 		"turbo-stream": "^2.4.1",
 		"undici": "^7.0.0",
 		"vite": "^6.0.2",
