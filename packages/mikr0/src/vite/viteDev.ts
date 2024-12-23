@@ -7,7 +7,7 @@ import type Fastify from "fastify";
 import { createServer, build, resolveConfig, mergeConfig } from "vite";
 import { createRegistry } from "../Registry.js";
 import { getEntryPoint } from "./build.js";
-import { ocServerPlugin } from "./plugins.js";
+import { ocClientPlugin, ocServerPlugin } from "./plugins.js";
 
 const require = createRequire(process.cwd());
 
@@ -143,6 +143,7 @@ export async function runServer() {
 		configFile: false,
 		server: { middlewareMode: true },
 		appType: "custom",
+		plugins: [ocClientPlugin({ entry: path.join(process.cwd(), entryPoint) })],
 		base,
 	});
 	merged.assetsInclude = [];
