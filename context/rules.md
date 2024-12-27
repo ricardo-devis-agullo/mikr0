@@ -1,0 +1,4 @@
+- Code should be readable but not compromise performance. This is specially true in all critical paths, that include all logic pertaining to component requests, since we want to make the Registry (fastify server) as fast as possible, and for those, any option that is faster should be preferred.
+- In terms of exposed functions, we favor configuration over magic, and we want to let users to do as much as possible. This means more boilerplate for them, but also more freedom and less nasty surprises.
+- Also, for anything exposed we want to give the best typescript experience possible, and this includes documentation for each thing and autocomplete, to allow the user to easily discover what they can do, and create a path of success in terms of what to type next.
+- Any refactor where we add/delete or heavily modify files, it should be reflected if it makes sense in context/architecture.md so it's always up-to-date.
