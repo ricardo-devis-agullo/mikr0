@@ -11,6 +11,7 @@ import { acceptCompressedHeader, compressedDataKey } from "../shared.js";
 import { getMimeType } from "../storage/utils.js";
 import type { PublishedPackageJson } from "../types.js";
 import { getAvailableVersion } from "./versions.js";
+import { ValidationError } from "../errors.js";
 
 export const Component = Type.Object({
 	name: Type.String(),
@@ -70,71 +71,93 @@ export default async function routes(fastify: FastifyInstance) {
 						200: {
 							type: "string",
 						},
+						400: {
+							type: "object",
+							properties: {
+								error: { type: "string" },
+								code: { type: "string" },
+							},
+						},
 					},
 				},
 			},
 			async function publishComponent(request, reply) {
-				const { name, version } = request.params;
-				const exists = Boolean(
-					await fastify.database.versionExists(name, version),
-				);
-				if (exists) {
-					reply.code(400).send("Version already exists");
-					return;
-				}
-				const id = crypto.randomUUID();
-
-				await mkdir(`./uploads/${id}`, { recursive: true });
 				try {
-					const files = await request.saveRequestFiles();
-					const [zipFile, pkg] = files;
-					const publishDate = new Date();
+					const { name, version } = request.params;
+					const exists = Boolean(
+						await fastify.database.versionExists(name, version),
+					);
+					if (exists) {
+						throw new ValidationError("Version already exists");
+					}
 
-					if (!pkg || !zipFile) {
-						reply.code(400).send("Missing package.json or zip file");
+					const id = crypto.randomUUID();
+					await mkdir(`./uploads/${id}`, { recursive: true });
+
+					try {
+						const files = await request.saveRequestFiles();
+						const [zipFile, pkg] = files;
+						const publishDate = new Date();
+
+						if (!pkg || !zipFile) {
+							throw new ValidationError("Missing package.json or zip file");
+						}
+
+						const pkgJson: PublishedPackageJson = JSON.parse(
+							await readFile(pkg.filepath, "utf-8"),
+						);
+
+						if (fastify.conf.publishValidation) {
+							const validation = fastify.conf.publishValidation?.(pkgJson);
+							if (
+								(typeof validation === "object" && !validation.isValid) ||
+								!validation
+							) {
+								throw new ValidationError(
+									typeof validation === "boolean"
+										? "Did not pass publish validation"
+										: (validation.error ?? "Did not pass publish validation"),
+								);
+							}
+						}
+
+						pkgJson.mikr0.publishDate = publishDate.toISOString();
+						await writeFile(
+							`./uploads/${id}/package.json`,
+							JSON.stringify(pkgJson, null, 2),
+						);
+
+						const zip = new AdmZip(zipFile.filepath);
+						const extract = promisify(zip.extractAllToAsync).bind(zip);
+						await extract(`./uploads/${id}`, true, true);
+
+						await fastify.repository.saveComponent(`./uploads/${id}`);
+						await fastify.database.insertComponent({
+							name,
+							version,
+							client_size: pkgJson.mikr0.clientSize ?? null,
+							server_size: pkgJson.mikr0.serverSize ?? null,
+							published_at: new Date(),
+						});
+
+						reply.code(200).send("OK");
+					} finally {
+						rm(`./uploads/${id}`, { recursive: true }).catch(() => {});
+					}
+				} catch (error) {
+					if (error instanceof ValidationError) {
+						reply.code(400).send({
+							error: error.message,
+							code: "VALIDATION_ERROR",
+						});
 						return;
 					}
 
-					const pkgJson: PublishedPackageJson = JSON.parse(
-						await readFile(pkg.filepath, "utf-8"),
-					);
-					if (fastify.conf.publishValidation) {
-						const validation = fastify.conf.publishValidation?.(pkgJson);
-						if (
-							(typeof validation === "object" && !validation.isValid) ||
-							!validation
-						) {
-							reply
-								.code(400)
-								.send(
-									typeof validation === "boolean"
-										? "Did not pass publish validation"
-										: validation.error,
-								);
-							return;
-						}
-					}
-
-					pkgJson.mikr0.publishDate = publishDate.toISOString();
-					await writeFile(
-						`./uploads/${id}/package.json`,
-						JSON.stringify(pkgJson, null, 2),
-					);
-					const zip = new AdmZip(zipFile.filepath);
-					const extract = promisify(zip.extractAllToAsync).bind(zip);
-					await extract(`./uploads/${id}`, true, true);
-
-					await fastify.repository.saveComponent(`./uploads/${id}`);
-					await fastify.database.insertComponent({
-						name,
-						version,
-						client_size: pkgJson.mikr0.clientSize ?? null,
-						server_size: pkgJson.mikr0.serverSize ?? null,
-						published_at: new Date(),
+					fastify.log.error(error);
+					reply.code(500).send({
+						error: "Internal server error",
+						code: "INTERNAL_ERROR",
 					});
-					reply.code(200).send("OK");
-				} finally {
-					rm(`./uploads/${id}`, { recursive: true }).catch(() => {});
 				}
 			},
 		);

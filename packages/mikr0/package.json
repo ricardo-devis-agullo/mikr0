@@ -49,6 +49,7 @@
 		"@fastify/type-provider-typebox": "5.0.0",
 		"@sinclair/typebox": "^0.34.9",
 		"adm-zip": "^0.5.16",
+		"chalk": "^5.4.1",
 		"esbuild": "^0.24.0",
 		"fastify": "^5.0.0",
 		"form-data": "^4.0.1",
