@@ -3,7 +3,6 @@
   | Benchmark of HTTP calling component endpoint
   | Micro-benchmark of files
 
-- Handle errors on CLI when publishing the registry (a lot but easy to start)
 - Add preview mode that runs a real registry (doable)
 - Add option for registryFallBackUrl on preview mode like OC
 
