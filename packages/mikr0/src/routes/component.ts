@@ -175,6 +175,14 @@ export default async function routes(fastify: FastifyInstance) {
 			const { name, version: versionRequested } = request.params;
 			const versions = await fastify.database.getComponentVersions(name);
 			if (!versions.length) {
+				if (fastify.conf.registryFallbackUrl) {
+					const url = new URL(request.url);
+					const fallbackUrl = new URL(fastify.conf.registryFallbackUrl);
+					fallbackUrl.pathname = url.pathname;
+					fallbackUrl.search = url.search;
+					reply.redirect(fallbackUrl.toString());
+					return;
+				}
 				reply.code(400).send("Component not found");
 				return;
 			}

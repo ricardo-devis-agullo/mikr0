@@ -105,7 +105,11 @@ async function getServer(entry: string) {
 	return { server, actions, loader, plugins, parameters };
 }
 
-export async function runServer() {
+export interface DevServerOptions {
+	registryFallbackUrl?: string;
+}
+
+export async function runServer(options: DevServerOptions = {}) {
 	function getBaseTemplate(
 		name: string,
 		version: string,
@@ -149,6 +153,32 @@ export async function runServer() {
 	merged.assetsInclude = [];
 	const vite = await createServer(merged);
 	const { name, version } = await getPkgInfo();
+
+	const registry = await createRegistry({
+		port,
+		database: {
+			client: "sqlite3",
+			connection: {
+				filename: ":memory:",
+			},
+		},
+		plugins: Object.fromEntries(
+			Object.entries(plugins ?? {}).map(([k, handler]) => [
+				k,
+				{ handler: handler as any },
+			]),
+		),
+		dependencies: true,
+		storage: {
+			type: "memory",
+		},
+		verbose: false,
+		auth: {
+			username: "admin",
+			password: "admin",
+		},
+		registryFallbackUrl: options.registryFallbackUrl,
+	});
 
 	createRegistry(
 		{

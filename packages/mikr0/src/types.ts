@@ -277,4 +277,9 @@ export interface Options {
 				isValid: boolean;
 				error?: string;
 		  };
+	/**
+	 * URL to a fallback registry that will be used when a component is not found locally
+	 * Useful for development when working with existing components from a production registry
+	 */
+	registryFallbackUrl?: string;
 }

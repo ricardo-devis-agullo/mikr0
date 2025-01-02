@@ -27,7 +27,7 @@ function formatError(error: Error): string {
 
 let {
 	positionals: [command],
-	values: { registry, username, password, folder },
+	values: { registry, username, password, folder, registryFallbackUrl },
 } = parseArgs({
 	args: process.argv.slice(2),
 	allowPositionals: true,
@@ -51,6 +51,10 @@ let {
 			type: "string",
 			alias: "f",
 			description: "Skip the build and specify the folder to publish",
+		},
+		registryFallbackUrl: {
+			type: "string",
+			description: "Fallback registry URL for component requests",
 		},
 	},
 });
@@ -144,7 +148,7 @@ async function handlePublish() {
 
 			case "dev":
 				console.log(chalk.blue("Starting development server..."));
-				await runServer();
+				await runServer({ registryFallbackUrl });
 				break;
 
 			default:
@@ -158,10 +162,11 @@ Commands:
   dev              Start development server
 
 Options:
-  -r, --registry   Registry URL
-  -u, --username   Username for authentication
-  -p, --password   Password for authentication
-  -f, --folder     Specify build folder for publishing
+  -r, --registry           Registry URL
+  -u, --username          Username for authentication
+  -p, --password          Password for authentication
+  -f, --folder           Specify build folder for publishing
+  --registryFallbackUrl  Fallback registry URL for component requests
 `),
 				);
 		}

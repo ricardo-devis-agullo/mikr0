@@ -521,6 +521,37 @@ The development server (`mikr0 dev`) creates a local environment that simulates 
 
 This setup allows you to develop components as if they were running in a full Mikr0 environment while maintaining a fast development cycle and immediate feedback loop.
 
+### Development Server
+
+#### Registry Fallback
+
+The development server supports falling back to another registry when a component is not found locally. This is particularly useful when:
+
+- Developing new components while using existing ones from production
+- Testing component interoperability
+- Working with shared component libraries
+
+Configuration:
+```typescript
+// Via CLI
+mikr0 dev --registryFallbackUrl="https://production-registry.example.com"
+
+// Or in code
+await createRegistry({
+  // ... other options
+  registryFallbackUrl: "https://production-registry.example.com"
+});
+```
+
+The fallback process works as follows:
+1. Component is requested from local dev registry
+2. If not found locally and fallback URL is configured:
+   - Request is forwarded to fallback registry
+   - Response (including headers) is proxied back to client
+3. If component isn't found in either registry, a ComponentNotFoundError is thrown
+
+This feature enables seamless development workflows where new components can be developed locally while still having access to the full production component library.
+
 ## Client Runtime
 
 ### Overview

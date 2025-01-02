@@ -4,7 +4,6 @@
   | Micro-benchmark of files
 
 - Add preview mode that runs a real registry (doable)
-- Add option for registryFallBackUrl on preview mode like OC
 
 === AFTER MVP
 - Allow multiple versions of a dependency (medium)
