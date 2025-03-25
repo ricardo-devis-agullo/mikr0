@@ -80,7 +80,7 @@ async function createRegistry() {
 
 	/** @type Record<string, string> */
 	const dependencies = {
-		mikr0: "0.1.9",
+		mikr0: "0.1.11",
 	};
 	if (database === "sqlite") {
 		dependencies.sqlite3 = "5.1.7";
@@ -226,7 +226,7 @@ ENTRYPOINT [ "node", "--experimental-strip-types" ,"/app/main.ts" ]`,
 		dependencies,
 		devDependencies: {
 			"@types/node": "^22.7.7",
-			typescript: "^5.7.2",
+			typescript: "^5.8.2",
 		},
 	});
 	const stringifiedConfig = JSON.stringify(config, null, 2);
