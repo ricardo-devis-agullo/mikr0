@@ -1,4 +1,4 @@
-import { decode } from "turbo-stream";
+import { decode } from "@rdevis/turbo-stream";
 import type { BrowserComponent } from "../dev/index.js";
 import { acceptCompressedHeader, compressedDataKey } from "../shared.js";
 

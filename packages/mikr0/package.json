@@ -1,7 +1,7 @@
 {
   "name": "mikr0",
   "type": "module",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Micro-frontend framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -47,6 +47,7 @@
     "@fastify/multipart": "9.0.0",
     "@fastify/static": "8.0.3",
     "@fastify/type-provider-typebox": "5.1.0",
+    "@rdevis/turbo-stream": "^2.4.1",
     "@sinclair/typebox": "^0.34.31",
     "adm-zip": "^0.5.16",
     "chalk": "^5.4.1",
@@ -61,7 +62,6 @@
     "prompts": "^2.4.2",
     "semver": "^7.7.1",
     "sqlite3": "^5.1.7",
-    "turbo-stream": "^2.4.1",
     "undici": "^7.5.0",
     "vite": "^6.2.3",
     "vite-plugin-css-injected-by-js": "^3.5.2"

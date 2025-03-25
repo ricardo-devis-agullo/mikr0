@@ -4,7 +4,7 @@ import type { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { type Static, Type } from "@sinclair/typebox";
 import AdmZip from "adm-zip";
 import type { FastifyInstance } from "fastify";
-import { encode } from "turbo-stream";
+import { encode } from "@rdevis/turbo-stream";
 import { parseParameters } from "../parameters.js";
 import makeServerData from "../server.js";
 import { acceptCompressedHeader, compressedDataKey } from "../shared.js";
