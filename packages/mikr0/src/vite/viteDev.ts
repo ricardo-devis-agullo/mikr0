@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
-import FastifyExpress from "@fastify/express";
+import FastifyMiddie from "@fastify/middie";
 import type Fastify from "fastify";
 import { createServer, build, resolveConfig, mergeConfig } from "vite";
 import { createRegistry } from "../Registry.js";
@@ -151,34 +151,7 @@ export async function runServer(options: DevServerOptions = {}) {
 		base,
 	});
 	merged.assetsInclude = [];
-	const vite = await createServer(merged);
 	const { name, version } = await getPkgInfo();
-
-	const registry = await createRegistry({
-		port,
-		database: {
-			client: "sqlite3",
-			connection: {
-				filename: ":memory:",
-			},
-		},
-		plugins: Object.fromEntries(
-			Object.entries(plugins ?? {}).map(([k, handler]) => [
-				k,
-				{ handler: handler as any },
-			]),
-		),
-		dependencies: true,
-		storage: {
-			type: "memory",
-		},
-		verbose: false,
-		auth: {
-			username: "admin",
-			password: "admin",
-		},
-		registryFallbackUrl: options.registryFallbackUrl,
-	});
 
 	createRegistry(
 		{
@@ -204,11 +177,19 @@ export async function runServer(options: DevServerOptions = {}) {
 				username: "admin",
 				password: "admin",
 			},
+			registryFallbackUrl: options.registryFallbackUrl,
 		},
 		async (app) => {
 			appInstance = app;
-			await app.register(FastifyExpress);
-			app.use(vite.middlewares);
+			await app.register(FastifyMiddie as any);
+			const vite = await createServer(merged);
+			(app as any).use((req: any, res: any, next: any) => {
+				if (!req.url.startsWith("/r/")) {
+					vite.middlewares(req, res, next);
+				} else {
+					next();
+				}
+			});
 
 			const onHandler = async (request: any, reply: any) => {
 				try {
