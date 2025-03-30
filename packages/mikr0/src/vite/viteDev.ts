@@ -114,8 +114,25 @@ export async function runServer(options: DevServerOptions = {}) {
 		name: string,
 		version: string,
 		parameters: Record<string, any>,
+		html = "",
 	) {
-		const baseTemplate = `<!DOCTYPE html>
+		const clientScript = '<script src="/r/client.js"></script>';
+		const componentScript = `<mikro-component src="http://localhost:${port}/r/component/${name}/${version}?${new URLSearchParams(parameters).toString()}"></mikro-component>`;
+
+		if (html) {
+			let body = clientScript;
+			if (html.includes("<mikro-component></mikro-component>")) {
+				html = html.replace(
+					"<mikro-component></mikro-component>",
+					componentScript,
+				);
+			} else {
+				body += componentScript;
+			}
+
+			return html.replace("</body>", `${body}</body>`);
+		}
+		return `<!DOCTYPE html>
 <html>
   <head>
     <meta name="robots" content="index, follow" />
@@ -130,11 +147,10 @@ export async function runServer(options: DevServerOptions = {}) {
     </style>
   </head>
   <body>
-    <script src="/r/client.js"></script>
-    <mikro-component src="http://localhost:${port}/r/component/${name}/${version}?${new URLSearchParams(parameters).toString()}"></mikro-component>
+      ${clientScript}
+      ${componentScript}
   </body>
 </html>`;
-		return baseTemplate;
 	}
 
 	const {
@@ -152,6 +168,9 @@ export async function runServer(options: DevServerOptions = {}) {
 	});
 	merged.assetsInclude = [];
 	const { name, version } = await getPkgInfo();
+	const html = await fs
+		.readFile(path.join(process.cwd(), "index.html"), "utf-8")
+		.catch(() => "");
 
 	createRegistry(
 		{
@@ -250,6 +269,7 @@ export async function runServer(options: DevServerOptions = {}) {
 								name,
 								version,
 								(request.query as Record<string, unknown>) ?? {},
+								html,
 							),
 						);
 				} catch (e) {
