@@ -15,6 +15,7 @@ declare module "fastify" {
 declare global {
 	interface Window {
 		mikr0?: {
+			defaultRegistry?: string;
 			verbose?: boolean;
 			loaded?: boolean;
 			getAction?: (options: {

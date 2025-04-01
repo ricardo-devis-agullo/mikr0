@@ -44,13 +44,10 @@ async function decompress(base64: string) {
 	return decoder.decode(decompressedArray);
 }
 
-async function getCompressedParameters(query: Record<string, unknown>) {
-	const compressedData = query[compressedDataKey];
-	if (!compressedData) return {};
-	const decompressed = await decompress(compressedData as string);
-	const params = new URLSearchParams(decompressed);
-
-	return Object.fromEntries(params.entries());
+async function getCompressedParameters(data?: string): Promise<string> {
+	if (!data) return "{}";
+	const decompressed = await decompress(data);
+	return decompressed;
 }
 
 export default async function routes(fastify: FastifyInstance) {
@@ -168,7 +165,9 @@ export default async function routes(fastify: FastifyInstance) {
 		{
 			schema: {
 				params: ComponentRequest,
-				querystring: Type.Record(Type.String(), Type.Unknown()),
+				querystring: Type.Object({
+					data: Type.Optional(Type.String()),
+				}),
 			},
 		},
 		async function getComponent(request, reply) {
@@ -194,14 +193,11 @@ export default async function routes(fastify: FastifyInstance) {
 
 			const parameters =
 				request.headers.accept === acceptCompressedHeader
-					? await getCompressedParameters(request.query)
-					: request.query;
+					? await getCompressedParameters(request.query.data)
+					: (request.query.data ?? "{}");
 
 			const pkg = await fastify.repository.getPackageJson(name, version);
-			// TODO: Add support for parameters in the database
-			const parsedParameters = pkg.mikr0.parameters
-				? parseParameters(pkg.mikr0.parameters, parameters)
-				: {};
+			const parsedParameters = JSON.parse(parameters);
 			let data: Record<string, any> | undefined = undefined;
 			const plugins = Object.fromEntries(
 				Object.entries(fastify.conf.plugins).map(([name, plugin]) => [

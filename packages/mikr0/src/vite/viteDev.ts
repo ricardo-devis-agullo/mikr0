@@ -116,8 +116,15 @@ export async function runServer(options: DevServerOptions = {}) {
 		parameters: Record<string, any>,
 		html = "",
 	) {
-		const clientScript = '<script src="/r/client.js"></script>';
-		const componentScript = `<mikro-component src="http://localhost:${port}/r/component/${name}/${version}?${new URLSearchParams(parameters).toString()}"></mikro-component>`;
+		const clientScript = `
+      <script>
+        window.mikr0 = {
+          defaultRegistry: "http://localhost:${port}",
+          verbose: true,
+        };
+      </script>
+      <script src="/r/client.js"></script>`;
+		const componentScript = `<mikro-component name="${name}" version="${version}" data="${JSON.stringify(parameters)}"></mikro-component>`;
 
 		if (html) {
 			let body = clientScript;

@@ -3,7 +3,7 @@ import type { BrowserComponent } from "../dev/index.js";
 import { acceptCompressedHeader, compressedDataKey } from "../shared.js";
 
 class Mikr0 extends HTMLElement {
-	static observedAttributes = ["src", "data"];
+	static observedAttributes = ["data", "name", "version", "registry"];
 	static config = {
 		verbose: window.mikr0?.verbose ?? false,
 	};
@@ -12,10 +12,15 @@ class Mikr0 extends HTMLElement {
 	#unmount?: (element: HTMLElement) => void;
 
 	async connectedCallback() {
-		const src = this.getAttribute("src");
-		if (!src) {
-			throw new Error('Attribute "src" is required');
-		}
+		const name = this.getAttribute("name");
+		const version = this.getAttribute("version") || "x.x.x";
+		const registry =
+			this.getAttribute("registry") || window.mikr0?.defaultRegistry;
+		let data = this.getAttribute("data") || "{}";
+		data = new Function(`return ${data}`)();
+		const src = `${registry ?? ""}/r/component/${name}/${version}?data=${encodeURIComponent(
+			JSON.stringify(data),
+		)}`;
 		this.#connected = true;
 		await this.#render(src);
 	}
@@ -25,8 +30,14 @@ class Mikr0 extends HTMLElement {
 		_oldValue: string,
 		newValue: string,
 	) {
-		if (name === "src" && this.#connected) {
-			await this.#render(newValue);
+		if (
+			this.#connected &&
+			(name === "data" ||
+				name === "name" ||
+				name === "version" ||
+				name === "registry")
+		) {
+			await this.connectedCallback();
 		}
 	}
 
@@ -144,7 +155,6 @@ if (!window.mikr0?.loaded) {
 			},
 			off(events: string | string[], handler?: (...data: any[]) => void) {
 				if (typeof events === "string") {
-					// biome-ignore lint/style/noParameterAssign: it is fine
 					events = [events];
 				}
 				for (const event of events) {
