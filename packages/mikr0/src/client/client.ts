@@ -17,6 +17,10 @@ class Mikr0 extends HTMLElement {
 		const registry =
 			this.getAttribute("registry") || window.mikr0?.defaultRegistry;
 		let data = this.getAttribute("data") || "{}";
+    if (data.startsWith('"')) {
+      // Solve double stringification done by the server
+      data = JSON.parse(data);
+    }
 		data = new Function(`return ${data}`)();
 		const src = `${registry ?? ""}/r/component/${name}/${version}?data=${encodeURIComponent(
 			JSON.stringify(data),

@@ -124,7 +124,7 @@ export async function runServer(options: DevServerOptions = {}) {
         };
       </script>
       <script src="/r/client.js"></script>`;
-		const componentScript = `<mikro-component name="${name}" version="${version}" data="${JSON.stringify(parameters)}"></mikro-component>`;
+		const componentScript = `<mikro-component name="${name}" version="${version}" data="${JSON.stringify(JSON.stringify(parameters))}"></mikro-component>`;
 
 		if (html) {
 			let body = clientScript;
