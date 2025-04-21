@@ -111,7 +111,7 @@ type GetParameters<TComponent extends AnyComponent> =
 type GetLoaderData<TComponent extends AnyComponent> =
 	TComponent extends Component<any, any, any, infer Data>
 		? // @ts-ignore
-			Data["data"]
+			Exclude<Data["data"], undefined>
 		: never;
 export type ComponentParameters = GetParameters<RegisteredComponent>;
 export type LoaderData = GetLoaderData<RegisteredComponent>;
